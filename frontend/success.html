@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مبروك! تم التسجيل - Chicken Master</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+  <link rel="stylesheet" href="styles/main-site.css">
+
+  <style>
+    body {
+      background-color: #000;
+      background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    .success-card {
+      background: #1A1A1A;
+      border: 1px solid #333;
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(212, 160, 23, 0.15);
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    .success-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #D4A017, #F1C40F, #D4A017);
+    }
+
+    .icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: rgba(46, 204, 113, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      color: #2ecc71;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s backwards;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      color: #D4A017;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #888;
+      margin-bottom: 2.5rem;
+      font-size: 1rem;
+    }
+
+    .coupon-container {
+      background: #000;
+      border: 2px dashed #D4A017;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .coupon-container:hover {
+      transform: scale(1.02);
+      border-color: #F1C40F;
+    }
+
+    .coupon-label {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .coupon-code {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #D4A017;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px rgba(212, 160, 23, 0.3);
+    }
+
+    .btn-copy {
+      background: #333;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-copy:hover {
+      background: #444;
+      color: #fff;
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      text-align: right;
+    }
+
+    .benefit-item {
+      background: #252525;
+      padding: 1rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .benefit-icon {
+      font-size: 1.5rem;
+    }
+
+    .benefit-text {
+      font-size: 0.9rem;
+      color: #ddd;
+      line-height: 1.3;
+    }
+
+    .benefit-text strong {
+      display: block;
+      color: #fff;
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s;
+      font-size: 1.1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #D4A017 0%, #B8860B 100%);
+      color: #000;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(212, 160, 23, 0.4);
+    }
+
+    .btn-whatsapp {
+      background: #25d366;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-whatsapp:hover {
+      background: #128c7e;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+    }
+
+    .btn-home {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .btn-home:hover {
+      color: #D4A017;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .sparkles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333;
+      color: #fff;
+      padding: 0.8rem 1.5rem;
+      border-radius: 50px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+      border: 1px solid #444;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast i {
+      color: #2ecc71;
+    }
+  </style>
+</head>
+
+<body dir="rtl">
+
+  <div class="success-card">
+    <div class="icon-wrapper">
+      <i data-lucide="check" style="width: 40px; height: 40px; stroke-width: 4;"></i>
+    </div>
+
+    <h1 data-i18n="successTitle">ألف مبروك! 🎉</h1>
+    <p class="subtitle" data-i18n="step_coupon_desc">تم تسجيلك بنجاح، وهذا كوبونك الخاص</p>
+
+    <div class="coupon-container">
+      <span class="coupon-label" data-i18n="yourCoupon">كوبون الخصم الخاص بك</span>
+      <span class="coupon-code" id="couponDisplay">...</span>
+      <button class="btn-copy" id="copyBtn">
+        <i data-lucide="copy" style="width: 16px;"></i> نسخ الكوبون
+      </button>
+    </div>
+
+    <div class="benefits-grid">
+      <div class="benefit-item">
+        <span class="benefit-icon">🎁</span>
+        <div class="benefit-text">
+          <strong>خصم 10%</strong>
+          على طلبيتك القادمة
+        </div>
+      </div>
+      <div class="benefit-item">
+        <span class="benefit-icon">🎫</span>
+        <div class="benefit-text">
+          <strong>دخول السحب</strong>
+          على جائزة 100 شيكل
+        </div>
+      </div>
+    </div>
+
+    <a href="store.html" class="action-btn btn-primary">
+      <span data-i18n="orderNow">اطلب الآن واستخدم الكوبون</span> 🍗
+    </a>
+
+    <!-- WhatsApp button will be triggered automatically, but kept as backup -->
+    <button id="whatsappBtn" class="action-btn btn-whatsapp" style="display:none">
+      <i data-lucide="message-circle" style="margin-left:8px"></i> تأكيد عبر واتساب
+    </button>
+
+    <a href="index.html" class="btn-home">
+      <i data-lucide="arrow-right"></i> العودة للرئيسية
+    </a>
+  </div>
+
+  <div id="toast" class="toast">
+    <i data-lucide="check-circle"></i>
+    <span>تم نسخ الكوبون بنجاح!</span>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Initialize Icons
+    if (window.lucide) lucide.createIcons();
+
+    // Logic
+    document.addEventListener('DOMContentLoaded', () => {
+      // Retrieve stored data
+      const data = JSON.parse(localStorage.getItem('registration_success'));
+
+      if (!data) {
+        // Redirect if no data found (prevent direct access)
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Display Coupon
+      const couponDisplay = document.getElementById('couponDisplay');
+      couponDisplay.textContent = data.couponCode;
+
+      // Copy Functionality
+      const copyBtn = document.getElementById('copyBtn');
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(data.couponCode).then(() => {
+          showToast();
+          copyBtn.innerHTML = '<i data-lucide="check"></i> تم النسخ';
+          if (window.lucide) lucide.createIcons();
+
+          setTimeout(() => {
+            copyBtn.innerHTML = '<i data-lucide="copy"></i> نسخ الكوبون';
+            if (window.lucide) lucide.createIcons();
+          }, 2000);
+        });
+      });
+
+      // Initialize translations
+      if (window.langManager) langManager.updateContent();
+    });
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+
+</html>

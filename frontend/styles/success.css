@@ -1,0 +1,178 @@
+/* Success Page Styles */
+
+.success-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-dark);
+  padding: var(--spacing-lg);
+}
+
+.success-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  max-width: 600px;
+  width: 100%;
+  padding: var(--spacing-xxl);
+  text-align: center;
+  animation: fadeIn 0.6s ease;
+}
+
+.success-icon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto var(--spacing-lg);
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1s ease;
+}
+
+.success-icon svg {
+  color: white;
+}
+
+.success-card h1 {
+  font-size: 2rem;
+  color: var(--dark);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Coupon Display */
+.coupon-display {
+  background: var(--bg-light);
+  border: 2px dashed var(--primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+}
+
+.coupon-label {
+  font-size: 0.9375rem;
+  color: #666;
+  margin-bottom: var(--spacing-xs);
+}
+
+.coupon-code {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--primary);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+  margin-bottom: 0;
+}
+
+.btn-copy {
+  position: absolute;
+  top: var(--spacing-md);
+  left: var(--spacing-md);
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body[dir="ltr"] .btn-copy {
+  left: auto;
+  right: var(--spacing-md);
+}
+
+.btn-copy svg {
+  color: white;
+}
+
+.btn-copy:hover {
+  transform: scale(1.1);
+}
+
+/* Benefits */
+.benefits {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.benefit-item {
+  background: var(--bg-light);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  transition: all var(--transition-normal);
+}
+
+.benefit-item:hover {
+  background: var(--primary-light);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.benefit-icon {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.benefit-item p {
+  font-size: 0.9375rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Action Buttons */
+.action-buttons {
+  margin-bottom: var(--spacing-lg);
+}
+
+.action-buttons .btn {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Success Footer */
+.success-footer {
+  padding-top: var(--spacing-lg);
+  border-top: 2px solid var(--bg-light);
+}
+
+.info-text {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .success-card {
+    padding: var(--spacing-lg);
+  }
+
+  .success-card h1 {
+    font-size: 1.5rem;
+  }
+
+  .coupon-code {
+    font-size: 1.75rem;
+  }
+
+  .benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .success-icon svg {
+    width: 60px;
+    height: 60px;
+  }
+}

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الطلبات - Chicken Master</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+  <link rel="stylesheet" href="../styles/main.css">
+
+  <style>
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .admin-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-header {
+      background: linear-gradient(135deg, #000 0%, #1A1A1A 100%);
+      border-bottom: 2px solid var(--color-gold);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-img {
+      height: 50px;
+    }
+
+    .admin-header h1 {
+      margin: 0;
+      color: var(--color-gold);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: #ccc;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+      padding: 0.5rem;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--color-gold);
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid #E74C3C;
+      color: #E74C3C;
+      padding: 0.5rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #E74C3C;
+      color: white;
+    }
+
+    .dashboard-content {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Tables */
+    .table-card {
+      background: #252525;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid #333;
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .table-header h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.5rem;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 1rem;
+      text-align: right;
+      border-bottom: 1px solid #333;
+    }
+
+    .data-table th {
+      color: var(--color-gold);
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .data-table td {
+      color: #ddd;
+    }
+
+    .data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .price-tag {
+      font-weight: bold;
+      color: #2ecc71;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: #1A1A1A;
+      border: 1px solid var(--color-gold);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: transparent;
+      border: none;
+      color: #888;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .item-list {
+      margin-top: 1rem;
+      border-top: 1px solid #333;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .item-name {
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .item-meta {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    .btn-view {
+      background: rgba(212, 160, 23, 0.1);
+      color: var(--color-gold);
+      border: 1px solid var(--color-gold);
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-view:hover {
+      background: var(--color-gold);
+      color: #000;
+    }
+
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .status-pending {
+      background: rgba(241, 196, 15, 0.2);
+      color: #f1c40f;
+    }
+
+    .status-completed {
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+    }
+
+    .status-cancelled {
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+    }
+
+    .btn-complete {
+      background: #2ecc71;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1rem;
+      transition: all 0.3s;
+    }
+
+    .btn-complete:hover {
+      background: #27ae60;
+      transform: translateY(-2px);
+    }
+
+    .btn-complete:disabled {
+      background: #555;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @media (max-width: 768px) {
+      .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .logo-area {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .nav-links {
+        justify-content: center;
+        width: 100%;
+      }
+
+      .dashboard-content {
+        padding: 1rem;
+        /* Less padding on mobile */
+      }
+
+      .data-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+        max-height: 85vh;
+      }
+
+      .logout-btn {
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <div class="logo-area">
+        <img src="../assets/images/logo.png" alt="Logo" class="logo-img">
+        <h1>لوحة التحكم</h1>
+      </div>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link">الرئيسية</a>
+        <a href="orders.html" class="nav-link active">الطلبات</a>
+        <a href="users.html" class="nav-link" id="nav-users" style="display: none;">المستخدمين</a>
+      </nav>
+
+      <button id="logoutBtn" class="logout-btn">تسجيل الخروج</button>
+    </header>
+
+    <main class="dashboard-content">
+      <div class="table-card">
+        <div class="table-header">
+          <h2>سجل الطلبات</h2>
+        </div>
+        <div id="ordersTableContainer">
+          <div style="text-align: center; color: #888;">جاري تحميل الطلبات...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div id="orderModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal()">&times;</button>
+      <h2 style="color:var(--color-gold); margin-bottom: 0.5rem;">تفاصيل الطلب <span id="modalOrderId">#</span></h2>
+      <p id="modalCustomerInfo" style="color:#ccc; margin-bottom: 1rem;"></p>
+
+      <div class="item-list" id="modalItems">
+        <!-- Items go here -->
+      </div>
+
+      <div style="margin-top: 1.5rem; text-align: left; font-size: 1.2rem;">
+        المجموع: <span id="modalTotal" class="price-tag"></span>
+      </div>
+
+      <div id="modalNotes"
+        style="margin-top: 1rem; background: #333; padding: 1rem; border-radius: 8px; color: #ddd; font-size: 0.9rem; display: none;">
+        <strong>ملاحظات:</strong> <span id="modalNotesText"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Auth Check
+    const token = localStorage.getItem('admin_token');
+    const permissions = JSON.parse(localStorage.getItem('admin_permissions') || '[]');
+
+    if (!token) window.location.href = 'login.html';
+
+    // Permission Check: Orders
+    if (!permissions.includes('orders')) {
+      // Try to find a page they can access
+      if (permissions.includes('dashboard')) window.location.href = 'dashboard.html';
+      else if (permissions.includes('users')) window.location.href = 'users.html';
+      else {
+        alert('ليس لديك صلاحيات للوصول');
+        localStorage.removeItem('admin_token');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Show Users Link
+    if (permissions.includes('users')) {
+      const usersLink = document.getElementById('nav-users');
+      if (usersLink) usersLink.style.display = 'block';
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('admin_token');
+      window.location.href = 'login.html';
+    });
+
+    // API Request
+    async function authorizedRequest(endpoint, options = {}) {
+      const headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+      return apiRequest(endpoint, { ...options, headers });
+    }
+
+    // Load Orders
+    async function loadOrders() {
+      try {
+        const result = await authorizedRequest('/admin/orders?limit=50');
+        if (result.ok && result.data.success) {
+          const orders = result.data.data;
+          renderOrders(orders);
+        } else {
+          document.getElementById('ordersTableContainer').innerHTML = '<p class="text-center" style="color:red">فشل تحميل البيانات</p>';
+        }
+      } catch (e) {
+        console.error(e);
+        document.getElementById('ordersTableContainer').innerHTML = '<p class="text-center" style="color:red">خطأ في الاتصال</p>';
+      }
+    }
+
+    function renderOrders(orders) {
+      if (orders.length === 0) {
+        document.getElementById('ordersTableContainer').innerHTML = '<p style="text-align:center; padding: 2rem; color: #888;">لا توجد طلبات حتى الآن</p>';
+        return;
+      }
+
+      const html = `
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>العميل</th>
+              <th>رقم الهاتف</th>
+              <th>العنوان/النوع</th>
+              <th>المبلغ</th>
+              <th>الكوبون</th>
+              <th>الحالة</th> <!-- New Column -->
+              <th>التاريخ</th>
+              <th>التفاصيل</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orders.map(o => `
+              <tr>
+                <td>${o.id}</td>
+                <td style="font-weight:bold; color:white;">${o.customer_name}</td>
+                <td>${o.customer_phone}</td>
+                <td>
+                  ${o.delivery_type === 'delivery' ? '🚗 توصيل' : '🥡 استلام'}
+                  ${o.customer_location ? `<div style="font-size:0.8rem; color:#888; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${o.customer_location}</div>` : ''}
+                </td>
+                <td class="price-tag">${o.total_after_discount} ₪</td>
+                <td>${o.coupon_code ? `<span style="color:var(--color-gold); font-family:monospace;">${o.coupon_code}</span>` : '-'}</td>
+                <td>
+                  <span class="status-badge status-${o.status || 'pending'}">
+                    ${o.status === 'completed' ? 'مكتمل' : (o.status === 'cancelled' ? 'ملغي' : 'جديد')}
+                  </span>
+                </td>
+                <td>${new Date(o.created_at).toLocaleDateString('ar-EG')} ${new Date(o.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</td>
+                <td>
+                  <button class="btn-view" onclick='viewOrder(${JSON.stringify(o).replace(/'/g, "&#39;")})'>عـرض</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      document.getElementById('ordersTableContainer').innerHTML = html;
+    }
+
+    // Modal Functions
+    window.viewOrder = function (order) {
+      document.getElementById('modalOrderId').textContent = '#' + order.id;
+      document.getElementById('modalCustomerInfo').textContent = `${order.customer_name} - ${order.customer_phone}`;
+      document.getElementById('modalTotal').textContent = order.total_after_discount + ' ₪';
+
+      const itemsContainer = document.getElementById('modalItems');
+      const items = order.items; // JSONB parsed automatically by pg
+
+      itemsContainer.innerHTML = items.map(item => `
+        <div class="order-item">
+          <div>
+            <div class="item-name">${item.title} <span style="font-size:0.9rem; color:var(--color-gold);">x${item.quantity}</span></div>
+            ${item.note ? `<div class="item-meta">ملاحظة: ${item.note}</div>` : ''}
+          </div>
+          <div style="color:#ddd;">${(item.price * item.quantity).toFixed(2)} ₪</div>
+        </div>
+      `).join('');
+
+      if (order.notes) {
+        document.getElementById('modalNotesText').textContent = order.notes;
+        document.getElementById('modalNotes').style.display = 'block';
+      } else {
+        document.getElementById('modalNotes').style.display = 'none';
+      }
+
+      // Add Complete Button
+      const existingBtn = document.getElementById('completeOrderBtn');
+      if (existingBtn) existingBtn.remove();
+
+      if (order.status !== 'completed' && order.status !== 'cancelled') {
+        const btn = document.createElement('button');
+        btn.id = 'completeOrderBtn';
+        btn.className = 'btn-complete';
+        btn.innerHTML = '✅ تحديد الطلب كمكتمل (تم التسليم)';
+        btn.onclick = () => updateOrderStatus(order.id, 'completed');
+        document.querySelector('.modal-content').appendChild(btn);
+      }
+
+      document.getElementById('orderModal').classList.add('active');
+    };
+
+    window.updateOrderStatus = async function (orderId, status) {
+      if (!confirm('هل أنت متأكد من تغيير حالة الطلب؟')) return;
+
+      const btn = document.getElementById('completeOrderBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'جاري التحديث...';
+      }
+
+      try {
+        const result = await authorizedRequest(`/admin/orders/${orderId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status })
+        });
+
+        if (result.ok && result.data.success) {
+          closeModal();
+          loadOrders(); // Refresh table
+        } else {
+          alert('فشل تحديث الحالة');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('حدث خطأ');
+      }
+    };
+
+    window.closeModal = function () {
+      document.getElementById('orderModal').classList.remove('active');
+    };
+
+    // Click outside to close
+    document.getElementById('orderModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('orderModal')) closeModal();
+    });
+
+    loadOrders();
+
+    // Auto Refresh every 30 seconds
+    setInterval(loadOrders, 30000);
+  </script>
+</body>
+
+</html>

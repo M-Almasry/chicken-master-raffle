@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>التسجيل - Chicken Master</title>
+
+  <!-- Fonts - Matching Original Site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+  <link rel="stylesheet" href="styles/main-site.css">
+  <link rel="stylesheet" href="styles/register.css">
+</head>
+
+<body dir="rtl">
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="logo-link">
+      <img src="assets/images/logo.png" alt="Chicken Master Logo" class="logo">
+    </a>
+
+    <!-- Right Side Container -->
+    <div class="nav-right">
+      <div class="nav-links desktop-only">
+        <a href="index.html#concept" class="nav-link" data-i18n="nav_story">قصتنا</a>
+        <a href="store.html" class="nav-link" data-i18n="nav_menu">القائمة</a>
+        <a href="index.html#location" class="nav-link" data-i18n="nav_location">موقعنا</a>
+        <a href="index.html" class="nav-link active" data-i18n="nav_home">الرئيسية</a>
+      </div>
+      <button id="lang-toggle" class="lang-btn"
+        onclick="langManager.setLanguage(langManager.getCurrentLang() === 'ar' ? 'en' : 'ar')">English</button>
+    </div>
+  </nav>
+
+  <div class="register-container">
+    <div class="register-card">
+      <div class="register-header">
+        <h1 class="text-gold" data-i18n="steps_title">خطوات الربح 🏆</h1>
+        <p data-i18n="steps_subtitle">اتبع الخطوات البسيطة التالية لدخول السحب</p>
+      </div>
+
+      <!-- Steps Container -->
+      <div class="steps-container">
+
+        <!-- Step 1: Follow -->
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3 data-i18n="step_follow_title">تابعنا على السوشال ميديا</h3>
+            <p data-i18n="step_follow_desc">شرط أساسي لدخول السحب</p>
+            <div class="follow-buttons mini">
+              <a href="https://www.instagram.com/chicken_master26/" target="_blank" class="btn-social instagram"
+                id="btnInstagram">
+                <i data-lucide="instagram"></i> <span data-i18n="btn_instagram">تابع انستقرام</span>
+              </a>
+              <a href="https://www.facebook.com/profile.php?id=61587454410215" target="_blank"
+                class="btn-social facebook" id="btnFacebook">
+                <i data-lucide="facebook"></i> <span data-i18n="btn_facebook">تابع فيسبوك</span>
+              </a>
+            </div>
+            <p class="text-gold mt-sm" style="font-size: 0.9rem;" id="socialHint" data-i18n="social_hint">يرجى متابعة
+              الصفحتين لتفعيل زر التسجيل</p>
+          </div>
+        </div>
+
+        <!-- Step 2: Register -->
+        <div class="step-item active">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3 data-i18n="step_register_title">سجل بياناتك</h3>
+            <p data-i18n="step_register_desc">للحصول على كود الخصم الخاص بك</p>
+
+            <form id="registrationForm" class="registration-form flat-form">
+              <div class="input-group">
+                <input type="text" id="name" class="input-field" data-i18n-placeholder="input_name_placeholder"
+                  placeholder="الاسم الكامل" required minlength="6">
+              </div>
+              <div class="input-group">
+                <input type="tel" id="phone" class="input-field" data-i18n-placeholder="input_phone_placeholder"
+                  placeholder="رقم الجوال (059xxxxxxx)" required pattern="^[\d\+\s\-]{9,15}$">
+              </div>
+              <button type="submit" class="btn-submit" id="submitBtn" disabled
+                style="opacity: 0.5; cursor: not-allowed;">
+                <span data-i18n="btn_submit_raffle">تسجيل والحصول على الكوبون</span> <i data-lucide="arrow-left"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Step 3: Coupon -->
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3 data-i18n="step_coupon_title">استلم كوبون 10%</h3>
+            <p data-i18n="step_coupon_desc">سيظهر لك كود خصم فوري بعد التسجيل</p>
+          </div>
+        </div>
+
+        <!-- Step 4: Raffle -->
+        <div class="step-item">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3 data-i18n="step_raffle_title">اطلب وادخل السحب</h3>
+            <p data-i18n="step_raffle_desc">استخدم الكوبون في مطعمنا لتدخل السحب على <strong>100 شيكل</strong></p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="register-footer">
+        <a href="index.html" class="btn-secondary" data-i18n="back_home">← العودة للرئيسية</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Chicken Master. جميع الحقوق محفوظة.</p>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="js/app.js"></script>
+  <script src="js/register.js"></script>
+  <script>
+    if (window.lucide) lucide.createIcons();
+  </script>
+</body>
+
+</html>

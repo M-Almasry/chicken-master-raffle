@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - Chicken Master</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+  <link rel="stylesheet" href="../styles/main.css">
+
+  <style>
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .admin-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-header {
+      background: linear-gradient(135deg, #000 0%, #1A1A1A 100%);
+      border-bottom: 2px solid var(--color-gold);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-img {
+      height: 50px;
+    }
+
+    .admin-header h1 {
+      margin: 0;
+      color: var(--color-gold);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: #ccc;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+      padding: 0.5rem;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--color-gold);
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid #E74C3C;
+      color: #E74C3C;
+      padding: 0.5rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #E74C3C;
+      color: white;
+    }
+
+    .dashboard-content {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: #252525;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--color-gold);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--color-gold);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover::after {
+      transform: scaleX(1);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .stat-label {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    /* Raffle Section */
+    .raffle-section {
+      background: linear-gradient(45deg, #1A1A1A, #252525);
+      border: 1px solid var(--color-gold);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      box-shadow: 0 0 30px rgba(212, 160, 23, 0.1);
+    }
+
+    .raffle-section h2 {
+      color: var(--color-gold);
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 0.5rem;
+    }
+
+    .raffle-section p {
+      color: #ccc;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-draw {
+      background: var(--color-gold);
+      color: #000;
+      border: none;
+      padding: 1rem 3rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(212, 160, 23, 0.4);
+    }
+
+    .btn-draw:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(212, 160, 23, 0.6);
+    }
+
+    .winner-result {
+      margin-top: 2rem;
+      padding: 2rem;
+      background: rgba(212, 160, 23, 0.1);
+      border: 2px dashed var(--color-gold);
+      border-radius: 12px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* Tables */
+    .table-card {
+      background: #252525;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid #333;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .table-header h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.5rem;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 1rem;
+      text-align: right;
+      border-bottom: 1px solid #333;
+    }
+
+    .data-table th {
+      color: var(--color-gold);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .data-table td {
+      color: #ddd;
+    }
+
+    .data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-new {
+      background: rgba(52, 152, 219, 0.2);
+      color: #3498db;
+    }
+
+    .status-used {
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+    }
+
+    @media (max-width: 768px) {
+      .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .logo-area {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .nav-links {
+        justify-content: center;
+        width: 100%;
+      }
+
+      .dashboard-content {
+        padding: 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .stat-card {
+        padding: 1rem;
+      }
+
+      .raffle-section {
+        padding: 1.5rem;
+      }
+
+      .data-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .btn-draw {
+        width: 100%;
+        padding: 1rem;
+      }
+
+      .logout-btn {
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      border-top-color: #000;
+      animation: spin 1s infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-container">
+    <header class="admin-header">
+      <div class="logo-area">
+        <img src="../assets/images/logo.png" alt="Logo" class="logo-img">
+        <h1>لوحة التحكم</h1>
+      </div>
+
+      <nav class="nav-links">
+        <a href="dashboard.html" class="nav-link active">الرئيسية</a>
+        <a href="orders.html" class="nav-link">الطلبات</a>
+        <a href="users.html" class="nav-link" id="nav-users" style="display: none;">المستخدمين</a>
+      </nav>
+
+      <button id="logoutBtn" class="logout-btn">تسجيل الخروج</button>
+    </header>
+
+    <main class="dashboard-content">
+
+      <!-- Statistics -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" id="totalRegistrations">--</div>
+          <div class="stat-label">إجمالي المسجلين</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🎫</div>
+          <div class="stat-value" id="usedCoupons">--</div>
+          <div class="stat-label">كوبونات مستخدمة</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-value" id="totalOrders">--</div>
+          <div class="stat-label">إجمالي الطلبات</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🎁</div>
+          <div class="stat-value" id="raffleParticipants">--</div>
+          <div class="stat-label">مؤهلين للسحب</div>
+        </div>
+      </div>
+
+      <!-- Raffle Action -->
+      <div class="raffle-section">
+        <h2>إجراء السحب الكبير</h2>
+        <p>اضغط أدناه لاختيار فائز عشوائي من قائمة المؤهلين (الذين استخدموا الكوبونات)</p>
+        <button id="drawWinnerBtn" class="btn-draw">🎲 سحب فائز عشوائي</button>
+
+        <div id="winnerResult" class="winner-result hidden"></div>
+      </div>
+
+      <!-- Recent Data -->
+      <div class="table-card">
+        <div class="table-header">
+          <h2>آخر المسجلين</h2>
+        </div>
+        <div id="recentRegistrations">
+          <div style="text-align: center; color: #888;">جاري التحميل...</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Auth Check
+    const token = localStorage.getItem('admin_token');
+    const permissions = JSON.parse(localStorage.getItem('admin_permissions') || '[]');
+
+    if (!token) window.location.href = 'login.html';
+
+    // Permission Check: Dashboard
+    if (!permissions.includes('dashboard')) {
+      // Try to find a page they can access
+      if (permissions.includes('orders')) window.location.href = 'orders.html';
+      else if (permissions.includes('users')) window.location.href = 'users.html';
+      else {
+        alert('ليس لديك صلاحيات للوصول');
+        localStorage.removeItem('admin_token');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Show Users Link
+    if (permissions.includes('users')) {
+      const usersLink = document.getElementById('nav-users');
+      if (usersLink) usersLink.style.display = 'block';
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_permissions');
+      window.location.href = 'login.html';
+    });
+
+    // Helper: API Request wrapper with Auth
+    async function authorizedRequest(endpoint, options = {}) {
+      const headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+      return apiRequest(endpoint, { ...options, headers });
+    }
+
+    // Load Stats
+    async function loadStats() {
+      try {
+        const result = await authorizedRequest('/admin/stats');
+        if (result.ok && result.data.success) {
+          const stats = result.data.data;
+          document.getElementById('totalRegistrations').textContent = stats.total_registrations;
+          document.getElementById('usedCoupons').textContent = stats.used_coupons;
+          document.getElementById('totalOrders').textContent = stats.total_orders;
+          document.getElementById('raffleParticipants').textContent = stats.raffle_participants;
+        }
+      } catch (e) { console.error('Stats error', e); }
+    }
+
+    // Load Recent Registrations
+    async function loadRecentRegistrations() {
+      try {
+        const result = await authorizedRequest('/admin/registrations?limit=10');
+        if (result.ok && result.data.success) {
+          const registrations = result.data.data;
+          const html = `
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>الاسم</th>
+                  <th>رقم الجوال</th>
+                  <th>كود الكوبون</th>
+                  <th>الحالة</th>
+                  <th>تاريخ التسجيل</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${registrations.map(r => `
+                  <tr>
+                    <td>${r.name}</td>
+                    <td>${r.phone}</td>
+                    <td style="font-family: monospace; color: var(--color-gold); letter-spacing: 1px;">${r.coupon_code}</td>
+                    <td><span class="status-badge status-${r.coupon_status}">${r.coupon_status === 'new' ? 'جديد' : 'مستخدم'}</span></td>
+                    <td>${new Date(r.created_at).toLocaleDateString('ar-EG')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+          document.getElementById('recentRegistrations').innerHTML = html;
+        }
+      } catch (e) {
+        document.getElementById('recentRegistrations').innerHTML = '<p style="text-align:center; color:red">فشل تحميل البيانات</p>';
+      }
+    }
+
+    // Draw Winner Logic
+    document.getElementById('drawWinnerBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('drawWinnerBtn');
+      const resultDiv = document.getElementById('winnerResult');
+
+      btn.disabled = true;
+      btn.innerHTML = 'جاري السحب... <div class="spinner"></div>';
+      resultDiv.classList.add('hidden');
+
+      try {
+        // Add suspense delay
+        await new Promise(r => setTimeout(r, 1500));
+
+        const result = await authorizedRequest('/admin/draw-winner', { method: 'POST' });
+
+        if (result.ok && result.data.success) {
+          const winner = result.data.winner;
+          resultDiv.innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+            <h3 style="color: var(--color-gold); margin-bottom: 0.5rem;">مبروك للفائز!</h3>
+            <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">${winner.name}</div>
+            <div style="color: #ccc; margin-bottom: 0.5rem;">${winner.phone}</div>
+            <div style="background: #333; display: inline-block; padding: 0.5rem 1rem; border-radius: 4px; margin-top: 1rem;">
+              الكوبون الرابح: <span style="color: var(--color-gold);">${winner.coupon_code}</span>
+            </div>
+          `;
+          resultDiv.classList.remove('hidden');
+          // Trigger confetti if possible (omitted for simplicity)
+        } else {
+          resultDiv.innerHTML = `<p style="color: #E74C3C;">${result.data.message || 'لا يوجد مشاركين مؤهلين (استخدموا الكوبونات) حالياً'}</p>`;
+          resultDiv.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('حدث خطأ أثناء السحب');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🎲 سحب فائز عشوائي';
+      }
+    });
+
+    // Init
+    loadStats();
+    loadRecentRegistrations();
+  </script>
+</body>
+
+</html>
