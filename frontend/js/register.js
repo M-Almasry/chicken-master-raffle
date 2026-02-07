@@ -69,9 +69,6 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
         expiresAt: result.data.data.expiresAt
       }));
 
-      // Send WhatsApp message
-      sendWhatsAppMessage(name, phone, result.data.data.couponCode);
-
       // Redirect to success page
       window.location.href = 'success.html';
     } else {

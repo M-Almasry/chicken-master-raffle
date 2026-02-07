@@ -7,7 +7,14 @@ const pool = require('../db/connection');
 async function checkDuplicateRegistration(req, res, next) {
   try {
     const { deviceFingerprint } = req.body;
-    const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    // ✅ تحسين استخراج IP (يأخذ أول IP في القائمة إذا كان هناك بروكسي)
+    let ipAddress = req.ip;
+    if (req.headers['x-forwarded-for']) {
+      ipAddress = req.headers['x-forwarded-for'].split(',')[0].trim();
+    } else if (!ipAddress) {
+      ipAddress = req.connection.remoteAddress;
+    }
 
     // فحص IP
     const ipCheck = await pool.query(
@@ -17,12 +24,12 @@ async function checkDuplicateRegistration(req, res, next) {
 
     if (ipCheck.rows.length > 0) {
       const existing = ipCheck.rows[0];
-      let arMsg = 'لقد سجلت من قبل من هذا الجهاز';
-      let enMsg = 'You have already registered from this device';
+      let arMsg = 'لقد تم التسجيل مسبقاً من شبكة الإنترنت هذه (IP)';
+      let enMsg = 'You have already registered from this network (IP)';
 
       if (existing.coupon_status === 'new') {
         arMsg += ` ورقم باركودك هو ${existing.coupon_code}`;
-        enMsg += `. Your coupons code is ${existing.coupon_code}`;
+        enMsg += `. Your coupon code is ${existing.coupon_code}`;
       }
 
       return res.status(409).json({
@@ -44,12 +51,12 @@ async function checkDuplicateRegistration(req, res, next) {
 
       if (deviceCheck.rows.length > 0) {
         const existing = deviceCheck.rows[0];
-        let arMsg = 'لقد سجلت من قبل من هذا الجهاز';
-        let enMsg = 'You have already registered from this device';
+        let arMsg = 'لقد سجلت من قبل من هذا الجهاز (المتصفح)';
+        let enMsg = 'You have already registered from this device (Browser)';
 
         if (existing.coupon_status === 'new') {
           arMsg += ` ورقم باركودك هو ${existing.coupon_code}`;
-          enMsg += `. Your coupons code is ${existing.coupon_code}`;
+          enMsg += `. Your coupon code is ${existing.coupon_code}`;
         }
 
         return res.status(409).json({

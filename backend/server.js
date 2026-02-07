@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
+app.set('trust proxy', 1); // ✅ Trust Render Proxy to get real User IP
 const PORT = process.env.PORT || 3000;
 
 // Middleware

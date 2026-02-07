@@ -293,37 +293,26 @@
 
     <div class="coupon-container">
       <span class="coupon-label" data-i18n="yourCoupon">كوبون الخصم الخاص بك</span>
-      <span class="coupon-code" id="couponDisplay">...</span>
-      <button class="btn-copy" id="copyBtn">
+
+      <!-- Input for easier copying -->
+      <div style="position: relative; margin-bottom: 1rem;">
+        <input type="text" id="couponDisplay" readonly
+          style="width: 100%; background: transparent; border: 2px solid #D4A017; color: #D4A017; font-size: 1.8rem; text-align: center; padding: 0.8rem; border-radius: 8px; font-family: monospace; letter-spacing: 2px;">
+      </div>
+
+      <button class="btn-copy" id="copyBtn" style="width: 100%; justify-content: center;">
         <i data-lucide="copy" style="width: 16px;"></i> نسخ الكوبون
       </button>
     </div>
 
-    <div class="benefits-grid">
-      <div class="benefit-item">
-        <span class="benefit-icon">🎁</span>
-        <div class="benefit-text">
-          <strong>خصم 10%</strong>
-          على طلبيتك القادمة
-        </div>
-      </div>
-      <div class="benefit-item">
-        <span class="benefit-icon">🎫</span>
-        <div class="benefit-text">
-          <strong>دخول السحب</strong>
-          على جائزة 100 شيكل
-        </div>
-      </div>
-    </div>
-
-    <a href="store.html" class="action-btn btn-primary">
-      <span data-i18n="orderNow">اطلب الآن واستخدم الكوبون</span> 🍗
-    </a>
-
-    <!-- WhatsApp button will be triggered automatically, but kept as backup -->
-    <button id="whatsappBtn" class="action-btn btn-whatsapp" style="display:none">
-      <i data-lucide="message-circle" style="margin-left:8px"></i> تأكيد عبر واتساب
+    <!-- WhatsApp Button (Primary) -->
+    <button id="whatsappBtn" class="action-btn btn-whatsapp" style="margin-bottom: 1rem;">
+      <i data-lucide="message-circle" style="margin-left:8px"></i> تأكيد وحفظ الكوبون عبر واتساب
     </button>
+
+    <a href="store.html" class="action-btn btn-primary" style="background: #333; border: 1px solid #555; color: #fff;">
+      <span data-i18n="orderNow">الذهاب للقائمة والطلب</span> 🍗
+    </a>
 
     <a href="index.html" class="btn-home">
       <i data-lucide="arrow-right"></i> العودة للرئيسية
@@ -341,45 +330,63 @@
     // Initialize Icons
     if (window.lucide) lucide.createIcons();
 
-    // Logic
-    document.addEventListener('DOMContentLoaded', () => {
-      // Retrieve stored data
-      const data = JSON.parse(localStorage.getItem('registration_success'));
-
-      if (!data) {
-        // Redirect if no data found (prevent direct access)
-        window.location.href = 'index.html';
-        return;
-      }
-
-      // Display Coupon
-      const couponDisplay = document.getElementById('couponDisplay');
-      couponDisplay.textContent = data.couponCode;
-
-      // Copy Functionality
-      const copyBtn = document.getElementById('copyBtn');
-      copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(data.couponCode).then(() => {
-          showToast();
-          copyBtn.innerHTML = '<i data-lucide="check"></i> تم النسخ';
-          if (window.lucide) lucide.createIcons();
-
-          setTimeout(() => {
-            copyBtn.innerHTML = '<i data-lucide="copy"></i> نسخ الكوبون';
-            if (window.lucide) lucide.createIcons();
-          }, 2000);
-        });
-      });
-
-      // Initialize translations
-      if (window.langManager) langManager.updateContent();
-    });
-
     function showToast() {
       const toast = document.getElementById('toast');
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Retrieve stored data
+      const data = JSON.parse(localStorage.getItem('registration_success'));
+
+      if (!data) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Display Coupon in Input
+      const couponInput = document.getElementById('couponDisplay');
+      couponInput.value = data.couponCode;
+
+      // Copy Functionality
+      const copyBtn = document.getElementById('copyBtn');
+      copyBtn.addEventListener('click', () => {
+        // Select the text field
+        couponInput.select();
+        couponInput.setSelectionRange(0, 99999); // For mobile devices
+
+        navigator.clipboard.writeText(data.couponCode).then(() => {
+          showToast();
+          const originalHTML = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<i data-lucide="check"></i> تم النسخ';
+          copyBtn.style.background = '#27AE60';
+          if (window.lucide) lucide.createIcons();
+
+          setTimeout(() => {
+            copyBtn.innerHTML = originalHTML;
+            copyBtn.style.background = '';
+            if (window.lucide) lucide.createIcons();
+          }, 2000);
+        });
+      });
+
+      // WhatsApp Functionality
+      const whatsappBtn = document.getElementById('whatsappBtn');
+      whatsappBtn.addEventListener('click', () => {
+        const message = `مرحباً، أنا *${data.name}* وأرغب بالتسجيل في سحب 100 شيكل! 🎉\n\nرقم جوالي: *${data.phone}*\nكوبوني: *${data.couponCode}*\n\nأريد حفظ الكوبون وتأكيد اشتراكي.`;
+
+        // Use generic intent url which works better across devices
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const baseUrl = isMobile ? 'whatsapp://send' : 'https://web.whatsapp.com/send';
+        const url = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${encodeURIComponent(message)}`;
+
+        window.open(url, '_blank');
+      });
+
+      // Initialize translations
+      if (window.langManager) langManager.updateContent();
+    });
   </script>
 </body>
 
