@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const pool = require('./db/connection');
 
 const app = express();
 app.set('trust proxy', 1); // ✅ Trust Render Proxy to get real User IP
@@ -73,13 +74,31 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString()
-  });
+// Health check endpoint with DB ping
+app.get('/health', async (req, res) => {
+  try {
+    const dbStart = Date.now();
+    await pool.query('SELECT 1');
+    const dbDuration = Date.now() - dbStart;
+
+    res.json({
+      success: true,
+      message: 'Server and Database are running',
+      timestamp: new Date().toISOString(),
+      database: {
+        status: 'connected',
+        latency: `${dbDuration}ms`
+      }
+    });
+  } catch (error) {
+    console.error('Health check DB error:', error);
+    res.status(503).json({
+      success: false,
+      message: 'Server is running but Database is unreachable',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
 });
 
 // Root endpoint
