@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [topItems, setTopItems] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [shopStatus, setShopStatus] = useState({ is_open: true, mode: 'auto', message: '' });
+  const [deliveryFee, setDeliveryFee] = useState(0);
   const [loading, setLoading] = useState(true);
   const [updateLoading, setUpdateLoading] = useState(false);
 
@@ -18,13 +19,15 @@ const Dashboard = () => {
         api.get('/admin/stats'),
         api.get('/admin/top-items'),
         api.get('/admin/orders?limit=10'),
-        api.get('/admin/shop-status')
+        api.get('/admin/shop-status'),
+        api.get('/admin/delivery-fee')
       ]);
 
       setStats(statsRes.data.data);
       setTopItems(itemsRes.data.data);
       setRecentOrders(ordersRes.data.data);
       setShopStatus(statusRes.data);
+      setDeliveryFee(feeRes.data.data.amount || 0);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
@@ -41,6 +44,19 @@ const Dashboard = () => {
     } catch (err) {
       console.error('Error updating shop status:', err);
       alert('فشل تحديث حالة المحل');
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  const handleUpdateDeliveryFee = async () => {
+    setUpdateLoading(true);
+    try {
+      await api.put('/admin/delivery-fee', { amount: deliveryFee });
+      alert('تم تحديث رسوم التوصيل بنجاح');
+    } catch (err) {
+      console.error('Error updating delivery fee:', err);
+      alert('فشل تحديث رسوم التوصيل');
     } finally {
       setUpdateLoading(false);
     }
@@ -108,6 +124,28 @@ const Dashboard = () => {
           >
             جدول تلقائي
           </button>
+        </div>
+
+        {/* Delivery Fee Setting */}
+        <div className="flex items-center gap-3 border-r border-gray-800 pr-4">
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-500 font-bold mb-1">رسوم التوصيل (₪)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={deliveryFee}
+                onChange={(e) => setDeliveryFee(e.target.value)}
+                className="w-20 bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 text-white text-sm focus:ring-1 focus:ring-brand-gold outline-none"
+              />
+              <button
+                onClick={handleUpdateDeliveryFee}
+                disabled={updateLoading}
+                className="p-1 px-3 bg-brand-gold text-brand-dark rounded-lg text-xs font-bold hover:bg-yellow-500 transition-all disabled:opacity-50"
+              >
+                {updateLoading ? '...' : 'حفظ'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -218,7 +256,7 @@ const Dashboard = () => {
       {/* Sales Chart */}
       <div className="bg-brand-dark p-6 rounded-2xl border border-gray-800 h-[400px] flex flex-col">
         <h2 className="text-xl font-bold text-brand-gold mb-6">مبيعات الأصناف (كمية الأطباق المباعة)</h2>
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 w-full min-h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />

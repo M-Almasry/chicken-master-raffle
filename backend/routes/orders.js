@@ -129,14 +129,19 @@ router.post('/', async (req, res) => {
       );
     }
 
-    const totalAfterDiscount = (totalBeforeDiscount - discountAmount).toFixed(2);
+    // Fetch delivery fee from system_config
+    const deliveryFeeResult = await pool.query("SELECT value FROM system_config WHERE key = 'delivery_fee'");
+    const deliveryFee = deliveryFeeResult.rows.length > 0 ? parseFloat(deliveryFeeResult.rows[0].value.amount) : 0;
+
+    const currentFee = deliveryType === 'delivery' ? deliveryFee : 0;
+    const totalAfterDiscount = (parseFloat(totalBeforeDiscount) - parseFloat(discountAmount) + currentFee).toFixed(2);
 
     // إدراج الطلب
     const orderResult = await client.query(
       `INSERT INTO orders 
        (customer_name, customer_phone, customer_location, items, coupon_code, 
-        discount_amount, total_before_discount, total_after_discount, delivery_type, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        discount_amount, delivery_fee, total_before_discount, total_after_discount, delivery_type, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING id, created_at`,
       [
         customerName,
@@ -145,6 +150,7 @@ router.post('/', async (req, res) => {
         JSON.stringify(items),
         couponCode ? couponCode.toUpperCase() : null,
         discountAmount,
+        currentFee,
         totalBeforeDiscount,
         totalAfterDiscount,
         deliveryType,

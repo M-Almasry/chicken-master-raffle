@@ -442,6 +442,20 @@ class CartManager {
     this.cart = JSON.parse(localStorage.getItem('raffle_cart') || '[]');
     this.coupon = null;
     this.deliveryType = 'delivery';
+    this.deliveryFee = 0;
+    this.fetchDeliveryFee();
+  }
+
+  async fetchDeliveryFee() {
+    try {
+      const res = await window.apiRequest('/shop/delivery-fee');
+      if (res.ok && res.data.success) {
+        this.deliveryFee = parseFloat(res.data.data.amount) || 0;
+        this.render();
+      }
+    } catch (e) {
+      console.warn('Failed to fetch delivery fee', e);
+    }
   }
 
   addItem(item) {
@@ -501,6 +515,12 @@ class CartManager {
     if (this.coupon && this.coupon.valid) {
       total = total * 0.9; // 10% Discount
     }
+
+    // Add delivery fee if applicable
+    if (this.deliveryType === 'delivery') {
+      total += this.deliveryFee;
+    }
+
     return total;
   }
 
@@ -587,13 +607,27 @@ class CartManager {
     }
 
     // Update Total
-    let totalHTML = `${this.getTotal().toFixed(2)} ₪`;
+    let totalHTML = `
+        <div style="font-size: 0.9rem; color: #aaa; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+            <span>${langManager.getCurrentLang() === 'ar' ? 'رسوم التوصيل' : 'Delivery Fee'}:</span>
+            <span>${this.deliveryType === 'delivery' ? this.deliveryFee + ' ₪' : (langManager.getCurrentLang() === 'ar' ? 'مجاني' : 'Free')}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>${langManager.translate('total')}:</span>
+            <span id="cartTotalVal">
+    `;
+
     if (this.coupon && this.coupon.valid) {
-      totalHTML = `
-            <span style="text-decoration: line-through; color: #777; font-size: 0.9em; margin-left: 10px;">${this.getTotal().toFixed(2)}</span>
+      totalHTML += `
+            <span style="text-decoration: line-through; color: #777; font-size: 0.8em; margin-left: 10px;">${(this.getTotal() + (this.deliveryType === 'delivery' ? this.deliveryFee : 0)).toFixed(2)}</span>
             <span style="color: #2ECC71;">${this.getFinalTotal().toFixed(2)} ₪</span>
         `;
+    } else {
+      totalHTML += `${this.getFinalTotal().toFixed(2)} ₪`;
     }
+
+    totalHTML += `</span></div>`;
+
     if (cartTotalEl) cartTotalEl.innerHTML = totalHTML;
   }
 
@@ -900,6 +934,8 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
         locInput.setAttribute('required', 'true');
       }
     }
+
+    cartManager.render();
   });
 });
 

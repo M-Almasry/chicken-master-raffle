@@ -607,7 +607,18 @@ router.put('/items/:id', authenticateToken, async (req, res) => {
       const itemRes = await client.query(
         `UPDATE menu_items SET category_id=$1, name_ar=$2, name_en=$3, description_ar=$4, description_en=$5, price=$6, discount_price=$7, image_url=$8, is_available=$9
              WHERE id=$10 RETURNING *`,
-        [category_id, name_ar, name_en, description_ar, description_en, price, discount_price, image_url, is_available, id]
+        [
+          parseInt(category_id),
+          name_ar,
+          name_en,
+          description_ar,
+          description_en,
+          parseFloat(price) || 0,
+          discount_price ? parseFloat(discount_price) : null,
+          image_url,
+          is_available,
+          id
+        ]
       );
 
       // Replace options
@@ -654,6 +665,25 @@ router.put('/opening-hours', authenticateToken, async (req, res) => {
       [JSON.stringify(hours)]
     );
     res.json({ success: true, message: 'Updated' });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+// Delivery Fee
+router.get('/delivery-fee', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT value FROM system_config WHERE key = 'delivery_fee'");
+    res.json({ success: true, data: result.rows[0]?.value || { amount: 0 } });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+router.put('/delivery-fee', authenticateToken, async (req, res) => {
+  try {
+    const { amount } = req.body;
+    await pool.query(
+      "INSERT INTO system_config (key, value) VALUES ('delivery_fee', $1) ON CONFLICT (key) DO UPDATE SET value = $1, updated_at = CURRENT_TIMESTAMP",
+      [JSON.stringify({ amount: parseFloat(amount) || 0 })]
+    );
+    res.json({ success: true, message: 'Delivery fee updated' });
   } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 

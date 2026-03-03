@@ -25,10 +25,11 @@ async function runMigrations() {
         name VARCHAR(255) NOT NULL,
         phone VARCHAR(20) UNIQUE NOT NULL,
         coupon_code VARCHAR(50) UNIQUE NOT NULL,
+        coupon_status VARCHAR(20) DEFAULT 'new',
+        ip_address VARCHAR(45),
         device_fingerprint VARCHAR(255),
-        status VARCHAR(20) DEFAULT 'active',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        expires_at TIMESTAMP
+        expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days')
       );
       CREATE INDEX IF NOT EXISTS idx_registrations_phone ON registrations(phone);
       CREATE INDEX IF NOT EXISTS idx_registrations_coupon ON registrations(coupon_code);
@@ -48,8 +49,10 @@ async function runMigrations() {
         notes TEXT,
         items JSONB NOT NULL DEFAULT '[]',
         coupon_code VARCHAR(50),
+        discount_amount DECIMAL(10,2) DEFAULT 0,
+        delivery_fee DECIMAL(10,2) DEFAULT 0,
         total_before_discount DECIMAL(10,2),
-        final_total DECIMAL(10,2),
+        total_after_discount DECIMAL(10,2),
         status VARCHAR(20) DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -58,8 +61,69 @@ async function runMigrations() {
     `);
     console.log('  ✅ Table: orders');
 
+    // Add missing columns to existing orders table (for existing deployments)
+    await client.query(`
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount DECIMAL(10,2) DEFAULT 0;
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee DECIMAL(10,2) DEFAULT 0;
+      DO $$ 
+      BEGIN 
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='final_total') THEN
+          ALTER TABLE orders RENAME COLUMN final_total TO total_after_discount;
+        END IF;
+      END $$;
+    `);
+
     // ---------------------------------------------------
-    // 3. Admin users table
+    // 3. Categories Table
+    // ---------------------------------------------------
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id SERIAL PRIMARY KEY,
+        name_ar VARCHAR(100) NOT NULL,
+        name_en VARCHAR(100),
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('  ✅ Table: categories');
+
+    // ---------------------------------------------------
+    // 4. Menu Items Table
+    // ---------------------------------------------------
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS menu_items (
+        id SERIAL PRIMARY KEY,
+        category_id INTEGER REFERENCES categories(id),
+        name_ar VARCHAR(200) NOT NULL,
+        name_en VARCHAR(200),
+        description_ar TEXT,
+        description_en TEXT,
+        price DECIMAL(10, 2) NOT NULL,
+        discount_price DECIMAL(10, 2) DEFAULT NULL,
+        image_url TEXT,
+        is_available BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('  ✅ Table: menu_items');
+
+    // ---------------------------------------------------
+    // 5. Menu Options Table
+    // ---------------------------------------------------
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS menu_options (
+        id SERIAL PRIMARY KEY,
+        menu_item_id INTEGER REFERENCES menu_items(id) ON DELETE CASCADE,
+        name_ar VARCHAR(100) NOT NULL,
+        name_en VARCHAR(100),
+        price DECIMAL(10, 2) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('  ✅ Table: menu_options');
+
+    // ---------------------------------------------------
+    // 6. Admin users table
     // ---------------------------------------------------
     await client.query(`
       CREATE TABLE IF NOT EXISTS admin_users (
@@ -73,24 +137,42 @@ async function runMigrations() {
     console.log('  ✅ Table: admin_users');
 
     // ---------------------------------------------------
-    // 4. Shop status table
+    // 7. Raffle Entries Table
     // ---------------------------------------------------
     await client.query(`
-      CREATE TABLE IF NOT EXISTS shop_status (
+      CREATE TABLE IF NOT EXISTS raffle_entries (
         id SERIAL PRIMARY KEY,
-        is_open BOOLEAN DEFAULT true,
-        manual_override BOOLEAN DEFAULT false,
-        opening_hours JSONB DEFAULT '{}',
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        registration_id INTEGER REFERENCES registrations(id),
+        order_id INTEGER REFERENCES orders(id),
+        entry_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-      INSERT INTO shop_status (id, is_open, manual_override, opening_hours)
-      VALUES (1, true, false, '{}')
-      ON CONFLICT (id) DO NOTHING;
     `);
-    console.log('  ✅ Table: shop_status');
+    console.log('  ✅ Table: raffle_entries');
 
     // ---------------------------------------------------
-    // 5. Site reviews table (new)
+    // 8. Shop status / System Config table
+    // ---------------------------------------------------
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS system_config (
+        key VARCHAR(50) PRIMARY KEY,
+        value JSONB NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Default Shop Status
+      INSERT INTO system_config (key, value)
+      VALUES ('shop_status', '{"is_open": true, "mode": "auto", "message": ""}')
+      ON CONFLICT (key) DO NOTHING;
+
+      -- Default Delivery Fee
+      INSERT INTO system_config (key, value)
+      VALUES ('delivery_fee', '{"amount": 5}')
+      ON CONFLICT (key) DO NOTHING;
+    `);
+    console.log('  ✅ Table: system_config');
+
+    // ---------------------------------------------------
+    // 9. Site reviews table (new)
     // ---------------------------------------------------
     await client.query(`
       CREATE TABLE IF NOT EXISTS site_reviews (

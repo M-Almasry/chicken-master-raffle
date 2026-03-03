@@ -78,4 +78,15 @@ router.get('/menu', async (req, res) => {
   }
 });
 
+// GET /api/shop/delivery-fee
+router.get('/delivery-fee', async (req, res) => {
+  try {
+    const result = await pool.query("SELECT value FROM system_config WHERE key = 'delivery_fee'");
+    res.json({ success: true, data: result.rows[0]?.value || { amount: 0 } });
+  } catch (error) {
+    console.error('Error fetching delivery fee:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;
