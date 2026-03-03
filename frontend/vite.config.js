@@ -22,6 +22,7 @@ export default defineConfig({
         register: resolve(__dirname, 'register.html'),
         success: resolve(__dirname, 'success.html'),
         admin: resolve(__dirname, 'admin.html'),
+        track: resolve(__dirname, 'track.html'),
       },
     },
   },
