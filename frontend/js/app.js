@@ -95,7 +95,7 @@ const translations = {
     yourCoupon: 'كوبونك الخاص',
     saveCoupon: 'احتفظ بهذا الكوبون!',
     discount10: 'خصم 10% على طلبك',
-    raffleEntry: 'دخول السحب على 100 شيكل',
+    raffleEntry: 'دخلت السحب على 100 شيكل بنجاح! احتفظ بكود الخصم.',
     validUntil: 'صالح حتى نهاية رمضان',
     orderNow: 'اطلب الآن',
     shareWhatsApp: 'شارك على واتساب',
@@ -137,8 +137,10 @@ const translations = {
     invalidCoupon: 'كوبون غير صالح',
     applyCoupon: 'تطبيق',
     loading: 'جاري التحميل...',
-    orderSuccess: 'تم الطلب بنجاح!',
-    placeOrder: 'تأكيد الطلب'
+    orderSuccess: 'تم استلام طلبك بنجاح!',
+    invoiceNumber: 'رقم الفاتورة: #',
+    placeOrder: 'إتمام الطلب',
+    trackOrder: 'تتبع طلبك الآن'
   },
 
   en: {
@@ -229,7 +231,7 @@ const translations = {
     yourCoupon: 'Your Coupon',
     saveCoupon: 'Save this coupon!',
     discount10: '10% Discount on your order',
-    raffleEntry: 'Entry to 100 NIS Raffle',
+    raffleEntry: 'You have entered the 100 NIS raffle!',
     validUntil: 'Valid until end of Ramadan',
     orderNow: 'Order Now',
     shareWhatsApp: 'Share on WhatsApp',
@@ -268,7 +270,9 @@ const translations = {
     applyCoupon: 'Apply',
     loading: 'Loading...',
     orderSuccess: 'Order Placed Successfully!',
-    placeOrder: 'Place Order'
+    invoiceNumber: 'Order Number: #',
+    placeOrder: 'Place Order',
+    trackOrder: 'Track Your Order'
   }
 };
 
@@ -329,15 +333,28 @@ class LanguageManager {
 // Initialize Language Manager
 window.langManager = new LanguageManager();
 
-// API Configuration
-const isLocal = window.location.hostname === 'localhost' ||
-  window.location.hostname === '127.0.0.1' ||
-  window.location.hostname.startsWith('192.168.') ||
-  window.location.hostname.startsWith('10.');
+// Detect environment and set base URL
+const getBaseURL = () => {
+  // 1. Check for manual override from environment
+  if (import.meta.env && import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
 
-window.API_BASE_URL = isLocal
-  ? `http://${window.location.hostname}:3000/api`
-  : 'https://chicken-master-raffle.onrender.com/api';
+  // 2. Local environment detection
+  const isLocal = window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.startsWith('192.168.') ||
+    window.location.hostname.startsWith('10.');
+
+  if (isLocal) {
+    return `http://${window.location.hostname}:3000/api`;
+  }
+
+  // 3. Default Production URL (Render)
+  return 'https://chicken-master-raffle.onrender.com/api';
+};
+
+window.API_BASE_URL = getBaseURL();
 
 console.log('API Base URL:', window.API_BASE_URL);
 
@@ -984,8 +1001,16 @@ if (checkoutForm) {
             <div class="success-message">
                 <i data-lucide="check-circle" class="success-icon" style="width: 64px; height: 64px; margin: 0 auto 1rem; display: block;"></i>
                 <h2>${langManager.translate('orderSuccess')}</h2>
+                <p style="font-weight: bold; font-size: 1.2rem; color: var(--color-gold); margin: 0.5rem 0;">
+                   ${langManager.translate('invoiceNumber')}${result.data.data?.orderId || ''}
+                </p>
                 ${raffleMessage}
-                <button onclick="window.location.reload()" class="btn-action" style="margin-top: 2rem;">OK</button>
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
+                   <a href="track.html?id=${result.data.data?.orderId || ''}" class="btn-action" style="text-decoration: none;">
+                       ${langManager.translate('trackOrder')}
+                   </a>
+                   <button onclick="window.location.reload()" class="btn-action" style="background: transparent; border: 1px solid #444; color: #888;">OK</button>
+                </div>
             </div>
         `;
       if (window.lucide) lucide.createIcons();

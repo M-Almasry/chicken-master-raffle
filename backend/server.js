@@ -38,9 +38,12 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.netlify.app')) {
+    const isLocalhost = origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1');
+
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.netlify.app') || isLocalhost) {
       callback(null, true);
     } else {
+      console.error('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -152,13 +155,22 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`
 🚀 Server is running on port ${PORT}
 📊 Environment: ${process.env.NODE_ENV || 'development'}
 🔗 API: http://localhost:${PORT}
 📖 Health: http://localhost:${PORT}/health
   `);
+});
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Error: Port ${PORT} is already in use.`);
+  } else {
+    console.error('❌ Server startup error:', error);
+  }
+  process.exit(1);
 });
 
 module.exports = app;

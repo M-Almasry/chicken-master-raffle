@@ -1,8 +1,20 @@
 import axios from 'axios';
 
-// Create a globally configured Axios instance
+// Detect environment and set base URL
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+
+  // High-reliability fallbacks
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  }
+
+  // Default production URL (Render)
+  return 'https://chicken-master-raffle.onrender.com/api';
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: getBaseURL(),
 });
 
 // Add a request interceptor to attach the Authorization token

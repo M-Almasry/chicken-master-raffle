@@ -15,7 +15,7 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsRes, itemsRes, ordersRes, statusRes] = await Promise.all([
+      const [statsRes, topItemsRes, ordersRes, statusRes, feeRes] = await Promise.all([
         api.get('/admin/stats'),
         api.get('/admin/top-items'),
         api.get('/admin/orders?limit=10'),
@@ -24,7 +24,7 @@ const Dashboard = () => {
       ]);
 
       setStats(statsRes.data.data);
-      setTopItems(itemsRes.data.data);
+      setTopItems(topItemsRes.data.data);
       setRecentOrders(ordersRes.data.data);
       setShopStatus(statusRes.data);
       setDeliveryFee(feeRes.data.data.amount || 0);
@@ -72,7 +72,7 @@ const Dashboard = () => {
   if (loading) return <div className="p-8 text-center text-gray-400">جاري تحميل البيانات...</div>;
 
   const statCards = [
-    { label: 'إجمالي المبيعات', value: `₪${stats?.total_revenue || 0}`, icon: <DollarSign size={24} className="text-green-500" /> },
+    { label: 'صافي المبيعات (بدون التوصيل)', value: `₪${stats?.total_revenue || 0}`, icon: <DollarSign size={24} className="text-green-500" /> },
     { label: 'إجمالي الطلبات', value: stats?.total_orders || 0, icon: <ShoppingBag size={24} className="text-blue-500" /> },
     { label: 'الطلبات المكتملة', value: stats?.completed_orders || 0, icon: <PackageCheck size={24} className="text-purple-500" /> },
     { label: 'طلبات قيد الانتظار', value: stats?.pending_orders || 0, icon: <Activity size={24} className="text-yellow-500" /> },
@@ -254,22 +254,26 @@ const Dashboard = () => {
       </div>
 
       {/* Sales Chart */}
-      <div className="bg-brand-dark p-6 rounded-2xl border border-gray-800 h-[400px] flex flex-col">
+      <div className="bg-brand-dark p-6 rounded-2xl border border-gray-800 h-[450px] flex flex-col">
         <h2 className="text-xl font-bold text-brand-gold mb-6">مبيعات الأصناف (كمية الأطباق المباعة)</h2>
-        <div className="flex-1 w-full min-h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-              <XAxis dataKey="name" stroke="#888" tick={{ fill: '#888', fontSize: 12 }} angle={-25} textAnchor="end" height={60} />
-              <YAxis stroke="#888" tick={{ fill: '#888' }} />
-              <Tooltip
-                cursor={{ fill: '#333' }}
-                contentStyle={{ backgroundColor: '#1A1A1A', borderColor: '#D4A017', borderRadius: '8px', color: '#fff' }}
-                itemStyle={{ color: '#D4A017', fontWeight: 'bold' }}
-              />
-              <Bar dataKey="مبيعات" fill="#D4A017" radius={[4, 4, 0, 0]} barSize={40} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="w-full h-[300px]">
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                <XAxis dataKey="name" stroke="#888" tick={{ fill: '#888', fontSize: 12 }} angle={-25} textAnchor="end" height={60} />
+                <YAxis stroke="#888" tick={{ fill: '#888' }} />
+                <Tooltip
+                  cursor={{ fill: '#333' }}
+                  contentStyle={{ backgroundColor: '#1A1A1A', borderColor: '#D4A017', borderRadius: '8px', color: '#fff' }}
+                  itemStyle={{ color: '#D4A017', fontWeight: 'bold' }}
+                />
+                <Bar dataKey="مبيعات" fill="#D4A017" radius={[4, 4, 0, 0]} barSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">لا توجد بيانات مبيعات حالياً</div>
+          )}
         </div>
       </div>
 

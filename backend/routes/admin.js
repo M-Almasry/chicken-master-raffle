@@ -3,13 +3,19 @@ const router = express.Router();
 const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const orderEvents = require('../utils/events');
 
 /**
  * Middleware للتحقق من JWT Token
  */
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  let token = authHeader && authHeader.split(' ')[1];
+
+  // Also check query param (for SSE)
+  if (!token && req.query.token) {
+    token = req.query.token;
+  }
 
   if (!token) {
     return res.status(401).json({
@@ -175,7 +181,7 @@ router.get('/stats', authenticateToken, async (req, res) => {
         (SELECT COUNT(*) FROM orders WHERE status = 'pending') as pending_orders,
         (SELECT COUNT(*) FROM orders WHERE status = 'completed') as completed_orders,
         (SELECT COUNT(*) FROM raffle_entries) as raffle_participants,
-        (SELECT COALESCE(SUM(total_after_discount), 0) FROM orders WHERE status != 'cancelled') as total_revenue
+        (SELECT COALESCE(SUM(total_after_discount - delivery_fee), 0) FROM orders WHERE status != 'cancelled') as total_revenue
     `);
 
     res.json({
@@ -415,7 +421,7 @@ router.put('/orders/:id/status', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    if (!['pending', 'completed', 'cancelled'].includes(status)) {
+    if (!['pending', 'preparing', 'shipped', 'delivered', 'cancelled', 'completed'].includes(status)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid status'
@@ -434,6 +440,13 @@ router.put('/orders/:id/status', authenticateToken, async (req, res) => {
       });
     }
 
+    // Emit event for real-time notifications
+    orderEvents.emit('orderUpdate', {
+      type: 'order_status_update',
+      orderId: id,
+      status: status
+    });
+
     res.json({
       success: true,
       message: 'Status updated successfully',
@@ -447,6 +460,39 @@ router.put('/orders/:id/status', authenticateToken, async (req, res) => {
       message: 'Error updating status'
     });
   }
+});
+
+/**
+ * GET /api/admin/orders/stream
+ * قناة SSE لتنبيهات الإدارة بالوقت الحقيقي
+ */
+router.get('/orders/stream', authenticateToken, (req, res) => {
+  // إعدادات SSE
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  // إرسال رسالة تأكيد الاتصال
+  res.write(`data: ${JSON.stringify({ type: 'init', message: 'Connected to admin stream' })}\n\n`);
+
+  // مستمع لتحديثات الطلبات
+  const onOrderUpdate = (data) => {
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
+  orderEvents.on('orderUpdate', onOrderUpdate);
+
+  // إرسال Heartbeat كل 15 ثانية للتأكد من بقاء الاتصال مفتوحاً
+  const heartbeat = setInterval(() => {
+    res.write(': heartbeat\n\n');
+  }, 15000);
+
+  // إغلاق الاتصال
+  req.on('close', () => {
+    orderEvents.removeListener('orderUpdate', onOrderUpdate);
+    clearInterval(heartbeat);
+  });
 });
 
 /**

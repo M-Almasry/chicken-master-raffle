@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Search, Filter, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp, MapPin, Phone, User, Receipt } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ShoppingBag, Search, Filter, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp, MapPin, Phone, User, Receipt, Volume2, VolumeX } from 'lucide-react';
 import api from '../utils/api';
 import { format } from 'date-fns';
 
@@ -10,24 +10,95 @@ const Orders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('connecting'); // connecting, connected, error
+  const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
+    return localStorage.getItem('admin_orders_sound') === 'true';
+  });
+  const lastSoundTime = useRef(0);
 
-  const fetchOrders = async () => {
+  const playNotificationSound = (type = 'new') => {
+    if (!isSoundEnabled) return;
+    const now = Date.now();
+    if (now - lastSoundTime.current < 3000) return; // 3s throttle
+    lastSoundTime.current = now;
+
+    const urls = {
+      new: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
+      cancel: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3' // Thicker/Deeper sound
+    };
+
+    const audio = new Audio(urls[type] || urls.new);
+    if (type === 'cancel') audio.volume = 0.8;
+    audio.play().catch(e => console.error('Audio play failed:', e));
+  };
+
+  const fetchOrders = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const res = await api.get(`/admin/orders?status=${filter}&limit=50`);
       setOrders(res.data.data);
     } catch (err) {
       console.error('Error fetching orders:', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 30000); // Simple polling
-    return () => clearInterval(interval);
+
+    // SSE Real-time Updates
+    const token = localStorage.getItem('adminToken');
+    const baseUrl = api.defaults.baseURL;
+    const sseUrl = `${baseUrl}/admin/orders/stream?token=${token}`;
+
+    const eventSource = new EventSource(sseUrl);
+
+    eventSource.onopen = () => {
+      setConnectionStatus('connected');
+    };
+
+    eventSource.onerror = () => {
+      setConnectionStatus('error');
+    };
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Real-time update:', data);
+
+        if (data.type === 'new_order') {
+          playNotificationSound('new');
+          fetchOrders(true); // Silent refresh
+        } else if (data.type === 'customer_cancelled') {
+          playNotificationSound('cancel');
+          fetchOrders(true); // Silent refresh
+        } else if (data.type === 'order_status_update') {
+          // Update the specific order in the list without full fetch if possible
+          setOrders(prev => prev.map(o => o.id.toString() === data.orderId.toString() ? { ...o, status: data.status } : o));
+        }
+      } catch (e) {
+        console.error('Error parsing SSE data:', e);
+      }
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, [filter]);
+
+  const toggleSound = () => {
+    const newState = !isSoundEnabled;
+    setIsSoundEnabled(newState);
+    localStorage.setItem('admin_orders_sound', newState.toString());
+
+    // Play a short sound once to confirm/unlock audio if enabling
+    if (newState) {
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+      audio.volume = 0.5;
+      audio.play().catch(() => { });
+    }
+  };
 
   const handleUpdateStatus = async (id, newStatus) => {
     setUpdatingId(id);
@@ -49,6 +120,9 @@ const Orders = () => {
 
   const getStatusStyle = (status) => {
     switch (status) {
+      case 'preparing': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+      case 'shipped': return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
+      case 'delivered':
       case 'completed': return 'bg-green-500/10 text-green-500 border-green-500/20';
       case 'cancelled': return 'bg-red-500/10 text-red-500 border-red-500/20';
       default: return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
@@ -57,10 +131,18 @@ const Orders = () => {
 
   const getStatusLabel = (status) => {
     switch (status) {
+      case 'pending': return 'قيد الانتظار';
+      case 'preparing': return 'تجهيز';
+      case 'shipped': return 'مع السائق';
+      case 'delivered':
       case 'completed': return 'مكتمل';
       case 'cancelled': return 'ملغي';
-      default: return 'قيد الانتظار';
+      default: return status;
     }
+  };
+
+  const isCancelledByCustomer = (order) => {
+    return order.status === 'cancelled' && (order.notes || '').includes('عن طريق الزبون');
   };
 
   return (
@@ -69,8 +151,12 @@ const Orders = () => {
         <div>
           <h1 className="text-2xl font-bold font-playfair text-brand-gold flex items-center gap-2">
             <ShoppingBag size={28} /> إدارة الطلبات
+            <div
+              className={`w-3 h-3 rounded-full ml-2 ${connectionStatus === 'connected' ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : connectionStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500 shadow-[0_0_10px_#ef4444]'}`}
+              title={connectionStatus === 'connected' ? 'متصل (وقت حقيقي)' : connectionStatus === 'connecting' ? 'جاري الاتصال...' : 'فشل الاتصال - يرجى التنشيط'}
+            />
           </h1>
-          <p className="text-gray-400 mt-1">مراقبة الطلبات المباشرة وتحديث حالاتها</p>
+          <p className="text-gray-400 mt-1">مراقبة الطلبات المباشرة وتحديث حالاتها (SSE)</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -95,6 +181,15 @@ const Orders = () => {
             <option value="completed">مكتمل</option>
             <option value="cancelled">ملغي</option>
           </select>
+
+          <button
+            onClick={toggleSound}
+            className={`flex items-center gap-2 py-2 px-4 rounded-xl border transition-all font-bold text-sm ${isSoundEnabled ? 'bg-brand-gold/20 text-brand-gold border-brand-gold/30 hover:bg-brand-gold/30' : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700'}`}
+            title={isSoundEnabled ? "إيقاف الصوت" : "تشغيل الصوت عند وصول طلب جديد"}
+          >
+            {isSoundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            <span className="hidden sm:inline">{isSoundEnabled ? 'التنبيه مفعل' : 'تفعيل التنبيه'}</span>
+          </button>
         </div>
       </div>
 
@@ -133,12 +228,13 @@ const Orders = () => {
 
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <p className="text-xs text-gray-500">إجمالي الطلب</p>
-                    <p className="text-xl font-black text-brand-gold">₪{order.total_after_discount}</p>
+                    <p className="text-xs text-gray-500">للمحل (صفي)</p>
+                    <p className="text-xl font-black text-brand-gold">₪{parseFloat(order.total_after_discount - (order.delivery_fee || 0)).toFixed(2)}</p>
+                    {order.delivery_fee > 0 && <p className="text-[10px] text-gray-400 mt-1">+ ₪{order.delivery_fee} توصيل</p>}
                   </div>
 
-                  <div className={`px-4 py-1.5 rounded-full text-xs font-bold border ${getStatusStyle(order.status)}`}>
-                    {getStatusLabel(order.status)}
+                  <div className={`px-4 py-1.5 rounded-full text-xs font-bold border ${getStatusStyle(order.status)} ${isCancelledByCustomer(order) ? 'bg-red-600 text-white border-red-600 animate-pulse' : ''}`}>
+                    {isCancelledByCustomer(order) ? 'ملغي من الزبون 🔴' : getStatusLabel(order.status)}
                   </div>
 
                   {expandedOrder === order.id ? <ChevronUp className="text-gray-500" /> : <ChevronDown className="text-gray-500" />}
@@ -167,6 +263,23 @@ const Orders = () => {
                             </div>
                           </div>
                         ))}
+                      </div>
+
+                      <div className="mt-4 pt-4 border-t border-gray-800 space-y-2">
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>مجموع الأصناف:</span>
+                          <span>₪{parseFloat(order.total_after_discount - (order.delivery_fee || 0)).toFixed(2)}</span>
+                        </div>
+                        {order.delivery_fee > 0 && (
+                          <div className="flex justify-between text-xs text-gray-500">
+                            <span>رسوم التوصيل (للسائق):</span>
+                            <span>₪{order.delivery_fee}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between text-sm font-bold text-brand-gold pt-1">
+                          <span>إجمالي العميل:</span>
+                          <span>₪{order.total_after_discount}</span>
+                        </div>
                       </div>
 
                       {order.notes && (
@@ -199,28 +312,48 @@ const Orders = () => {
                       </div>
 
                       <div className="mt-8">
-                        <h4 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider">تغيير حالة الطلب</h4>
-                        <div className="flex flex-wrap gap-2">
+                        <h4 className="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider">تغيير حالة الطلب (تتبع مباشر)</h4>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                           <button
-                            disabled={updatingId === order.id || order.status === 'pending'}
-                            onClick={() => handleUpdateStatus(order.id, 'pending')}
-                            className="flex-1 py-3 px-4 bg-yellow-600/10 text-yellow-500 border border-yellow-500/20 rounded-xl font-bold text-sm hover:bg-yellow-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-30"
+                            disabled={updatingId === order.id}
+                            onClick={() => handleUpdateStatus(order.id, 'preparing')}
+                            className={`py-3 px-4 border rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${order.status === 'preparing' ? 'bg-blue-600 text-white border-blue-600' : 'bg-blue-600/10 text-blue-500 border-blue-500/20 hover:bg-blue-600/20'}`}
                           >
-                            <Clock size={16} /> قيد الانتظار
+                            <span className="shrink-0 text-lg">🔥</span> تجهيز
                           </button>
+
                           <button
-                            disabled={updatingId === order.id || order.status === 'completed'}
-                            onClick={() => handleUpdateStatus(order.id, 'completed')}
-                            className="flex-1 py-3 px-4 bg-green-600/10 text-green-500 border border-green-600/20 rounded-xl font-bold text-sm hover:bg-green-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-30"
+                            disabled={updatingId === order.id}
+                            onClick={() => handleUpdateStatus(order.id, 'shipped')}
+                            className={`py-3 px-4 border rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${order.status === 'shipped' ? 'bg-purple-600 text-white border-purple-600' : 'bg-purple-600/10 text-purple-500 border-purple-500/20 hover:bg-purple-600/20'}`}
                           >
-                            <CheckCircle size={16} /> تم التجهيز
+                            <span className="shrink-0 text-lg">🚚</span> شحن
                           </button>
+
                           <button
-                            disabled={updatingId === order.id || order.status === 'cancelled'}
+                            disabled={updatingId === order.id}
+                            onClick={() => handleUpdateStatus(order.id, 'delivered')}
+                            className={`py-3 px-4 border rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${['delivered', 'completed'].includes(order.status) ? 'bg-green-600 text-white border-green-600' : 'bg-green-600/10 text-green-500 border-green-500/20 hover:bg-green-600/20'}`}
+                          >
+                            <span className="shrink-0 text-lg">✅</span> تسليم
+                          </button>
+
+                          <button
+                            disabled={updatingId === order.id}
                             onClick={() => handleUpdateStatus(order.id, 'cancelled')}
-                            className="flex-1 py-3 px-4 bg-red-600/10 text-red-500 border border-red-500/20 rounded-xl font-bold text-sm hover:bg-red-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-30"
+                            className={`py-3 px-4 border rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${order.status === 'cancelled' ? 'bg-red-600 text-white border-red-600' : 'bg-red-600/10 text-red-500 border-red-500/20 hover:bg-red-600/20'}`}
                           >
-                            <XCircle size={16} /> إلغاء الطلب
+                            إلغاء
+                          </button>
+                        </div>
+
+                        <div className="mt-4 flex gap-2">
+                          <button
+                            disabled={updatingId === order.id}
+                            onClick={() => handleUpdateStatus(order.id, 'pending')}
+                            className="flex-1 py-2 bg-gray-800 text-gray-400 border border-gray-700 rounded-xl text-xs hover:bg-gray-700 transition-all"
+                          >
+                            رجوع للانتظار
                           </button>
                         </div>
                       </div>

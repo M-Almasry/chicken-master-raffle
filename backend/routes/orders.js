@@ -171,6 +171,14 @@ router.post('/', async (req, res) => {
 
     await client.query('COMMIT');
 
+    // Emit event for real-time notifications
+    orderEvents.emit('orderUpdate', {
+      type: 'new_order',
+      orderId: orderId,
+      customerName: customerName,
+      total: totalAfterDiscount
+    });
+
     res.status(201).json({
       success: true,
       message: {
@@ -239,6 +247,141 @@ router.get('/:id', async (req, res) => {
         en: 'Error fetching order'
       }
     });
+  }
+});
+
+const orderEvents = require('../utils/events');
+
+// ... (existing code remains above)
+
+/**
+ * GET /api/orders/track/phone/:phone
+ * عرض طلبات الزبون الأخيرة عبر رقم الجوال
+ */
+router.get('/track/phone/:phone', async (req, res) => {
+  try {
+    const { phone } = req.params;
+    const result = await pool.query(
+      'SELECT id, status, created_at, total_after_discount FROM orders WHERE customer_phone = $1 ORDER BY created_at DESC LIMIT 5',
+      [phone]
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'خطأ في جلب طلبات الزبون' });
+  }
+});
+
+/**
+ * GET /api/orders/track/stream/:id
+ * قناة SSE لتتبع حالة الطلب في الوقت الحقيقي
+ */
+router.get('/track/stream/:id', (req, res) => {
+  const { id } = req.params;
+
+  // إعدادات SSE
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  // ترسل رسالة أولية للتأكد من الاتصال
+  res.write(`data: ${JSON.stringify({ type: 'init', message: 'Connected to tracking stream' })}\n\n`);
+
+  // مستمع لتحديثات الطلبات
+  const onOrderUpdate = (data) => {
+    if (data.orderId && data.orderId.toString() === id.toString()) {
+      if (data.type === 'order_status_update') {
+        res.write(`data: ${JSON.stringify({ type: 'status_update', status: data.status })}\n\n`);
+      } else if (data.type === 'customer_cancelled') {
+        res.write(`data: ${JSON.stringify({ type: 'status_update', status: 'cancelled', notes: 'عن طريق الزبون' })}\n\n`);
+      }
+    }
+  };
+
+  orderEvents.on('orderUpdate', onOrderUpdate);
+
+  // إرسال Heartbeat كل 15 ثانية
+  const heartbeat = setInterval(() => {
+    res.write(': heartbeat\n\n');
+  }, 15000);
+
+  // إغلاق الاتصال عند مغادرة الزبون
+  req.on('close', () => {
+    orderEvents.removeListener('orderUpdate', onOrderUpdate);
+    clearInterval(heartbeat);
+  });
+});
+
+/**
+ * GET /api/orders/track/:id
+ * تتبع طلب محدد (بيانات عامة فقط)
+ */
+router.get('/track/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'SELECT id, customer_name, status, created_at, delivery_type, delivery_fee, total_after_discount FROM orders WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'الطلب غير موجود' });
+    }
+
+    res.json({ success: true, data: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'خطأ في جلب بيانات التتبع' });
+  }
+});
+
+/**
+ * PUT /api/orders/:id/cancel
+ * إلغاء طلب من قبل الزبون
+ */
+router.put('/:id/cancel', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    // التأكد من أن الطلب في حالة تسمح بالإلغاء (pending فقط)
+    const checkResult = await pool.query('SELECT status FROM orders WHERE id = $1', [id]);
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'الطلب غير موجود' });
+    }
+
+    const currentStatus = checkResult.rows[0].status;
+    if (currentStatus !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'لا يمكن إلغاء الطلب بعد اعتماده أو البدء في تجهيزه. يرجى التواصل مع المطعم.'
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE orders 
+       SET status = 'cancelled', 
+           notes = COALESCE(notes || '\n', '') || 'عن طريق الزبون' || (CASE WHEN $1 != '' THEN ': ' || $1 ELSE '' END)
+       WHERE id = $2 RETURNING *`,
+      [reason || '', id]
+    );
+
+    // Emit event for Admin
+    orderEvents.emit('orderUpdate', {
+      type: 'customer_cancelled',
+      orderId: id,
+      reason: reason
+    });
+
+    res.json({
+      success: true,
+      message: 'تم إلغاء الطلب بنجاح',
+      data: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    res.status(500).json({ success: false, message: 'خطأ في عملية الإلغاء' });
   }
 });
 

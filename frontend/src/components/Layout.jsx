@@ -38,7 +38,7 @@ const Layout = () => {
       <aside className="w-64 bg-brand-dark border-l border-gray-800 flex flex-col">
         <div className="p-5 border-b border-gray-800 flex items-center justify-center">
           <img
-            src='../public/logo.png'
+            src='/images/logo.png'
             alt="Chicken Master"
             className="w-64 h-16 rounded-2xl object-contain"
           />

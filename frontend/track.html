@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تتبع طلبك | Chicken Master</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Playfair+Display:wght@700;900&display=swap"
+    rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --brand-gold: #D4A017;
+      --brand-dark: #0a0a0a;
+      --brand-charcoal: #1a1a1a;
+      --brand-red: #ff4d4d;
+      --glass: rgba(26, 26, 26, 0.85);
+    }
+
+    body {
+      background-color: var(--brand-dark);
+      background-image: radial-gradient(circle at top right, #1a150a 0%, #0a0a0a 100%);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .track-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      flex: 1;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .logo-section {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .logo-section img {
+      width: 180px;
+      filter: drop-shadow(0 0 15px rgba(212, 160, 23, 0.3));
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 28px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: var(--brand-gold);
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 1px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      background: rgba(40, 40, 40, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1.2rem 1.5rem;
+      border-radius: 16px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 1.1rem;
+      box-sizing: border-box;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--brand-gold);
+      background: rgba(50, 50, 50, 0.8);
+      box-shadow: 0 0 15px rgba(212, 160, 23, 0.2);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--brand-gold) 0%, #B8860B 100%);
+      color: #000;
+      border: none;
+      padding: 1.2rem;
+      border-radius: 16px;
+      font-weight: 900;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 10px 20px rgba(212, 160, 23, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    /* Status UI */
+    .status-display {
+      display: none;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .order-id-badge {
+      background: rgba(212, 160, 23, 0.1);
+      color: var(--brand-gold);
+      padding: 0.5rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 700;
+      border: 1px solid rgba(212, 160, 23, 0.2);
+      display: inline-block;
+      margin-bottom: 2rem;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-right: 3rem;
+      margin: 2rem 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      right: 17px;
+      top: 5px;
+      bottom: 5px;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .timeline-step {
+      position: relative;
+      margin-bottom: 2.5rem;
+      opacity: 0.2;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .timeline-step.completed {
+      opacity: 0.6;
+    }
+
+    .timeline-step.active {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .step-icon-wrap {
+      position: absolute;
+      right: -42px;
+      top: 0;
+      width: 36px;
+      height: 36px;
+      background: #222;
+      border: 2px solid #333;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      transition: all 0.5s;
+    }
+
+    .timeline-step.active .step-icon-wrap {
+      background: var(--brand-gold);
+      color: #000;
+      border-color: var(--brand-gold);
+      box-shadow: 0 0 20px rgba(212, 160, 23, 0.5);
+    }
+
+    .timeline-step.completed .step-icon-wrap {
+      background: #333;
+      color: var(--brand-gold);
+      border-color: var(--brand-gold);
+    }
+
+    .step-info h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .step-info p {
+      margin: 0.3rem 0 0;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Cancelled Style */
+    .cancelled-box {
+      background: rgba(255, 77, 77, 0.1);
+      border: 1px solid var(--brand-red);
+      border-radius: 20px;
+      padding: 1.5rem;
+      text-align: center;
+      display: none;
+      margin-bottom: 2rem;
+    }
+
+    .cancelled-box h2 {
+      color: var(--brand-red);
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Actions & Footer */
+    .footer-info {
+      margin-top: 3rem;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 2rem;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .social-btn {
+      width: 45px;
+      height: 45px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .social-btn:hover {
+      background: var(--brand-gold);
+      color: #000;
+      transform: translateY(-5px);
+    }
+
+    .location-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    .gps-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--brand-gold);
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+
+    .wa-btn {
+      background: #25D366;
+      color: #fff;
+      text-decoration: none;
+      width: 100%;
+      padding: 1rem;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 700;
+      margin-top: 1rem;
+      transition: opacity 0.3s;
+    }
+
+    .wa-btn.cancelled {
+      background: var(--brand-charcoal);
+      border: 1px solid #444;
+    }
+
+    .review-section {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .review-btn {
+      background: transparent;
+      color: var(--brand-gold);
+      border: 1px solid var(--brand-gold);
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Utilities */
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(212, 160, 23, 0.1);
+      border-top-color: var(--brand-gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error-msg {
+      color: var(--brand-red);
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      display: none;
+    }
+
+    /* Cancel Order Styles */
+    .cancel-btn-wrap {
+      margin-top: 1.5rem;
+      padding: 0 1rem;
+    }
+
+    .btn-outline-red {
+      background: transparent;
+      border: 1px solid rgba(231, 76, 60, 0.3);
+      color: #e74c3c;
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-red:hover {
+      background: rgba(231, 76, 60, 0.1);
+      border-color: #e74c3c;
+    }
+
+    /* Simple Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-content h2 {
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    .modal-content textarea {
+      width: 100%;
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1rem;
+      color: #fff;
+      margin-bottom: 1.5rem;
+      font-family: inherit;
+      resize: none;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <div class="track-container">
+    <div class="logo-section">
+      <a href="index.html">
+        <img src="images/logo.png" alt="Chicken Master">
+      </a>
+    </div>
+
+    <!-- Search Section -->
+    <div class="glass-card" id="searchSection">
+      <h1>أين وصل طلبي؟</h1>
+      <div class="input-group">
+        <input type="text" id="orderInput" placeholder="رقم الطلب أو رقم الجوال">
+      </div>
+      <button class="btn-primary" id="trackBtn">
+        <i data-lucide="search"></i> تتبع الآن
+      </button>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 1rem; color: #888;">جاري جلب المعلومات...</p>
+      </div>
+      <div id="error" class="error-msg">عذراً، لم نجد أي طلبات بهذا الرقم.</div>
+    </div>
+
+    <!-- Status Display -->
+    <div class="status-display" id="statusDisplay">
+
+      <!-- Cancelled Alert -->
+      <div class="cancelled-box" id="cancelledBox">
+        <i data-lucide="alert-triangle" size="32" style="margin-bottom: 0.5rem;"></i>
+        <h2>تم إلغاء الطلب</h2>
+        <p>نعتذر منك، تم إلغاء هذا الطلب من قبل الإدارة.</p>
+        <a href="#" id="waCancelBtn" class="wa-btn cancelled">
+          <i data-lucide="message-circle"></i> لماذا تم إلغاء طلبي؟
+        </a>
+      </div>
+
+      <div class="glass-card" style="text-align: center; padding-top: 3rem;">
+        <div class="order-id-badge" id="orderIdBadge">#0000</div>
+
+        <div class="timeline" id="mainTimeline">
+          <div class="timeline-step" id="s-pending">
+            <div class="step-icon-wrap"><i data-lucide="check" size="18"></i></div>
+            <div class="step-info">
+              <h3>تم استلام الطلب</h3>
+              <p>وصلنا طلبك وبنراجعه حالياً</p>
+            </div>
+          </div>
+          <div class="timeline-step" id="s-preparing">
+            <div class="step-icon-wrap"><i data-lucide="flame" size="18"></i></div>
+            <div class="step-info">
+              <h3>قيد التحضير</h3>
+              <p>طلبك الآن على نار حطب الزيتون البراند</p>
+            </div>
+          </div>
+          <div class="timeline-step" id="s-shipped">
+            <div class="step-icon-wrap"><i data-lucide="truck" size="18"></i></div>
+            <div class="step-info">
+              <h3>مع السائق</h3>
+              <p id="delMsg">خرج السائق لتوصيل طلبك ساخناً</p>
+            </div>
+          </div>
+          <div class="timeline-step" id="s-delivered">
+            <div class="step-icon-wrap"><i data-lucide="heart" size="18"></i></div>
+            <div class="step-info">
+              <h3>تم التسليم</h3>
+              <p>صحتين وعافية.. بنتمنى تعجبك الوجبة!</p>
+            </div>
+          </div>
+        </div>
+
+        <a href="#" id="waNormalBtn" class="wa-btn">
+          <i data-lucide="message-circle"></i> تواصل مع الإدارة
+        </a>
+
+        <div class="cancel-btn-wrap" id="cancelBtnArea" style="display: none;">
+          <button class="btn-outline-red" id="openCancelModal">
+            <i data-lucide="x-circle"></i> إلغاء الطلب
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel Modal -->
+  <div class="modal-overlay" id="cancelModal">
+    <div class="modal-content">
+      <h2>إلغاء الطلب</h2>
+      <p style="color: #888; margin-bottom: 1.5rem; font-size: 0.9rem;">هل أنت متأكد من إلغاء الطلب؟ يرجى ذكر السبب
+        (اختياري)</p>
+      <textarea id="cancelReason" rows="3" placeholder="مثلاً: أريد تغيير الطلب، تأخر الوقت..."></textarea>
+      <div class="modal-actions">
+        <button class="btn-outline-red" id="confirmCancel" style="background: #e74c3c; color: #fff; border: none;">نعم،
+          إلغاء</button>
+        <button class="btn-primary" id="closeCancelModal" style="background: #333; border: none;">تراجع</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="review-section">
+    <button class="review-btn" onclick="window.location.href='index.html#reviews'">
+      <i data-lucide="star"></i> شاركنا تقييمك للوجبة
+    </button>
+    <button class="btn-track"
+      style="margin-top: 1rem; background: transparent; border: none; color: #666; font-size: 0.9rem;"
+      onclick="location.reload()">
+      بحث عن طلب آخر
+    </button>
+  </div>
+  </div>
+  </div>
+
+  <!-- Shared Footer Info -->
+  <div class="footer-info">
+    <div class="social-links">
+      <a href="https://www.instagram.com/chicken_master26/" target="_blank" class="social-btn"><i
+          data-lucide="instagram"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61587454410215" target="_blank" class="social-btn"><i
+          data-lucide="facebook"></i></a>
+    </div>
+    <div class="location-box">
+      <i data-lucide="map-pin" size="16"></i> طولكرم - دوار المسلخ<br>
+      <a href="https://www.google.com/maps/search/?api=1&query=32.305444,35.034139" target="_blank" class="gps-btn">
+        افتح الموقع على الخريطة (GPS)
+      </a>
+    </div>
+    <p style="font-size: 0.8rem; color: #444;">Chicken Master &copy; 2026</p>
+  </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const trackBtn = document.getElementById('trackBtn');
+      const orderInput = document.getElementById('orderInput');
+      const searchSection = document.getElementById('searchSection');
+      const statusDisplay = document.getElementById('statusDisplay');
+      const cancelledBox = document.getElementById('cancelledBox');
+      const timeline = document.getElementById('mainTimeline');
+      const errorMsg = document.getElementById('error');
+      const loading = document.getElementById('loading');
+
+      const WA_LINK = "https://wa.me/970567811812";
+      let eventSource = null;
+
+      const steps = {
+        pending: document.getElementById('s-pending'),
+        preparing: document.getElementById('s-preparing'),
+        shipped: document.getElementById('s-shipped'),
+        delivered: document.getElementById('s-delivered'),
+        completed: document.getElementById('s-delivered')
+      };
+
+      const updateUI = (order) => {
+        const { status, id, notes } = order;
+        const isCustomerCancelled = status === 'cancelled' && (notes || '').includes('عن طريق الزبون');
+
+        if (status === 'cancelled') {
+          timeline.style.display = 'none';
+          cancelledBox.style.display = 'block';
+          document.getElementById('cancelBtnArea').style.display = 'none';
+
+          if (isCustomerCancelled) {
+            cancelledBox.querySelector('p').textContent = 'لقد قمت بإلغاء هذا الطلب بنجاح.';
+          } else {
+            cancelledBox.querySelector('p').textContent = 'نعتذر منك، تم إلغاء هذا الطلب من قبل الإدارة.';
+          }
+
+          document.getElementById('waCancelBtn').href = `${WA_LINK}?text=${encodeURIComponent('لماذا تم إلغاء طلبي رقم #' + id + '؟')}`;
+        } else {
+          timeline.style.display = 'block';
+          cancelledBox.style.display = 'none';
+          // Show cancel button only if still pending
+          document.getElementById('cancelBtnArea').style.display = status === 'pending' ? 'block' : 'none';
+        }
+
+        // Reset
+        Object.values(steps).forEach(s => {
+          s.classList.remove('active');
+          s.classList.remove('completed');
+        });
+
+        const states = ['pending', 'preparing', 'shipped', 'delivered'];
+        const currentIndex = states.indexOf(status === 'completed' ? 'delivered' : status);
+
+        states.forEach((s, idx) => {
+          if (idx < currentIndex) steps[s].classList.add('completed');
+          if (idx === currentIndex) steps[s].classList.add('active');
+        });
+
+        document.getElementById('waNormalBtn').href = `${WA_LINK}?text=${encodeURIComponent('مرحباً تشيكن ماستر، أود الاستفسار عن طلبي رقم #' + id)}`;
+      };
+
+      const startTracking = async (val) => {
+        errorMsg.style.display = 'none';
+        loading.style.display = 'block';
+        trackBtn.style.display = 'none';
+
+        const baseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://chicken-master-raffle.onrender.com/api');
+
+        try {
+          // Normalize search: try ID first, then phone if fails
+          let res = await fetch(`${baseUrl}/orders/track/${val}`);
+          let json = await res.json();
+
+          if (!json.success) {
+            // Potential phone search (always try if ID fails)
+            const phoneRes = await fetch(`${baseUrl}/orders/track/phone/${val}`);
+            const phoneJson = await phoneRes.json();
+            if (phoneJson.success && phoneJson.data.length > 0) {
+              return startTracking(phoneJson.data[0].id);
+            }
+          }
+
+          if (json.success) {
+            const order = json.data;
+            document.getElementById('orderIdBadge').textContent = `#${order.id}`;
+            if (order.delivery_type === 'pickup') {
+              document.getElementById('delMsg').textContent = 'طلبك جاهز للاستلام الآن من المطعم';
+            }
+
+            updateUI(order);
+            searchSection.style.display = 'none';
+            statusDisplay.style.display = 'block';
+
+            // SSE
+            if (eventSource) eventSource.close();
+            eventSource = new EventSource(`${baseUrl}/orders/track/stream/${order.id}`);
+            eventSource.onmessage = (e) => {
+              const data = JSON.parse(e.data);
+              if (data.type === 'status_update') updateUI({ ...order, status: data.status, notes: data.notes || order.notes });
+            };
+          } else {
+            errorMsg.style.display = 'block';
+          }
+        } catch (e) {
+          errorMsg.style.display = 'block';
+        } finally {
+          loading.style.display = 'none';
+          trackBtn.style.display = 'flex';
+        }
+      };
+
+      trackBtn.addEventListener('click', () => {
+        const val = orderInput.value.trim();
+        if (val) startTracking(val);
+      });
+
+      // Cancellation Logic
+      const cancelModal = document.getElementById('cancelModal');
+      const openCancelBtn = document.getElementById('openCancelModal');
+      const closeCancelBtn = document.getElementById('closeCancelModal');
+      const confirmCancelBtn = document.getElementById('confirmCancel');
+      const cancelReasonInput = document.getElementById('cancelReason');
+
+      openCancelBtn.addEventListener('click', () => {
+        cancelModal.style.display = 'flex';
+      });
+
+      closeCancelBtn.addEventListener('click', () => {
+        cancelModal.style.display = 'none';
+      });
+
+      confirmCancelBtn.addEventListener('click', async () => {
+        const orderId = document.getElementById('orderIdBadge').textContent.replace('#', '');
+        const reason = cancelReasonInput.value.trim();
+
+        confirmCancelBtn.disabled = true;
+        confirmCancelBtn.textContent = 'جاري الإلغاء...';
+
+        try {
+          const baseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://chicken-master-raffle.onrender.com/api');
+
+          const response = await fetch(`${baseUrl}/orders/${orderId}/cancel`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert('تم إلغاء الطلب بنجاح');
+            window.location.reload();
+          } else {
+            alert(result.message || 'فشل إلغاء الطلب');
+          }
+        } catch (e) {
+          console.error('Cancel error:', e);
+          alert('حدث خطأ أثناء إلغاء الطلب');
+        } finally {
+          confirmCancelBtn.disabled = false;
+          confirmCancelBtn.textContent = 'نعم، إلغاء';
+          cancelModal.style.display = 'none';
+        }
+      });
+
+      // Handle URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+      if (id) {
+        orderInput.value = id;
+        startTracking(id);
+      }
+
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+
+</html>

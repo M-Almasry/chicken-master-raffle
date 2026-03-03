@@ -56,6 +56,12 @@ async function runMigrations() {
         status VARCHAR(20) DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      
+      -- Ensure granular statuses via a separate check (safer for ALTER)
+      ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check;
+      ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status IN ('pending', 'preparing', 'shipped', 'delivered', 'cancelled'));
+      
+      CREATE INDEX IF NOT EXISTS idx_orders_phone ON orders(customer_phone);
       CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
       CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at);
     `);
