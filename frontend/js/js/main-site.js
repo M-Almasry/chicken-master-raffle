@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
       item_shish_title: "شيش طاووق",
       item_shish_desc: "قطع صدر دجاج مشوية على السيخ بتتبيلة الزبادي والبهارات.",
       item_boneless_title: "دجاج مسحب",
-      item_boneless_desc: "دجاج كامل مخلي من العظم، طري جداً ومشوي على الفحم.",
+      item_boneless_desc: "دجاج كامل مخلي من العظم، طري جداً ومشوي على حطب الزيتون.",
 
       // Salad Items
       item_caesar_title: "سلطة سيزر",

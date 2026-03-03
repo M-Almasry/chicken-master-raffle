@@ -29,7 +29,11 @@ app.use(cors({
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'http://localhost:5500',
-      'http://127.0.0.1:5500'
+      'http://127.0.0.1:5500',
+      'http://localhost:58767',
+      'http://127.0.0.1:58767',
+      'http://localhost:5173',
+      'http://127.0.0.1:5173'
     ];
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -58,16 +62,25 @@ const limiter = rateLimit({
   }
 });
 
-app.use('/api/', limiter);
+app.use('/api/', (req, res, next) => {
+  if (req.path === '/shop/status') {
+    return next(); // Bypass rate limiter for status polling
+  }
+  limiter(req, res, next);
+});
 
 // Routes
 const registrationsRouter = require('./routes/registrations');
 const ordersRouter = require('./routes/orders');
 const adminRouter = require('./routes/admin');
+const shopRouter = require('./routes/shop');
+const reviewsRouter = require('./routes/reviews');
 
 app.use('/api/registrations', registrationsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/shop', shopRouter);
+app.use('/api/reviews', reviewsRouter);
 
 // Serve static files from frontend
 const path = require('path');

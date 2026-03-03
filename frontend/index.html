@@ -15,8 +15,8 @@
     rel="stylesheet">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="assets/assets/images/favicon.ico">
-  <link rel="shortcut icon" href="assets/assets/images/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <link rel="shortcut icon" href="/images/favicon.ico">
 
   <!-- Styles -->
   <link rel="stylesheet" href="styles/main-site.css">
@@ -30,7 +30,7 @@
   <!-- Navigation -->
   <nav class="navbar">
     <a href="#" class="logo-link">
-      <img src="assets/assets/images/logo.png" alt="Chicken Master Logo" class="logo">
+      <img src="/images/logo.png" alt="Chicken Master Logo" class="logo">
     </a>
     <div class="nav-links">
       <a href="#about" class="nav-link" data-i18n="nav_story">قصتنا</a>
@@ -45,11 +45,40 @@
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <h1 class="hero-title" data-i18n="hero_title">ترقبوا <span class="text-gold">الافتتاح</span></h1>
-      <p class="hero-subtitle" data-i18n="hero_subtitle">قريباً.. دجاج مشوي فاخر جورميه</p>
-      <a href="#location" class="btn-primary" data-i18n="btn_menu">تابعونا</a>
+      <div class="slogan-badge">الأول في طولكرم</div>
+      <h1 class="hero-title" data-i18n="hero_title">تذوق <span class="text-gold">النار</span><br>Chicken Master</h1>
+      <p class="hero-subtitle" data-i18n="hero_subtitle">GRILL & KIOSK<br>فن الشواء على حطب الزيتون.. طعم النار الأصيل
+      </p>
+
+      <!-- Rating Top Summary -->
+      <a href="#reviews" class="hero-rating-summary" id="heroRatingLink">
+        <div class="stars-mini" id="heroStars"></div>
+        <span class="rating-text"><span id="heroAvg">-</span>/5</span>
+        <span class="reviews-count-badge" id="heroCount">آراء زبائننا</span>
+      </a>
+
+      <div style="display: flex; gap: 1rem; justify-content: center; margin: 2rem 0 3rem; flex-wrap: wrap;">
+        <div class="slogan-tag"
+          style="padding: 0.5rem 1rem; border: 1px solid var(--color-gold); border-radius: 4px; color: var(--color-gold); font-weight: bold;">
+          تذوق النار</div>
+        <div class="slogan-tag"
+          style="padding: 0.5rem 1rem; border: 1px solid var(--color-gold); border-radius: 4px; color: var(--color-gold); font-weight: bold;">
+          روضنالكم النار</div>
+      </div>
+
+      <div id="shopStatusBadge" style="display: none; margin-bottom: 1.5rem;">
+        <span class="status-indicator"
+          style="background: rgba(231, 76, 60, 0.2); color: #E74C3C; border: 1px solid #E74C3C; padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: bold; font-family: 'Cairo', sans-serif; display: inline-flex; align-items: center; gap: 0.5rem;">
+          <span
+            style="width: 8px; height: 8px; background: #E74C3C; border-radius: 50%; box-shadow: 0 0 10px #E74C3C;"></span>
+          مغلق حالياً - نراكم قريباً
+        </span>
+      </div>
+
+      <a href="store.html" class="btn-primary" data-i18n="btn_menu">
+        <i data-lucide="utensils"></i> تصفح القائمة
+      </a>
     </div>
-    <!-- Scroll Indicator (Optional Polish) -->
     <div class="scroll-down">
       <i data-lucide="chevron-down" class="text-gold"></i>
     </div>
@@ -57,35 +86,138 @@
 
   <!-- About / Concept Section -->
   <section id="about" class="concept">
-    <h2 class="section-title" data-i18n="section_story">فن الشواء</h2>
+    <h2 class="section-title" data-i18n="section_story">قصة النار والحطب</h2>
     <div class="concept-container">
-      <div class="concept-img hidden">
-        <img src="assets/assets/images/interior.png" alt="Chicken Master Interior">
+      <div class="concept-img">
+        <img src="/images/interior_vintage.png" alt="Chicken Master Interior">
       </div>
-      <div class="concept-text hidden">
-        <p data-i18n="story_p1">في <strong>تشيكن ماستر</strong>، نؤمن بأن الشواء فن...</p>
-        <p data-i18n="story_p2">كل قطعة مختارة بعناية...</p>
-        <p class="text-gold quote" data-i18n="story_quote">"حيث يلتقي الشغف بالفخامة"</p>
+      <div class="concept-text">
+        <p data-i18n="story_p1">في قلب طولكرم، أعدنا تعريف مفهوم الشوار.. نستخدم حطب الزيتون الطبيعي لنمنح الدجاج تلك
+          النكهة المدخنة التي تأخذك إلى عبق الماضي بلمسة عصرية فاخرة.</p>
+        <p data-i18n="story_p2">المكان ليس مجرد مطعم، بل هو تجربة كلاسيكية في أجواء راقية، حيث الجدران الحجرية والأخشاب
+          الداكنة تروي قصة "ماستر" الشواء.</p>
+        <p class="text-gold quote" data-i18n="story_quote">"حيث يلتقي الشغف بالفخامة.. وروضنا لكم النار"</p>
       </div>
     </div>
   </section>
 
-  <!-- Raffle Section -->
-  <section id="raffle" class="raffle-promo">
-    <div class="raffle-overlay"></div>
-    <div class="raffle-content">
-      <h2 class="section-title" data-i18n="raffle_title">🎉 سحب 100 شيكل 🎉</h2>
-      <div class="raffle-box">
-        <p class="raffle-desc" data-i18n="raffle_desc">سجل الآن واحصل على كوبون خصم 10% + دخول السحب على 100 شيكل!</p>
-        <div class="prize-display">
-          <span class="prize-label" data-i18n="prize_label">الجائزة:</span>
-          <span class="prize-value">100 ₪</span>
+  <!-- Why Us Section -->
+  <section id="why-us" class="why-us" style="padding: 8rem 0; background: #151515;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+      <h2 class="section-title" data-i18n="section_why_us">لماذا نحن الماستر؟</h2>
+      <div class="feature-grid">
+
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i data-lucide="flame" style="width: 40px; height: 40px;"></i>
+          </div>
+          <h3 data-i18n="feat_1_title" style="color: #fff; margin-bottom: 1.5rem; font-size: 1.5rem;">حطب الزيتون</h3>
+          <p data-i18n="feat_1_desc" style="color: #aaa; line-height: 1.6;">السر في الدخان.. نستخدم أجود أنواع حطب
+            الزيتون لنصل إلى المذاق الذي لا ينسى.</p>
         </div>
-        <a href="register.html" class="btn-raffle" data-i18n="btn_register">
-          سجل الآن ⚡
-        </a>
-        <p class="raffle-note" data-i18n="raffle_note">*السحب في نهاية رمضان 2026</p>
+
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i data-lucide="armchair" style="width: 40px; height: 40px;"></i>
+          </div>
+          <h3 data-i18n="feat_2_title" style="color: #fff; margin-bottom: 1.5rem; font-size: 1.5rem;">أجواء كلاسيكية
+          </h3>
+          <p data-i18n="feat_2_desc" style="color: #aaa; line-height: 1.6;">استمتع بوجبتك في قعدة راقية تجمع بين عبق
+            التاريخ وأناقة التصميم.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i data-lucide="chef-hat" style="width: 40px; height: 40px;"></i>
+          </div>
+          <h3 data-i18n="feat_3_title" style="color: #fff; margin-bottom: 1.5rem; font-size: 1.5rem;">الأول في طولكرم
+          </h3>
+          <p data-i18n="feat_3_desc" style="color: #aaa; line-height: 1.6;">فكرتنا فريدة وإبداعية، نسعى لنكون دائماً
+            الخيار الأول لمحبي التميز.</p>
+        </div>
+
       </div>
+    </div>
+  </section>
+
+  <!-- Raffle Section (Banner Style with Animation) -->
+  <style>
+    @keyframes scrollText {
+      0% {
+        transform: translateX(100%);
+      }
+
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    .marquee-container {
+      flex: 1;
+      min-width: 250px;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .marquee-content {
+      display: inline-block;
+      animation: scrollText 15s linear infinite;
+    }
+
+    .marquee-content:hover {
+      animation-play-state: paused;
+    }
+
+    html[dir="ltr"] .marquee-content {
+      animation: scrollTextLTR 15s linear infinite;
+    }
+
+    @keyframes scrollTextLTR {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
+    }
+  </style>
+  <section id="raffle"
+    style="background: linear-gradient(135deg, var(--color-gold) 0%, #E0B020 100%); padding: 1.5rem 5%; color: #1A1A1A; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; overflow: hidden;">
+
+    <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 300px; overflow: hidden;">
+      <h2
+        style="font-family: 'Cairo', sans-serif; font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;"
+        data-i18n="raffle_title">
+        <i data-lucide="gift"></i> سحب 100 شيكل
+      </h2>
+      <div class="marquee-container">
+        <div class="marquee-content" style="font-size: 1.1rem; font-weight: bold;">
+          <span data-i18n="raffle_desc">سجل الآن واحصل على خصم 10% وفرصة لربح 100 شيكل. السحب عشوائي وعادل
+            للجميع!</span>
+          <span style="margin: 0 2rem;">🍗</span>
+          <span data-i18n="raffle_desc_2">تذوق الفخامة بخصم 10% عند التسجيل الآن!</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; position: relative; z-index: 20;">
+      <a href="register.html?openCoupon=true"
+        style="background: transparent; color: #1A1A1A; border: 2px solid #1A1A1A; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: bold; font-family: 'Cairo', sans-serif; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease; pointer-events: auto; cursor: pointer;"
+        onmouseover="this.style.background='rgba(0,0,0,0.1)'" onmouseout="this.style.background='transparent'">
+        <i data-lucide="eye"></i> <span data-i18n="btn_view_coupon">رؤية كوبوني</span>
+      </a>
+      <a href="register.html"
+        style="background: #1A1A1A; color: var(--color-gold); padding: 0.8rem 2rem; border-radius: 50px; font-weight: bold; font-family: 'Cairo', sans-serif; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); pointer-events: auto; cursor: pointer;"
+        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
+        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'"
+        data-i18n="btn_register">
+        سجل الآن
+      </a>
     </div>
   </section>
 
@@ -106,8 +238,13 @@
     <div class="location-content">
       <h2 class="section-title" data-i18n="section_location">موقعنا</h2>
       <div class="location-details">
-        <p data-i18n="open_hours">يومياً: 12:00 م - 11:00 م</p>
-        <p style="margin-top: 10px; color: #ccc;" data-i18n="address_text">طولكرم - دوار المسلخ</p>
+        <div id="homepageHours"
+          style="background: rgba(0,0,0,0.5); border: 1px solid rgba(212,160,23,0.3); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; display: inline-block;">
+          <h3 style="color: var(--color-gold); margin-bottom: 0.5rem; font-family: 'Cairo', sans-serif;"><i
+              data-lucide="clock" style="vertical-align: middle; margin-left: 5px;"></i>أوقات الدوام اليوم</h3>
+          <p id="todayHoursDisplay" style="font-size: 1.2rem; font-weight: bold;">جاري التحميل...</p>
+        </div>
+        <p style="color: #ccc;" data-i18n="address_text">طولكرم - دوار المسلخ</p>
       </div>
 
       <a href="https://www.google.com/maps/search/?api=1&query=32.305444,35.034139" target="_blank" class="map-btn"
@@ -116,6 +253,84 @@
       </a>
     </div>
   </section>
+
+  <!-- ========================================
+       REVIEWS / TESTIMONIALS SECTION
+       ======================================== -->
+  <section id="reviews" class="reviews-section">
+    <div class="reviews-header">
+      <h2 class="section-title">آراء زبائننا</h2>
+      <div class="reviews-stats">
+        <div class="reviews-avg" id="reviewsAvg">-</div>
+        <div class="reviews-stars-summary">
+          <div class="stars-row" id="reviewsStarsDisplay">★★★★★</div>
+          <div class="reviews-count" id="reviewsCount">جاري التحميل...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reviews-carousel" id="reviewsCarousel">
+      <!-- Cards will be dynamically loaded -->
+    </div>
+
+    <div class="reviews-cta" id="reviewsCta">
+      <button class="btn-rate-us" onclick="openReviewModal()">
+        <i data-lucide="star"></i>
+        شاركنا تجربتك
+      </button>
+    </div>
+  </section>
+
+  <!-- Rating Modal -->
+  <div class="review-modal-overlay" id="reviewModalOverlay" onclick="if(event.target===this) closeReviewModal()">
+    <div class="review-modal">
+      <button class="review-modal-close" onclick="closeReviewModal()">✕</button>
+
+      <!-- Form State -->
+      <div id="reviewFormState">
+        <h2>⭐ قيّمنا</h2>
+        <p class="review-modal-subtitle">رأيك يساعدنا نكون أفضل دايماً</p>
+
+        <!-- Star Input -->
+        <div class="star-rating-input" id="starRatingInput">
+          <button type="button" data-rating="1" onclick="setRating(1)">★</button>
+          <button type="button" data-rating="2" onclick="setRating(2)">★</button>
+          <button type="button" data-rating="3" onclick="setRating(3)">★</button>
+          <button type="button" data-rating="4" onclick="setRating(4)">★</button>
+          <button type="button" data-rating="5" onclick="setRating(5)">★</button>
+        </div>
+
+        <div class="review-form-group">
+          <label>الاسم (اختياري)</label>
+          <input type="text" id="reviewName" placeholder="اكتب اسمك أو لقبك.." maxlength="50">
+        </div>
+
+        <div class="review-form-group">
+          <label>تعليقك (اختياري)</label>
+          <textarea id="reviewComment" placeholder="شاركنا رأيك عن تجربتك معنا.. 🔥" maxlength="500"></textarea>
+        </div>
+
+        <button class="btn-submit-review" id="btnSubmitReview" onclick="submitReview()" disabled>
+          <i data-lucide="send"></i>
+          إرسال التقييم
+        </button>
+      </div>
+
+      <!-- Success State (hidden initially) -->
+      <div id="reviewSuccessState" style="display: none;">
+        <div class="review-success">
+          <div class="review-success-icon">🎉</div>
+          <h3>شكراً لتقييمك!</h3>
+          <p>رأيك يهمنا كثيراً وساعدنا نكون أفضل 🌟</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Rate Button -->
+  <button class="rate-float-btn" id="rateFloatBtn" onclick="openReviewModal()" title="قيّمنا">
+    <i data-lucide="star" style="width: 22px; height: 22px; fill: currentColor;"></i>
+  </button>
 
   <footer>
     <div class="social-links" style="margin-bottom: 1.5rem; display: flex; justify-content: center; gap: 20px;">
@@ -136,9 +351,308 @@
     </svg>
   </a>
 
+
+
   <!-- Scripts -->
-  <script src="js/main-site.js"></script>
+  <script type="module" src="js/main-site.js"></script>
+  <script type="module" src="js/app.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Fetch shop opening hours for the homepage
+      try {
+        const baseUrl = window.API_BASE_URL || 'https://chicken-master-raffle.onrender.com/api';
+        const response = await fetch(`${baseUrl}/shop/status`);
+        const result = await response.json();
+
+        const hoursDisplay = document.getElementById('todayHoursDisplay');
+        if (result.success && result.opening_hours) {
+          const hours = result.opening_hours;
+          const todayKey = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()).toLowerCase();
+          const todayHours = hours[todayKey];
+
+          if (todayHours) {
+            if (todayHours.closed) {
+              hoursDisplay.innerHTML = '<span style="color: #E74C3C;">مغلق اليوم</span>';
+            } else {
+              hoursDisplay.textContent = `${todayHours.open} - ${todayHours.close}`;
+            }
+          } else {
+            hoursDisplay.textContent = '12:00 م - 11:00 م';
+          }
+
+          // Toggle Shop Status Badge
+          const statusBadge = document.getElementById('shopStatusBadge');
+          if (statusBadge && !result.is_open) {
+            const isEn = window.langManager && window.langManager.getCurrentLang() === 'en';
+            const daysMapAr = {
+              sunday: 'الأحد', monday: 'الإثنين', tuesday: 'الثلاثاء',
+              wednesday: 'الأربعاء', thursday: 'الخميس', friday: 'الجمعة', saturday: 'السبت'
+            };
+            const todayKey = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()).toLowerCase();
+
+            statusBadge.style.display = 'block';
+            const badgeSpan = statusBadge.querySelector('.status-indicator');
+
+            if (isEn) {
+              const dayEn = todayKey.charAt(0).toUpperCase() + todayKey.slice(1);
+              badgeSpan.innerHTML = `<span style="width: 8px; height: 8px; background: #E74C3C; border-radius: 50%; box-shadow: 0 0 10px #E74C3C;"></span> Currently Closed (${dayEn})`;
+            } else {
+              badgeSpan.innerHTML = `<span style="width: 8px; height: 8px; background: #E74C3C; border-radius: 50%; box-shadow: 0 0 10px #E74C3C;"></span> اليوم ${daysMapAr[todayKey]}: مغلق حالياً`;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load opening hours on homepage', e);
+        const hoursDisplay = document.getElementById('todayHoursDisplay');
+        if (hoursDisplay) hoursDisplay.textContent = '12:00 م - 11:00 م';
+      }
+
+      // ====== REVIEWS SYSTEM ======
+      loadReviews();
+      checkIfAlreadyReviewed();
+    });
+
+    // ==========================================
+    // REVIEWS LOGIC
+    // ==========================================
+    let selectedRating = 0;
+
+    // Generate simple device fingerprint
+    function getDeviceFingerprint() {
+      const stored = localStorage.getItem('cm_device_fp');
+      if (stored) return stored;
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillText('CM-FP-2026', 2, 2);
+      const canvasData = canvas.toDataURL();
+
+      const fp = btoa(
+        navigator.userAgent +
+        screen.width + 'x' + screen.height +
+        navigator.language +
+        new Date().getTimezoneOffset() +
+        canvasData.substring(0, 50)
+      ).substring(0, 40);
+
+      localStorage.setItem('cm_device_fp', fp);
+      return fp;
+    }
+
+    // Check if user already reviewed
+    function checkIfAlreadyReviewed() {
+      if (localStorage.getItem('cm_reviewed')) {
+        const ctaSection = document.getElementById('reviewsCta');
+        if (ctaSection) ctaSection.style.display = 'none';
+        const floatBtn = document.getElementById('rateFloatBtn');
+        if (floatBtn) floatBtn.style.display = 'none';
+      }
+    }
+
+    // Load reviews
+    async function loadReviews() {
+      try {
+        const apiBase = window.API_BASE_URL || 'https://chicken-master-raffle.onrender.com/api';
+        const res = await fetch(`${apiBase}/reviews?limit=20`);
+        const data = await res.json();
+
+        if (data.success) {
+          renderReviews(data.data, data.stats);
+        }
+      } catch (e) {
+        console.error('Failed to load reviews', e);
+      }
+    }
+
+    // Render reviews
+    function renderReviews(reviews, stats) {
+      const carousel = document.getElementById('reviewsCarousel');
+      const avgEl = document.getElementById('reviewsAvg');
+      const countEl = document.getElementById('reviewsCount');
+      const starsEl = document.getElementById('reviewsStarsDisplay');
+
+      // Stats
+      if (stats && stats.total > 0) {
+        const fullStars = Math.round(stats.average);
+        const starsStr = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+
+        // Main Stats Section
+        avgEl.textContent = stats.average;
+        countEl.textContent = `${stats.total} تقييم`;
+        starsEl.textContent = starsStr;
+
+        // Hero Stats Section (New)
+        const heroAvg = document.getElementById('heroAvg');
+        const heroStars = document.getElementById('heroStars');
+        const heroCount = document.getElementById('heroCount');
+
+        if (heroAvg) heroAvg.textContent = stats.average;
+        if (heroStars) heroStars.textContent = starsStr;
+        if (heroCount) heroCount.textContent = `${stats.total} رأي`;
+      } else {
+        avgEl.textContent = '-';
+        countEl.textContent = 'كن أول من يقيّم!';
+        starsEl.textContent = '☆☆☆☆☆';
+
+        const heroStars = document.getElementById('heroStars');
+        if (heroStars) heroStars.innerHTML = '<span style="opacity: 0.5;">☆☆☆☆☆</span>';
+      }
+
+      // Cards
+      if (!reviews || reviews.length === 0) {
+        carousel.innerHTML = `
+          <div style="text-align: center; width: 100%; padding: 3rem; color: var(--color-text-muted); font-family: 'Cairo', sans-serif;">
+            <p style="font-size: 3rem; margin-bottom: 1rem;">🌟</p>
+            <p>لا توجد تقييمات بعد.. كن أول من يشاركنا رأيه!</p>
+          </div>
+        `;
+        return;
+      }
+
+      carousel.innerHTML = reviews.map(r => {
+        const initials = (r.name || 'ز').charAt(0);
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        const date = new Date(r.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+        const commentHtml = r.comment ? `<p class="review-comment">${escapeHtmlReview(r.comment)}</p>` : '';
+
+        return `
+          <div class="review-card">
+            <div class="review-card-header">
+              <div class="review-avatar">${initials}</div>
+              <div>
+                <div class="review-name">${escapeHtmlReview(r.name || 'زبون')}</div>
+                <div class="review-date">${date}</div>
+              </div>
+            </div>
+            <div class="review-stars">${stars}</div>
+            ${commentHtml}
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function escapeHtmlReview(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Star interaction
+    function setRating(value) {
+      selectedRating = value;
+      const buttons = document.querySelectorAll('#starRatingInput button');
+      buttons.forEach((btn, i) => {
+        btn.classList.toggle('active', i < value);
+      });
+      document.getElementById('btnSubmitReview').disabled = false;
+    }
+
+    // Hover effect for stars
+    (function () {
+      const starBtns = document.querySelectorAll('#starRatingInput button');
+      starBtns.forEach((btn, index) => {
+        btn.addEventListener('mouseenter', () => {
+          starBtns.forEach((b, i) => {
+            b.classList.toggle('active', i <= index);
+          });
+        });
+        btn.addEventListener('mouseleave', () => {
+          starBtns.forEach((b, i) => {
+            b.classList.toggle('active', i < selectedRating);
+          });
+        });
+      });
+    })();
+
+    // Open/Close Modal
+    function openReviewModal() {
+      if (localStorage.getItem('cm_reviewed')) {
+        if (window.showAlert) {
+          window.showAlert('لقد قمت بالتقييم مسبقاً، شكراً لك! 🙏', 'info');
+        }
+        return;
+      }
+      document.getElementById('reviewModalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeReviewModal() {
+      document.getElementById('reviewModalOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Submit Review
+    async function submitReview() {
+      const btn = document.getElementById('btnSubmitReview');
+      if (btn.disabled || selectedRating === 0) return;
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>جاري الإرسال...</span>';
+
+      const name = document.getElementById('reviewName').value.trim() || 'زبون';
+      const comment = document.getElementById('reviewComment').value.trim();
+      const fingerprint = getDeviceFingerprint();
+      const apiBase = window.API_BASE_URL || 'https://chicken-master-raffle.onrender.com/api';
+
+      try {
+        const res = await fetch(`${apiBase}/reviews`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, rating: selectedRating, comment, fingerprint })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem('cm_reviewed', 'true');
+          document.getElementById('reviewFormState').style.display = 'none';
+          document.getElementById('reviewSuccessState').style.display = 'block';
+          checkIfAlreadyReviewed();
+          launchConfetti();
+
+          setTimeout(() => {
+            loadReviews();
+            closeReviewModal();
+          }, 3000);
+        } else {
+          const msg = data.message?.ar || data.message || 'حدث خطأ';
+          if (window.showAlert) window.showAlert(msg, 'warning');
+          else alert(msg);
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="send"></i> إرسال التقييم';
+          lucide.createIcons();
+        }
+      } catch (e) {
+        console.error('Submit error:', e);
+        if (window.showAlert) window.showAlert('حدث خطأ في الاتصال', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="send"></i> إرسال التقييم';
+        lucide.createIcons();
+      }
+    }
+
+    // Confetti Animation
+    function launchConfetti() {
+      const colors = ['#FFD700', '#D4A017', '#FF4500', '#E6B124', '#fff'];
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-piece';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.width = (5 + Math.random() * 10) + 'px';
+        confetti.style.height = (5 + Math.random() * 10) + 'px';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 4000);
+      }
+    }
+
     lucide.createIcons();
   </script>
 </body>

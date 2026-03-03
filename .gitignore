@@ -1,7 +1,31 @@
+# Dependencies
 node_modules/
+
+# Environment secrets
 .env
+.env.local
+.env.production
+
+# Logs
 *.log
-.DS_Store
-.vscode/
+npm-debug.log*
+
+# Build output
 dist/
 build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# SQLite dev database (production uses PostgreSQL)
+backend/raffle.db
+
+# Temp / one-off dev scripts (kept locally, not in repo)
+backend/delete-test-orders.js
+backend/fix_admin.js
+backend/reset-db.js

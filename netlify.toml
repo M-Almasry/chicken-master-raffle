@@ -1,0 +1,33 @@
+[build]
+  base    = "frontend"
+  command = "npm run build"
+  publish = "frontend/dist"
+
+# Store page
+[[redirects]]
+  from   = "/store"
+  to     = "/store.html"
+  status = 200
+
+# Register page
+[[redirects]]
+  from   = "/register"
+  to     = "/register.html"
+  status = 200
+
+# Success page
+[[redirects]]
+  from   = "/success"
+  to     = "/success.html"
+  status = 200
+
+# Admin dashboard — any sub-path
+[[redirects]]
+  from   = "/admin/*"
+  to     = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from   = "/admin"
+  to     = "/admin.html"
+  status = 200

@@ -62,3 +62,15 @@ CREATE INDEX IF NOT EXISTS idx_raffle_entries_registration ON raffle_entries(reg
 INSERT INTO admin_users (username, password_hash) 
 VALUES ('admin', '$2b$10$rKvVLKZ9f9YxH.Vf6F8YUO8mYJ3xZ3J1xKvNxZ0xZ1xZ2xZ3xZ4xZ')
 ON CONFLICT (username) DO NOTHING;
+
+-- جدول إعدادات النظام (لفتح وإغلاق المتجر)
+CREATE TABLE IF NOT EXISTS system_config (
+    key VARCHAR(50) PRIMARY KEY,
+    value JSONB NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- القيم الافتراضية
+INSERT INTO system_config (key, value)
+VALUES ('shop_status', '{"is_open": true}')
+ON CONFLICT (key) DO NOTHING;

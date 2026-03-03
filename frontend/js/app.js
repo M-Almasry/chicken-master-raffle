@@ -10,6 +10,30 @@ const translations = {
     // Landing Page
     title: 'اربح 100 شيكل مع مستر تشيكن!',
     subtitle: 'سجل الآن واحصل على كوبون خصم 10% + فرصة للفوز',
+    hero_title: 'تذوق <span class="text-gold">النار</span><br>Chicken Master',
+    hero_subtitle: 'GRILL & KIOSK<br>فن الشواء على حطب الزيتون.. طعم النار الأصيل',
+    btn_menu: 'تصفح القائمة',
+    section_story: 'قصة النار والحطب',
+    story_p1: 'في قلب طولكرم، أعدنا تعريف مفهوم الشوار.. نستخدم حطب الزيتون الطبيعي لنمنح الدجاج تلك النكهة المدخنة التي تأخذك إلى عبق الماضي بلمسة عصرية فاخرة.',
+    story_p2: 'المكان ليس مجرد مطعم، بل هو تجربة كلاسيكية في أجواء راقية، حيث الجدران الحجرية والأخشاب الداكنة تروي قصة "ماستر" الشواء.',
+    story_quote: '"حيث يلتقي الشغف بالفخامة.. وروضنا لكم النار"',
+    section_why_us: 'لماذا نحن الماستر؟',
+    feat_1_title: 'حطب الزيتون',
+    feat_1_desc: 'السر في الدخان.. نستخدم أجود أنواع حطب الزيتون لنصل إلى المذاق الذي لا ينسى.',
+    feat_2_title: 'أجواء كلاسيكية',
+    feat_2_desc: 'استمتع بوجبتك في قعدة راقية تجمع بين عبق التاريخ وأناقة التصميم.',
+    feat_3_title: 'الأول في طولكرم',
+    feat_3_desc: 'فكرتنا فريدة وإبداعية، نسعى لنكون دائماً الخيار الأول لمحبي التميز.',
+    raffle_title: 'سحب 100 شيكل',
+    raffle_desc: 'سجل الآن واحصل على كوبون خصم 10% وفرصة للفوز بـ 100 شيكل. السحب عشوائي وعادل للجميع!',
+    raffle_desc_2: 'تذوق الفخامة بخصم 10% عند التسجيل الآن! 🍗',
+    btn_register: 'سجل الآن',
+    section_menu: 'مختاراتنا المميزة',
+    section_location: 'موقعنا',
+    address_text: 'طولكرم - دوار المسلخ',
+    btn_directions: 'الموقع على الخريطة',
+    footer_text: '&copy; 2026 تشيكن ماستر. جميع الحقوق محفوظة.',
+
     registerNow: 'سجل الآن',
     howItWorks: 'كيف يعمل؟',
     step1Title: 'سجل واحصل على كوبون',
@@ -75,6 +99,11 @@ const translations = {
     validUntil: 'صالح حتى نهاية رمضان',
     orderNow: 'اطلب الآن',
     shareWhatsApp: 'شارك على واتساب',
+    couponTitle: '🎁 السحب على 100 شيكل!',
+    couponDesc: 'احتفظ بهذا الكود، سيتم السحب عشوائياً نهاية رمضان 2026',
+    ok: 'حسناً',
+    btn_view_coupon: 'رؤية كوبوني الخاص',
+
 
     // Store & Menu
     storeTitle: 'القائمة',
@@ -122,6 +151,30 @@ const translations = {
     // Landing Page
     title: 'Win 100 NIS with Mister Chicken!',
     subtitle: 'Register now for a 10% discount coupon + a chance to win',
+    hero_title: 'Taste the <span class="text-gold">Fire</span><br>Chicken Master',
+    hero_subtitle: 'GRILL & KIOSK<br>Olive wood grilling art.. The authentic taste of fire',
+    btn_menu: 'Browse Menu',
+    section_story: 'The Story of Fire & Wood',
+    story_p1: 'In the heart of Tulkarm, we redefined grilling.. We use natural olive wood to give the chicken that smoky flavor that takes you to the scent of the past with a luxurious modern touch.',
+    story_p2: 'The place is not just a restaurant, but a classic experience in a high-end atmosphere, where stone walls and dark woods tell the story of the "Master" of grilling.',
+    story_quote: '"Where passion meets luxury.. We mastered the fire for you"',
+    section_why_us: 'Why We are the Masters?',
+    feat_1_title: 'Olive Wood',
+    feat_1_desc: 'The secret is in the smoke.. We use the finest olive wood to reach an unforgettable taste.',
+    feat_2_title: 'Classic Atmosphere',
+    feat_2_desc: 'Enjoy your meal in a refined setting that combines historical vibes with elegant design.',
+    feat_3_title: 'First in Tulkarm',
+    feat_3_desc: 'Our idea is unique and creative, we always strive to be the first choice for excellence seekers.',
+    raffle_title: '100 NIS Raffle',
+    raffle_desc: 'Register now and get a 10% discount coupon + a chance to win 100 NIS. The draw is random and fair!',
+    raffle_desc_2: 'Taste the luxury with 10% discount when you register now! 🍗',
+    btn_register: 'Register Now',
+    section_menu: 'Our Special Selections',
+    section_location: 'Our Location',
+    address_text: 'Tulkarm - Slaughterhouse Square',
+    btn_directions: 'Get Directions',
+    footer_text: '&copy; 2026 Chicken Master. All rights reserved.',
+
     registerNow: 'Register Now',
     howItWorks: 'How it Works?',
     step1Title: 'Register & Get Coupon',
@@ -180,6 +233,7 @@ const translations = {
     validUntil: 'Valid until end of Ramadan',
     orderNow: 'Order Now',
     shareWhatsApp: 'Share on WhatsApp',
+    btn_view_coupon: 'View My Coupon',
 
     // Store & Menu
     storeTitle: 'Menu',
@@ -231,6 +285,7 @@ class LanguageManager {
     this.currentLang = lang;
     localStorage.setItem('language', lang);
     this.updatePageDirection();
+    window.dispatchEvent(new Event('languageChanged'));
     this.updateContent();
   }
 
@@ -272,23 +327,53 @@ class LanguageManager {
 }
 
 // Initialize Language Manager
-const langManager = new LanguageManager();
+window.langManager = new LanguageManager();
 
 // API Configuration
-const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:3000/api'
-  : 'https://chicken-master-raffle.onrender.com/api'; // ✅ تم التحديث لرابط السيرفر الجديد
-const WHATSAPP_NUMBER = '+970567811812';
-const INSTAGRAM_URL = 'https://www.instagram.com/chicken_master26/';
-const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61587454410215';
+const isLocal = window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.startsWith('192.168.') ||
+  window.location.hostname.startsWith('10.');
 
-// Utility Functions
-function showAlert(message, type = 'info') {
+window.API_BASE_URL = isLocal
+  ? `http://${window.location.hostname}:3000/api`
+  : 'https://chicken-master-raffle.onrender.com/api';
+
+console.log('API Base URL:', window.API_BASE_URL);
+
+window.WHATSAPP_NUMBER = '+970567811812';
+window.INSTAGRAM_URL = 'https://www.instagram.com/chicken_master26/';
+window.FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61587454410215';
+
+// Update Hero Translations to match new status
+translations.ar.hero_title = 'تذوق <span class="text-gold">النار</span><br>Chicken Master';
+translations.ar.hero_subtitle = 'GRILL & KIOSK<br>فن الشواء على حطب الزيتون.. طعم النار الأصيل';
+translations.en.hero_title = 'Taste <span class="text-gold">the Fire</span><br>Chicken Master';
+translations.en.hero_subtitle = 'GRILL & KIOSK<br>The Art of Olive Wood Grilling.. Authentic Smoky Taste';
+// Global Shop Status
+window.isShopOpen = true; // Default
+async function updateGlobalShopStatus() {
+  try {
+    const res = await apiRequest('/shop/status');
+    if (res.ok && res.data.success) {
+      window.isShopOpen = res.data.is_open;
+      window.isShopStatusFetched = true;
+      window.lastShopStatus = res.data; // Store for late listeners
+      // Dispatch event for pages to react
+      window.dispatchEvent(new CustomEvent('shopStatusUpdated', { detail: res.data }));
+    }
+  } catch (e) {
+    console.warn('Failed to fetch global shop status', e);
+  }
+}
+updateGlobalShopStatus();
+
+// Utility Functions (Attached to window)
+window.showAlert = function (message, type = 'info') {
   const alert = document.createElement('div');
   alert.className = `alert alert-${type} fade-in`;
   alert.textContent = message;
 
-  // Create container if not exists
   let toastContainer = document.querySelector('.toast-container');
   if (!toastContainer) {
     toastContainer = document.createElement('div');
@@ -302,23 +387,12 @@ function showAlert(message, type = 'info') {
     alert.style.opacity = '0';
     setTimeout(() => alert.remove(), 300);
   }, 5000);
-}
+};
 
-function formatPhone(phone) {
-  let clean = phone.replace(/[\s-]/g, '');
-  if (clean.startsWith('0')) {
-    clean = '+970' + clean.substring(1);
-  } else if (clean.startsWith('970')) {
-    clean = '+' + clean;
-  } else if (!clean.startsWith('+')) {
-    clean = '+970' + clean;
-  }
-  return clean;
-}
-
-async function apiRequest(endpoint, options = {}) {
+window.apiRequest = async function (endpoint, options = {}) {
+  const url = `${window.API_BASE_URL}${endpoint}`;
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -326,13 +400,20 @@ async function apiRequest(endpoint, options = {}) {
       }
     });
 
-    const data = await response.json();
-    return { ok: response.ok, status: response.status, data };
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.indexOf('application/json') !== -1) {
+      const data = await response.json();
+      return { ok: response.ok, status: response.status, data };
+    } else {
+      const text = await response.text();
+      console.error(`API Error: Expected JSON but got ${contentType} at ${url}. Response starts with: ${text.substring(0, 50)}`);
+      return { ok: false, status: response.status, error: 'Invalid response format' };
+    }
   } catch (error) {
-    console.error('API Error:', error);
+    console.error(`API Fetch Error at ${url}:`, error);
     return { ok: false, error: error.message };
   }
-}
+};
 
 // FingerprintJS Simple Alternative
 function getBrowserFingerprint() {
@@ -364,6 +445,10 @@ class CartManager {
   }
 
   addItem(item) {
+    if (window.isShopOpen === false) {
+      window.showAlert(langManager.getCurrentLang() === 'ar' ? 'المحل مغلق حالياً، لا يمكن إضافة طلبات' : 'Shop is currently closed, cannot add orders', 'warning');
+      return;
+    }
     // Items with different IDs are stored separately.
     // For now, note is initialized as empty.
     const existingIndex = this.cart.findIndex(i => i.id === item.id);
@@ -473,7 +558,7 @@ class CartManager {
       cartItemsContainer.innerHTML = this.cart.map(item => `
             <div class="cart-item">
                 <div class="cart-item-img">
-                    <i data-lucide="${item.icon}" style="width: 24px; height: 24px;"></i>
+                    <i data-lucide="${item.icon === 'clock-off' ? 'clock' : (item.icon || 'utensils')}" style="width: 24px; height: 24px;"></i>
                 </div>
                 <div class="cart-item-info">
                     <div style="display:flex; justify-content:space-between;">
@@ -586,172 +671,312 @@ class CartManager {
 }
 
 // Initialize Logic
-const cartManager = new CartManager();
+window.cartManager = new CartManager();
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Buttons
-  const cartBtn = document.getElementById('cartBtn');
-  const closeCartBtn = document.getElementById('closeCart');
-  const showCheckoutBtn = document.getElementById('showCheckoutBtn');
-  const checkoutForm = document.getElementById('checkoutForm');
+// Language Toggle
+const langToggle = document.getElementById('lang-toggle');
+if (langToggle) {
+  langToggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    const newLang = langManager.getCurrentLang() === 'ar' ? 'en' : 'ar';
+    langManager.setLanguage(newLang);
+  });
+}
 
-  // Add to Cart Logic (Event Delegation)
-  document.body.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-add');
-    if (btn) {
-      e.preventDefault();
+// Buttons
+const cartBtn = document.getElementById('cartBtn');
+const closeCartBtn = document.getElementById('closeCart');
+const showCheckoutBtn = document.getElementById('showCheckoutBtn');
+const checkoutForm = document.getElementById('checkoutForm');
 
-      // Animation feedback
-      btn.style.transform = 'scale(0.95)';
-      setTimeout(() => btn.style.transform = '', 150);
+// Add to Cart Logic (Event Delegation)
+/* Updated Logic: If item has options, show selection. */
+window.openItemOptions = function (id, title, price, icon = 'utensils', optionsJson = '[]') {
+  let options = [];
+  try { options = JSON.parse(decodeURIComponent(optionsJson)); } catch (e) { }
 
-      const itemEl = btn.closest('.menu-item');
-      if (!itemEl) return;
+  if (options && options.length > 0) {
+    showOptionsModal(id, title, price, icon, options);
+  } else {
+    addToCart(id, title, price, icon);
+  }
+};
 
-      // Get Data
-      const titleEl = itemEl.querySelector('.item-title');
-      const title = titleEl ? titleEl.textContent : 'Unknown Item';
+function showOptionsModal(id, title, basePrice, icon, options) {
+  // Remove existing modal if any
+  const existing = document.getElementById('optionsModal');
+  if (existing) existing.remove();
 
-      // Generate ID
-      const id = title.trim().split(/\s+/).join('_');
+  const modal = document.createElement('div');
+  modal.id = 'optionsModal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:3000;display:flex;align-items:center;justify-content:center; padding: 1rem;';
 
-      // Determine price/icon
-      let price = 40;
-      let icon = 'utensils';
+  let optionsHtml = options.map((opt, idx) => `
+          <label style="display:flex; justify-content:space-between; align-items:center; margin: 10px 0; cursor:pointer; background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; border:1px solid #333;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                  <input type="checkbox" class="opt-check" value="${idx}" data-price="${opt.price}" data-name="${opt.name_ar}" style="width:18px; height:18px;">
+                  <span style="color:#fff; font-size:1rem;">${opt.name_ar}</span>
+              </div>
+              <span style="color:#d4a017; font-weight:bold;">+${opt.price} ₪</span>
+          </label>
+      `).join('');
 
-      if (title.includes('سلطة') || title.includes('Salad')) {
-        price = 25;
-        icon = 'salad';
+  modal.innerHTML = `
+          <div style="background:#1A1A1A; padding:2rem; border-radius:12px; width:100%; max-width:450px; border:1px solid #d4a017; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+              <button onclick="document.getElementById('optionsModal').remove()" style="position:absolute; top:10px; right:10px; color:#aaa; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+              
+              <h3 style="color:#d4a017; margin-top:0; margin-bottom:0.5rem; font-size:1.4rem; font-family:'Cairo',sans-serif;">${title}</h3>
+              <p style="color:#888; margin-bottom:1.5rem; font-size:0.9rem;">${langManager.getCurrentLang() === 'ar' ? 'اختر الإضافات المطلوبة:' : 'Select Add-ons:'}</p>
+              
+              <div style="max-height:300px; overflow-y:auto; margin-bottom:1.5rem;">${optionsHtml}</div>
+              
+              <div style="border-top:1px solid #333; padding-top:1.5rem;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                      <span style="color:#ccc;">المجموع:</span>
+                      <strong style="color:#fff; font-size:1.4rem;"><span id="optTotal">${basePrice}</span> ₪</strong>
+                  </div>
+                  <button id="confirmOpts" style="width:100%; background:#d4a017; color:#000; border:none; padding:12px; border-radius:8px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Cairo',sans-serif;">
+                      ${langManager.getCurrentLang() === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
+                  </button>
+              </div>
+          </div>
+      `;
+
+  document.body.appendChild(modal);
+
+  // Logic
+  const checkboxes = modal.querySelectorAll('.opt-check');
+  const totalEl = modal.querySelector('#optTotal');
+  const confirmBtn = modal.querySelector('#confirmOpts');
+
+  // Prevent closing when clicking inside
+  modal.querySelector('div').addEventListener('click', e => e.stopPropagation());
+  modal.addEventListener('click', () => modal.remove());
+
+  const calcTotal = () => {
+    let total = parseFloat(basePrice);
+    checkboxes.forEach(cb => {
+      if (cb.checked) total += parseFloat(cb.dataset.price);
+    });
+    totalEl.textContent = total.toFixed(2);
+  };
+
+  checkboxes.forEach(cb => cb.addEventListener('change', calcTotal));
+
+  confirmBtn.onclick = () => {
+    let selectedOpts = [];
+    let finalPrice = parseFloat(basePrice);
+
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        selectedOpts.push({ name: cb.dataset.name, price: parseFloat(cb.dataset.price) });
+        finalPrice += parseFloat(cb.dataset.price);
       }
+    });
 
-      cartManager.addItem({
-        id, title, price, icon
-      });
+    // Unique ID if options selected to store separately
+    const uniqueId = selectedOpts.length > 0 ? (id + '_' + Date.now()) : id.toString();
+
+    // Construct title with options
+    let displayTitle = title;
+    if (selectedOpts.length > 0) {
+      displayTitle += ` (+ ${selectedOpts.map(o => o.name).join(', ')})`;
+    }
+
+    cartManager.addItem({
+      id: uniqueId,
+      title: displayTitle,
+      price: finalPrice,
+      icon: icon,
+      // Storing original ID might be useful for backend validation later
+    });
+
+    const badge = document.querySelector('.cart-float');
+    if (badge) {
+      badge.style.transform = 'scale(1.2)';
+      setTimeout(() => badge.style.transform = '', 200);
+    }
+    modal.remove();
+  };
+}
+
+// Expose addToCart globally
+window.addToCart = function (id, title, price, icon = 'utensils') {
+  cartManager.addItem({
+    id: id.toString(),
+    title: title,
+    price: parseFloat(price),
+    icon: icon
+  });
+
+  // Feedback
+  const badge = document.querySelector('.cart-float');
+  if (badge) {
+    badge.style.transform = 'scale(1.2)';
+    setTimeout(() => badge.style.transform = '', 200);
+  }
+};
+
+/* 
+ * Legacy Event Delegation Removed 
+ * We now use onclick="addToCart(...)" in the generated HTML
+ */
+
+if (cartBtn) cartBtn.addEventListener('click', () => cartManager.openCart());
+if (closeCartBtn) closeCartBtn.addEventListener('click', () => cartManager.closeCart());
+
+// Close cart when clicking outside (on the overlay)
+const cartModal = document.getElementById('cartModal');
+if (cartModal) {
+  cartModal.addEventListener('click', (e) => {
+    if (e.target === cartModal) {
+      cartManager.closeCart();
     }
   });
+}
 
-  if (cartBtn) cartBtn.addEventListener('click', () => cartManager.openCart());
-  if (closeCartBtn) closeCartBtn.addEventListener('click', () => cartManager.closeCart());
-
-  // Close cart when clicking outside (on the overlay)
-  const cartModal = document.getElementById('cartModal');
-  if (cartModal) {
-    cartModal.addEventListener('click', (e) => {
-      if (e.target === cartModal) {
-        cartManager.closeCart();
-      }
-    });
+// Auto-apply coupon from URL if present
+const urlParams = new URLSearchParams(window.location.search);
+const autoCoupon = urlParams.get('coupon');
+if (autoCoupon) {
+  const applyCouponInput = document.getElementById('applyCouponInput');
+  if (applyCouponInput) {
+    applyCouponInput.value = autoCoupon;
+    // Auto validate if on store view
+    cartManager.validateCoupon(autoCoupon);
+  } else {
+    // If the input isn't rendered yet but cartManager exists, apply silently 
+    // Useful if the user hasn't opened the cart but we want to store the state.
+    cartManager.validateCoupon(autoCoupon);
   }
+}
 
-  if (showCheckoutBtn) {
-    showCheckoutBtn.addEventListener('click', () => {
-      if (cartManager.getCart().length === 0) {
-        alert(langManager.translate('cartEmpty'));
-        return;
-      }
-      showCheckoutBtn.style.display = 'none';
-      if (checkoutForm) checkoutForm.classList.add('active');
-    });
-  }
+if (showCheckoutBtn) {
+  showCheckoutBtn.addEventListener('click', () => {
+    if (cartManager.getCart().length === 0) {
+      alert(langManager.translate('cartEmpty'));
+      return;
+    }
+    showCheckoutBtn.style.display = 'none';
+    if (checkoutForm) checkoutForm.classList.add('active');
 
-  // Delivery Toggles
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const type = btn.dataset.type;
-      const delInput = document.getElementById('deliveryType');
-      if (delInput) delInput.value = type;
-      cartManager.deliveryType = type;
-
-      const locGroup = document.getElementById('locationGroup');
-      const locInput = document.getElementById('orderLocation');
-
-      if (locGroup && locInput) {
-        if (type === 'pickup') {
-          locGroup.style.display = 'none';
-          locInput.removeAttribute('required');
-          locInput.value = ''; // Clear value
-        } else {
-          locGroup.style.display = 'block';
-          locInput.setAttribute('required', 'true');
-        }
-      }
-    });
+    const cartItems = document.getElementById('cartItems');
+    if (cartItems) cartItems.style.display = 'none';
   });
+}
 
-  // Coupon
-  const applyCouponBtn = document.getElementById('applyCouponBtn');
-  if (applyCouponBtn) {
-    applyCouponBtn.addEventListener('click', () => {
-      const codeInput = document.getElementById('couponCode');
-      const code = codeInput ? codeInput.value.trim() : '';
-      cartManager.validateCoupon(code);
+const backToCartBtn = document.getElementById('backToCartBtn');
+if (backToCartBtn) {
+  backToCartBtn.addEventListener('click', () => {
+    if (checkoutForm) checkoutForm.classList.remove('active');
+    if (showCheckoutBtn) showCheckoutBtn.style.display = 'block';
+
+    const cartItems = document.getElementById('cartItems');
+    if (cartItems) cartItems.style.display = 'block';
+  });
+}
+
+// Delivery Toggles
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const type = btn.dataset.type;
+    const delInput = document.getElementById('deliveryType');
+    if (delInput) delInput.value = type;
+    cartManager.deliveryType = type;
+
+    const locGroup = document.getElementById('locationGroup');
+    const locInput = document.getElementById('orderLocation');
+
+    if (locGroup && locInput) {
+      if (type === 'pickup') {
+        locGroup.style.display = 'none';
+        locInput.removeAttribute('required');
+        locInput.value = ''; // Clear value
+      } else {
+        locGroup.style.display = 'block';
+        locInput.setAttribute('required', 'true');
+      }
+    }
+  });
+});
+
+// Coupon
+const applyCouponBtn = document.getElementById('applyCouponBtn');
+if (applyCouponBtn) {
+  applyCouponBtn.addEventListener('click', () => {
+    const codeInput = document.getElementById('couponCode');
+    const code = codeInput ? codeInput.value.trim() : '';
+    cartManager.validateCoupon(code);
+  });
+}
+
+// Submit Order
+if (checkoutForm) {
+  checkoutForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btn = document.getElementById('placeOrderBtn');
+    btn.disabled = true;
+    btn.textContent = langManager.translate('loading');
+
+    const orderData = {
+      customerName: document.getElementById('orderName').value,
+      customerPhone: document.getElementById('orderPhone').value,
+      customerLocation: document.getElementById('deliveryType').value === 'delivery' ?
+        document.getElementById('orderLocation').value : 'Pickup',
+      deliveryType: document.getElementById('deliveryType').value,
+      notes: document.getElementById('orderNotes').value,
+      items: cartManager.getCart(),
+      couponCode: cartManager.coupon?.valid ? cartManager.coupon.code : null,
+      totalBeforeDiscount: cartManager.getTotal()
+    };
+
+    const result = await apiRequest('/orders', {
+      method: 'POST',
+      body: JSON.stringify(orderData)
     });
-  }
 
-  // Submit Order
-  if (checkoutForm) {
-    checkoutForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    if (result.ok && result.data.success) {
 
-      const btn = document.getElementById('placeOrderBtn');
-      btn.disabled = true;
-      btn.textContent = langManager.translate('loading');
+      const hasCoupon = cartManager.coupon?.valid ? true : false;
+      const raffleMessage = hasCoupon ? `<p>${langManager.translate('raffleEntry')}</p>` : '';
 
-      const orderData = {
-        customerName: document.getElementById('orderName').value,
-        customerPhone: document.getElementById('orderPhone').value,
-        customerLocation: document.getElementById('deliveryType').value === 'delivery' ?
-          document.getElementById('orderLocation').value : 'Pickup',
-        deliveryType: document.getElementById('deliveryType').value,
-        notes: document.getElementById('orderNotes').value,
-        items: cartManager.getCart(),
-        couponCode: cartManager.coupon?.valid ? cartManager.coupon.code : null,
-        totalBeforeDiscount: cartManager.getTotal()
-      };
-
-      const result = await apiRequest('/orders', {
-        method: 'POST',
-        body: JSON.stringify(orderData)
-      });
-
-      if (result.ok && result.data.success) {
-        document.querySelector('.cart-content').innerHTML = `
+      document.querySelector('.cart-content').innerHTML = `
             <div class="success-message">
                 <i data-lucide="check-circle" class="success-icon" style="width: 64px; height: 64px; margin: 0 auto 1rem; display: block;"></i>
                 <h2>${langManager.translate('orderSuccess')}</h2>
-                <p>${langManager.translate('raffleEntry')}</p>
+                ${raffleMessage}
                 <button onclick="window.location.reload()" class="btn-action" style="margin-top: 2rem;">OK</button>
             </div>
         `;
-        if (window.lucide) lucide.createIcons();
-        cartManager.clear();
-      } else {
-        alert(result.data?.message?.[langManager.getCurrentLang()] || 'Error');
-        btn.disabled = false;
-        btn.textContent = langManager.translate('placeOrder');
-      }
-    });
-  }
+      if (window.lucide) lucide.createIcons();
+      cartManager.clear();
+    } else {
+      alert(result.data?.message?.[langManager.getCurrentLang()] || 'Error');
+      btn.disabled = false;
+      btn.textContent = langManager.translate('placeOrder');
+    }
+  });
+}
 
-  // Initial Render
-  cartManager.updateCartBadge();
-  cartManager.render();
+// Initial Render
+cartManager.updateCartBadge();
+cartManager.render();
 
-  // Navbar Scroll Effect
-  const navbar = document.querySelector('.navbar');
-  if (navbar) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-    });
-  }
-});
+// Navbar Scroll Effect
+const navbar = document.querySelector('.navbar');
+if (navbar) {
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+}
 
 // Export for usage if needed
 if (typeof module !== 'undefined' && module.exports) {

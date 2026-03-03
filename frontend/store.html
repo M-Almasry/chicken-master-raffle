@@ -13,30 +13,21 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="icon" type="image/x-icon" href="assets/assets/images/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
   <link rel="stylesheet" href="styles/main-site.css">
-  <link rel="stylesheet" href="styles/register.css"> <!-- Reusing navbar/layout styles -->
 
   <style>
-    /* Specific overrides for Store Page */
-    /* Restore Fixed Navbar for Store (overriding register.css) */
-    .navbar {
-      position: fixed !important;
-      background: linear-gradient(to bottom, rgba(26, 26, 26, 0.8), transparent) !important;
-      box-shadow: none !important;
-    }
-
-    .navbar.scrolled {
-      background: #1A1A1A !important;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3) !important;
-      padding-top: 0.5rem !important;
-      padding-bottom: 0.5rem !important;
+    /* Specific styles for Store Page that aren't in main-site.css */
+    .hero-store .hero-bg {
+      background-image: url('images/hero.png');
+      filter: blur(4px);
+      transform: scale(1.1);
+      animation: slowZoom 20s infinite alternate;
     }
 
     .hero-store {
-      height: 60vh;
+      height: 50vh;
       min-height: 400px;
-      /* Ensure it inherits hero styles but with specific height */
     }
 
     .menu-section {
@@ -45,7 +36,7 @@
       position: relative;
     }
 
-    /* Decoration pattern pattern behind menu */
+    /* Decoration pattern behind menu */
     .menu-section::before {
       content: '';
       position: absolute;
@@ -53,16 +44,39 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: url('assets/assets/images/interior.png');
-      /* Use interior as subtle texture */
-      opacity: 0.05;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.95)), url('images/interior_vintage.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      opacity: 1;
+      filter: grayscale(0.4) brightness(0.6);
+      transition: 0.5s;
       pointer-events: none;
+    }
+
+    .menu-section.menu-empty::before {
+      background: #000;
+      opacity: 1;
     }
 
     .menu-category {
       margin-bottom: 5rem;
       position: relative;
       z-index: 2;
+    }
+
+    .menu-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 992px) {
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 2.5rem;
+      }
     }
 
     .menu-item {
@@ -122,12 +136,32 @@
       margin-bottom: 0.8rem;
     }
 
+    .category-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      color: #fff;
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      text-transform: capitalize;
+    }
+
+    .category-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--color-gold), transparent);
+    }
+
     .item-title {
       color: #fff;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       font-family: 'Cairo', sans-serif;
+      font-weight: 700;
       margin: 0;
       transition: 0.3s;
+      letter-spacing: -0.02em;
     }
 
     .menu-item:hover .item-title {
@@ -135,11 +169,12 @@
     }
 
     .item-desc {
-      color: #aaa;
-      font-size: 0.95rem;
-      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      line-height: 1.7;
       margin-bottom: 1.5rem;
       flex-grow: 1;
+      font-family: 'Inter', sans-serif;
     }
 
     .btn-add {
@@ -264,10 +299,61 @@
 
     .cart-header {
       padding: 1.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(212, 160, 23, 0.2);
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    /* Mobile Bottom Sheet Styles */
+    @media (max-width: 768px) {
+      .cart-modal {
+        align-items: flex-end;
+        /* Align to bottom instead of right */
+        justify-content: center;
+      }
+
+      .cart-content {
+        max-width: 100%;
+        height: 85vh;
+        /* Take up 85% of screen height */
+        border-radius: 20px 20px 0 0;
+        /* Rounded top corners */
+        transform: translateY(100%);
+        /* Start off-screen at bottom */
+        border-left: none;
+        border-right: none;
+        border-top: 1px solid rgba(212, 160, 23, 0.3);
+      }
+
+      [dir="rtl"] .cart-content {
+        transform: translateY(100%);
+        /* Override RTL horizontal transform */
+      }
+
+      .cart-modal.active .cart-content {
+        transform: translateY(0);
+        /* Slide up into view */
+      }
+
+      /* Optional: Add a little drag handle indicator */
+      .cart-header::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+      }
+
+      .cart-header {
+        padding-top: 2rem;
+        /* Make room for the handle */
+        position: relative;
+      }
     }
 
     .cart-header h2 {
@@ -486,139 +572,109 @@
 
 <body dir="rtl">
 
-  <!-- Navigation (Consistent with Register Page) -->
+  <!-- Navigation -->
   <nav class="navbar">
     <a href="index.html" class="logo-link">
-      <img src="assets/assets/images/logo.png" alt="Chicken Master Logo" class="logo">
+      <img src="/images/logo.png" alt="Chicken Master Logo" class="logo">
     </a>
-
     <div class="nav-links">
-      <a href="index.html#concept" class="nav-link" data-i18n="nav_story">قصتنا</a>
-      <a href="index.html#location" class="nav-link" data-i18n="nav_location">موقعنا</a>
       <a href="index.html" class="nav-link" data-i18n="nav_home">الرئيسية</a>
-      <button id="lang-toggle" class="lang-btn"
-        onclick="langManager.setLanguage(langManager.getCurrentLang() === 'ar' ? 'en' : 'ar')">English</button>
+      <a href="index.html#about" class="nav-link" data-i18n="nav_story">قصتنا</a>
+      <a href="store.html" class="nav-link active" data-i18n="nav_menu">القائمة</a>
+      <a href="index.html#location" class="nav-link" data-i18n="nav_location">موقعنا</a>
+      <button id="lang-toggle" class="lang-btn">English</button>
     </div>
   </nav>
 
   <!-- Hero Section -->
   <header class="hero hero-store">
     <div class="hero-bg"></div>
-    <div class="hero-overlay"></div>
+    <div class="hero-overlay"
+      style="background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.9) 100%);"></div>
     <div class="hero-content">
       <h1 class="hero-title" data-i18n="storeTitle">القائمة</h1>
       <p class="hero-subtitle" data-i18n="hero_subtitle">تذوق الفخامة في كل وجبة</p>
     </div>
   </header>
 
-  <!-- Coming Soon Section -->
-  <section class="coming-soon-section"
-    style="min-height: 50vh; display: flex; align-items: center; justify-content: center; background: #1A1A1A; text-align: center; padding: 4rem;">
-    <div
-      style="border: 1px solid var(--color-gold); padding: 3rem; border-radius: 12px; background: rgba(30,30,30,0.5);">
-      <i data-lucide="clock" style="width: 64px; height: 64px; color: var(--color-gold); margin-bottom: 1.5rem;"></i>
-      <h2
-        style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 1rem; color: var(--color-gold);">
-        Coming Soon</h2>
-      <p style="font-family: 'Cairo', sans-serif; font-size: 1.5rem; color: #ccc; margin: 0;">ترقبوا افتتاح المتجر
-        الإلكتروني قريباً</p>
-      <p style="font-family: 'Cairo', sans-serif; font-size: 1rem; color: #888; margin-top: 1rem;">نعمل على تحضير تجربة
-        مميزة لكم</p>
+  <!-- Shop Closed Banner -->
+  <section id="shopClosedSection"
+    style="display: none; background: #e74c3c; color: #fff; text-align: center; padding: 1rem 5%; position: sticky; top: 0; z-index: 1001; font-family: 'Cairo', sans-serif;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+      <i data-lucide="clock" size="20"></i>
+      <span id="closedMessage" style="font-weight: bold; font-size: 1.1rem;">نحن مغلقون حالياً. يمكنك تصفح القائمة ولكن
+        الطلب غير متاح.</span>
+      <span class="hours-text"
+        style="background: rgba(0,0,0,0.2); padding: 0.2rem 1rem; border-radius: 50px; font-size: 0.9rem;"></span>
     </div>
   </section>
 
-  <!-- 
-  <section class="menu-section">
+  <!-- Menu Section (Initially Hidden) -->
+  <section id="menuSection" class="menu-section" style="display: none;">
 
-    <div class="menu-category">
-      <h2 class="category-title" data-i18n="cat_chicken">الدجاج الفاخر</h2>
-      <div class="menu-grid">
-
-        <div class="menu-item">
-          <div class="item-image">
-            <i data-lucide="utensils" size="48"></i>
-          </div>
-          <div class="item-content">
-            <div class="item-header">
-              <h3 class="item-title" data-i18n="item_herb_title">دجاج بالأعشاب</h3>
-            </div>
-            <p class="item-desc" data-i18n="item_herb_desc">متبل بإكليل الجبل والزعتر البري وزيت الزيتون.</p>
-            <button class="btn-add">
-              <span data-i18n="addToCart">أضف للسلة</span> <i data-lucide="shopping-bag" size="16"></i>
-            </button>
-          </div>
+    <!-- Search and Filters Section -->
+    <div style="max-width: 1200px; margin: 0 auto 3rem auto; padding: 0 1rem; position: relative; z-index: 2;">
+      <!-- Search Bar -->
+      <div style="margin-bottom: 2rem; display: flex; justify-content: center;">
+        <div style="position: relative; width: 100%; max-width: 600px;">
+          <input type="text" id="menuSearchInput" data-i18n-placeholder="searchMenu" placeholder="ابحث في القائمة..."
+            style="width: 100%; padding: 1rem 1rem 1rem 3rem; border-radius: 50px; border: 1px solid rgba(212, 160, 23, 0.3); background: rgba(30, 30, 30, 0.8); color: #fff; font-family: 'Cairo', sans-serif; font-size: 1.1rem; outline: none; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+          <i data-lucide="search"
+            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--color-gold);"></i>
         </div>
-
-        <div class="menu-item">
-          <div class="item-image">
-            <i data-lucide="flame" size="48"></i>
-          </div>
-          <div class="item-content">
-            <div class="item-header">
-              <h3 class="item-title" data-i18n="item_peri_title">دجاج بيري بيري</h3>
-            </div>
-            <p class="item-desc" data-i18n="item_peri_desc">مشهور بلسعة حرارة ونكهة ليمون وثوم قوية.</p>
-            <button class="btn-add">
-              <span data-i18n="addToCart">أضف للسلة</span> <i data-lucide="shopping-bag" size="16"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="menu-item">
-          <div class="item-image">
-            <i data-lucide="drumstick" size="48"></i>
-          </div>
-          <div class="item-content">
-            <div class="item-header">
-              <h3 class="item-title" data-i18n="item_bbq_title">دجاج باربيكيو</h3>
-            </div>
-            <p class="item-desc" data-i18n="item_bbq_desc">مدهون بصوص الباربيكيو المدخن أثناء الشوي.</p>
-            <button class="btn-add">
-              <span data-i18n="addToCart">أضف للسلة</span> <i data-lucide="shopping-bag" size="16"></i>
-            </button>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Category Filter Tabs -->
+      <div id="categoryTabs"
+        style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: none; justify-content: flex-start; margin-bottom: 1rem;">
+        <!-- Tabs will be injected here. Example:
+          <button class="filter-tab active" data-cat="all">الكل</button>
+        -->
+      </div>
+
+      <style>
+        #menuSearchInput:focus {
+          border-color: var(--color-gold);
+          box-shadow: 0 4px 20px rgba(212, 160, 23, 0.2);
+          background: rgba(40, 40, 40, 0.95);
+        }
+
+        #categoryTabs::-webkit-scrollbar {
+          display: none;
+        }
+
+        .filter-tab {
+          padding: 0.8rem 1.5rem;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 30px;
+          color: #ccc;
+          font-family: 'Cairo', sans-serif;
+          font-weight: 600;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.3s ease;
+        }
+
+        .filter-tab:hover {
+          background: rgba(212, 160, 23, 0.1);
+          color: #fff;
+          border-color: rgba(212, 160, 23, 0.3);
+        }
+
+        .filter-tab.active {
+          background: var(--color-gold);
+          color: #000;
+          border-color: var(--color-gold);
+          box-shadow: 0 4px 15px rgba(212, 160, 23, 0.3);
+        }
+      </style>
     </div>
 
-    <div class="menu-category">
-      <h2 class="category-title" data-i18n="cat_salads">السلطات الطازجة</h2>
-      <div class="menu-grid">
-
-        <div class="menu-item">
-          <div class="item-image">
-            <i data-lucide="salad" size="48"></i>
-          </div>
-          <div class="item-content">
-            <div class="item-header">
-              <h3 class="item-title" data-i18n="item_caesar_title">سلطة سيزر</h3>
-            </div>
-            <p class="item-desc" data-i18n="item_caesar_desc">خس، خبز محمص، جبنة بارميزان، صوص سيزر كريمي.</p>
-            <button class="btn-add">
-              <span data-i18n="addToCart">أضف للسلة</span> <i data-lucide="shopping-bag" size="16"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="menu-item">
-          <div class="item-image">
-            <i data-lucide="leaf" size="48"></i>
-          </div>
-          <div class="item-content">
-            <div class="item-header">
-              <h3 class="item-title" data-i18n="item_greek_title">سلطة يونانية</h3>
-            </div>
-            <p class="item-desc" data-i18n="item_greek_desc">خيار، طماطم، بصل، زيتون، جبنة فيتا.</p>
-            <button class="btn-add">
-              <span data-i18n="addToCart">أضف للسلة</span> <i data-lucide="shopping-bag" size="16"></i>
-            </button>
-          </div>
-        </div>
-
-      </div>
+    <div id="menuContainer">
+      <!-- Menu Items Will Be Injected Here -->
+      <div style="text-align:center; padding: 2rem; color: #aaa;">جاري تحميل القائمة...</div>
     </div>
-
   </section>
 
   <button class="cart-float" id="cartBtn">
@@ -682,27 +738,294 @@
               </div>
               <div id="couponMessage" style="font-size: 0.85rem; margin-bottom: 1rem; display: none;"></div>
 
-              <button type="submit" class="btn-action" id="placeOrderBtn" data-i18n="placeOrder">تأكيد الطلب</button>
+              <button type="submit" class="btn-action" id="placeOrderBtn" data-i18n="placeOrder"
+                style="margin-bottom: 0.8rem;">تأكيد الطلب</button>
+              <button type="button" id="backToCartBtn"
+                style="width: 100%; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #fff; cursor: pointer; transition: 0.3s; font-family: 'Cairo', sans-serif;">العودة
+                للسلة</button>
           </form>
         </div>
 
       </div>
     </div>
   </div>
-   -->
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2026 Chicken Master. جميع الحقوق محفوظة.</p>
+    <div class="social-links" style="margin-bottom: 1.5rem; display: flex; justify-content: center; gap: 20px;">
+      <a href="https://www.instagram.com/chicken_master26/" target="_blank" class="social-icon"><i
+          data-lucide="instagram"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61587454410215" target="_blank" class="social-icon"><i
+          data-lucide="facebook"></i></a>
+    </div>
+    <p data-i18n="footer_text">&copy; 2026 تشيكن ماستر. جميع الحقوق محفوظة.</p>
   </footer>
 
-  <script src="js/app.js"></script>
-  <script>
-    lucide.createIcons();
-    // Initialize language
+  <script type="module" src="js/app.js"></script>
+  <script type="module">
+    // Re-initialize icons for dynamic content
+    if (window.lucide) lucide.createIcons();
+
+    // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       langManager.updateContent();
+      checkShopStatus();
+      loadMenu();
+
+      // Re-load menu on language change
+      window.addEventListener('languageChanged', loadMenu);
     });
+
+    // Listen for updates from app.js
+    window.addEventListener('shopStatusUpdated', (e) => {
+      renderStatus(e.detail);
+    });
+
+    async function checkShopStatus() {
+      // app.js might have already fetched it
+      if (window.isShopStatusFetched && window.lastShopStatus) {
+        renderStatus(window.lastShopStatus);
+        return;
+      } else {
+        try {
+          const response = await apiRequest('/shop/status');
+          if (response.ok && response.data.success) {
+            renderStatus(response.data); // Removed the extra .data
+          }
+        } catch (e) {
+          console.error('Error checking status', e);
+          // Fallback: Assume closed for safety if check fails completely.
+          renderStatus({ is_open: false, message: 'نعتذر، حدث خطأ في الاتصال بالخادم والطلب غير متاح.' });
+        }
+      }
+    }
+
+    function renderStatus(data) {
+      const menuSection = document.getElementById('menuSection');
+      const closedSection = document.getElementById('shopClosedSection');
+      const cartBtn = document.getElementById('cartBtn');
+      const { is_open, message, opening_hours } = data;
+
+      window.isShopOpen = is_open;
+
+      // Determine Day Name
+      const isAr = !window.langManager || window.langManager.getCurrentLang() === 'ar';
+      const daysMapAr = {
+        sunday: 'الأحد', monday: 'الإثنين', tuesday: 'الثلاثاء',
+        wednesday: 'الأربعاء', thursday: 'الخميس', friday: 'الجمعة', saturday: 'السبت'
+      };
+      const todayKey = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()).toLowerCase();
+
+      if (opening_hours) {
+        renderOpeningHours(opening_hours);
+      }
+
+      if (is_open) {
+        if (menuSection) menuSection.style.display = 'block';
+        if (closedSection) closedSection.style.display = 'none';
+        if (cartBtn) cartBtn.style.display = 'flex';
+      } else {
+        if (menuSection) menuSection.style.display = 'block';
+        if (closedSection) {
+          closedSection.style.display = 'block';
+          const msgEl = document.getElementById('closedMessage');
+          if (msgEl) {
+            if (isAr) {
+              msgEl.textContent = `اليوم ${daysMapAr[todayKey]}: ${message}`;
+            } else {
+              const dayEn = todayKey.charAt(0).toUpperCase() + todayKey.slice(1);
+              msgEl.textContent = `Today is ${dayEn}: ${message === 'نعتذر، المحل مغلق حالياً' ? 'Sorry, we are closed' : message}`;
+            }
+          }
+        }
+        if (cartBtn) cartBtn.style.display = 'none';
+      }
+
+      // Re-load menu to refresh buttons if already loaded
+      // loadMenu(); // This might be too much, but needed to update buttons
+    }
+
+    function renderOpeningHours(hours) {
+      const daysMap = {
+        sunday: 'الأحد', monday: 'الإثنين', tuesday: 'الثلاثاء',
+        wednesday: 'الأربعاء', thursday: 'الخميس', friday: 'الجمعة', saturday: 'السبت'
+      };
+      // Find today
+      const todayKey = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()).toLowerCase();
+      const todayHours = hours[todayKey];
+
+      // Update closed section hours text if exists
+      const closedHoursP = document.querySelector('#shopClosedSection .hours-text');
+      if (closedHoursP && todayHours) {
+        if (todayHours.closed) closedHoursP.textContent = 'اليوم: مغلق';
+        else closedHoursP.textContent = `اليوم: ${todayHours.open} - ${todayHours.close}`;
+      }
+    }
+
+    async function loadMenu() {
+      const menuContainer = document.getElementById('menuContainer');
+      const tabsContainer = document.getElementById('categoryTabs');
+      if (!menuContainer) return;
+
+      try {
+        const res = await apiRequest('/shop/menu');
+        if (res.ok && res.data.success) {
+          const categories = res.data.data;
+          const lang = langManager.getCurrentLang();
+
+          if (categories.length === 0) {
+            menuContainer.innerHTML = '<div style="text-align:center; padding: 2rem; color: #aaa;">قريباً...</div>';
+            const menuSection = document.getElementById('menuSection');
+            if (menuSection) menuSection.classList.add('menu-empty');
+            return;
+          }
+
+          // Build Tabs
+          const allWord = lang === 'ar' ? 'الكل' : 'All';
+          let tabsHtml = `<button class="filter-tab active" data-cat="all">${allWord}</button>`;
+
+          categories.forEach(cat => {
+            if (cat.items.length > 0) {
+              const catName = lang === 'ar' ? cat.name_ar : (cat.name_en || cat.name_ar);
+              tabsHtml += `<button class="filter-tab" data-cat="cat-${cat.id}">${catName}</button>`;
+            }
+          });
+
+          if (tabsContainer) {
+            tabsContainer.innerHTML = tabsHtml;
+
+            // Add tab click listeners
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+              tab.addEventListener('click', function () {
+                // Remove active class from all
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                // Add active to clicked
+                this.classList.add('active');
+
+                const selectedCat = this.getAttribute('data-cat');
+                filterMenu(document.getElementById('menuSearchInput').value, selectedCat);
+              });
+            });
+          }
+
+          // Build Menu Items
+          menuContainer.innerHTML = categories.map(cat => {
+            if (cat.items.length === 0) return '';
+
+            return `
+            <div class="menu-category" id="cat-${cat.id}">
+                <h2 class="category-title" data-cat-name="${lang === 'ar' ? cat.name_ar : (cat.name_en || cat.name_ar).toLowerCase()}">${lang === 'ar' ? cat.name_ar : (cat.name_en || cat.name_ar)}</h2>
+                <div class="menu-grid">
+                    ${cat.items.map(item => {
+              const isAvailable = item.is_available !== false;
+              const optionsJson = encodeURIComponent(JSON.stringify(item.options || []));
+              const hasDiscount = item.discount_price && parseFloat(item.discount_price) > 0 && parseFloat(item.discount_price) < parseFloat(item.price);
+              const displayPrice = hasDiscount ? item.discount_price : item.price;
+
+              const itemName = lang === 'ar' ? item.name_ar : (item.name_en || item.name_ar);
+              const itemDesc = lang === 'ar' ? (item.description_ar || '') : (item.description_en || item.description_ar || '');
+
+              return `
+                        <div class="menu-item ${!isAvailable ? 'opacity-50 pointer-events-none' : ''}" data-name="${itemName.toLowerCase()}" data-desc="${itemDesc.toLowerCase()}">
+                            <div class="item-image" style="background: ${item.image_url ? '#111' : 'linear-gradient(135deg, #1a1a1a, #2a2a2a)'}">
+                                ${item.image_url ? `<img src="${item.image_url}" alt="${item.name_en}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="text-align:center;"><i data-lucide="utensils" size="48" style="color: rgba(212,160,23,0.3); margin-bottom: 0.5rem;"></i><div style="font-family: 'Playfair Display', serif; color: rgba(255,255,255,0.2); font-size: 1.2rem;">Chicken Master</div></div>`}
+                                ${!isAvailable ? '<div style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.8); color:white; padding:5px 10px; border-radius:4px; font-weight:bold;">نفذت الكمية</div>' : ''}
+                                ${hasDiscount ? '<div style="position:absolute; top:10px; left:10px; background:#e74c3c; color:white; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">عرض خاص</div>' : ''}
+                            </div>
+                            <div class="item-content">
+                                <div class="item-header">
+                                    <h3 class="item-title">${itemName}</h3>
+                                </div>
+                                <p class="item-desc">${itemDesc}</p>
+                                
+                                ${item.options && item.options.length > 0 ? `
+                                  <div style="margin-bottom: 0.5rem; font-size: 0.85rem; color: #aaa;">
+                                     <ul style="list-style: disc; padding-right: 1.2rem;">
+                                       ${item.options.map(opt => `<li>${lang === 'ar' ? opt.name_ar : (opt.name_en || opt.name_ar)} (+${opt.price})</li>`).join('')}
+                                     </ul>
+                                  </div>
+                                ` : ''}
+
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; margin-top: auto;">
+                                    <div>
+                                      ${hasDiscount ? `
+                                        <span style="font-size: 1rem; text-decoration: line-through; color: #777; margin-left: 5px;">${item.price} ₪</span>
+                                        <span style="font-size: 1.2rem; font-weight: bold; color: #e74c3c;">${displayPrice} ₪</span>
+                                      ` : `
+                                        <span style="font-size: 1.2rem; font-weight: bold; color: var(--color-gold);">${displayPrice} ₪</span>
+                                      `}
+                                    </div>
+                                </div>
+                                
+                                ${isAvailable && window.isShopOpen ? `
+                                <button class="btn-add" onclick="openItemOptions('${item.id}', '${item.name_ar}', ${displayPrice}, '${item.image_url ? 'image' : 'utensils'}', '${optionsJson}')">
+                                    <span data-i18n="addToCart">أضف للسلة</span> <i data-lucide="shopping-bag" size="16"></i>
+                                </button>
+                                ` : `
+                                <button class="btn-add" disabled style="background: #333; color: #777; border-color: #444; cursor: not-allowed;">
+                                    <span>${!window.isShopOpen ? (lang === 'ar' ? 'المحل مغلق' : 'Shop Closed') : (lang === 'ar' ? 'غير متوفر' : 'Out of stock')}</span>
+                                </button>
+                                `}
+                            </div>
+                        </div>
+                    `}).join('')}
+                </div>
+            </div>
+            `;
+          }).join('');
+
+          lucide.createIcons();
+
+          // Setup Search Listener
+          const searchInput = document.getElementById('menuSearchInput');
+          if (searchInput) {
+            searchInput.addEventListener('input', function (e) {
+              const activeTab = document.querySelector('.filter-tab.active');
+              const currentCat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
+              filterMenu(e.target.value, currentCat);
+            });
+          }
+
+        }
+      } catch (e) {
+        console.error('Menu load error', e);
+      }
+    }
+
+    // Global Filter Function
+    window.filterMenu = function (searchTerm = '', categoryId = 'all') {
+      searchTerm = searchTerm.toLowerCase().trim();
+      const categories = document.querySelectorAll('.menu-category');
+
+      categories.forEach(cat => {
+        // Check Category Match
+        const catMatches = categoryId === 'all' || cat.id === categoryId;
+        let hasVisibleItems = false;
+
+        // Check items within category
+        const items = cat.querySelectorAll('.menu-item');
+        items.forEach(item => {
+          const name = item.getAttribute('data-name');
+          const desc = item.getAttribute('data-desc');
+
+          const searchMatches = name.includes(searchTerm) || desc.includes(searchTerm);
+
+          if (catMatches && searchMatches) {
+            item.style.display = 'flex';
+            hasVisibleItems = true;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        // Show/hide entire category block based on contents
+        if (hasVisibleItems && catMatches) {
+          cat.style.display = 'block';
+        } else {
+          cat.style.display = 'none';
+        }
+      });
+    }
   </script>
 </body>
 

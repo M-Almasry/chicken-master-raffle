@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - Chicken Master</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="icon" type="image/x-icon" href="../assets/assets/images/favicon.ico">
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .admin-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-header {
+      background: linear-gradient(135deg, #000 0%, #1A1A1A 100%);
+      border-bottom: 2px solid var(--color-gold);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-img {
+      height: 50px;
+    }
+
+    .admin-header h1 {
+      margin: 0;
+      color: var(--color-gold);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: #ccc;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+      padding: 0.5rem;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--color-gold);
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid #E74C3C;
+      color: #E74C3C;
+      padding: 0.5rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #E74C3C;
+      color: white;
+    }
+
+    .dashboard-content {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: #252525;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--color-gold);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--color-gold);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover::after {
+      transform: scaleX(1);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .stat-label {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    /* Raffle Section */
+    .raffle-section {
+      background: linear-gradient(45deg, #1A1A1A, #252525);
+      border: 1px solid var(--color-gold);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      box-shadow: 0 0 30px rgba(212, 160, 23, 0.1);
+    }
+
+    .raffle-section h2 {
+      color: var(--color-gold);
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 0.5rem;
+    }
+
+    .raffle-section p {
+      color: #ccc;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-draw {
+      background: var(--color-gold);
+      color: #000;
+      border: none;
+      padding: 1rem 3rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(212, 160, 23, 0.4);
+    }
+
+    .btn-draw:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(212, 160, 23, 0.6);
+    }
+
+    .winner-result {
+      margin-top: 2rem;
+      padding: 2rem;
+      background: rgba(212, 160, 23, 0.1);
+      border: 2px dashed var(--color-gold);
+      border-radius: 12px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* Tables */
+    .table-card {
+      background: #252525;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid #333;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .table-header h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.5rem;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 1rem;
+      text-align: right;
+      border-bottom: 1px solid #333;
+    }
+
+    .data-table th {
+      color: var(--color-gold);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .data-table td {
+      color: #ddd;
+    }
+
+    .data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-new {
+      background: rgba(52, 152, 219, 0.2);
+      color: #3498db;
+    }
+
+    .status-used {
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+    }
+
+    @media (max-width: 768px) {
+      .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .logo-area {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .nav-links {
+        justify-content: center;
+        width: 100%;
+      }
+
+      .dashboard-content {
+        padding: 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .stat-card {
+        padding: 1rem;
+      }
+
+      .raffle-section {
+        padding: 1.5rem;
+      }
+
+      .data-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .btn-draw {
+        width: 100%;
+        padding: 1rem;
+      }
+
+      .logout-btn {
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      border-top-color: #000;
+      animation: spin 1s infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="admin-container">
+    <div class="admin-container">
+      <div id="admin-header-container"></div>
+      <script src="../js/admin-header.js"></script>
+
+      <main class="dashboard-content">
+
+        <!-- Shop Status Section -->
+        <div class="shop-status-card"
+          style="background: #252525; border: 1px solid #333; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h2 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; color: #fff;">حالة المطعم</h2>
+              <p style="margin: 0; color: #aaa;">تحكم في استقبال الطلبات من الموقع</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <span id="shopStatusText" style="font-weight: bold; font-size: 1.2rem; color: #fff;">جاري
+                التحميل...</span>
+              <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                <input type="checkbox" id="shopStatusToggle">
+                <span class="slider round"
+                  style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Custom Closed Message -->
+          <div id="closedMessageContainer" style="display: none; padding-top: 1rem; border-top: 1px solid #333;">
+            <label style="display: block; color: var(--color-gold); margin-bottom: 0.5rem; font-weight: bold;">رسالة
+              الإغلاق المخصصة (تظهر للزبائن):</label>
+            <div style="display: flex; gap: 1rem;">
+              <input type="text" id="shopClosedMessage"
+                placeholder="مثال: عذراً، نحن مغلقون حالياً للصيانة ونعود قريباً..."
+                style="flex-grow: 1; padding: 0.8rem; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 6px; font-family: 'Cairo', sans-serif;">
+              <button id="saveMessageBtn"
+                style="background: var(--color-gold); color: #000; border: none; padding: 0 1.5rem; border-radius: 6px; font-weight: bold; cursor: pointer;">حفظ
+                الرسالة</button>
+            </div>
+          </div>
+
+          <style>
+            .slider:before {
+              position: absolute;
+              content: "";
+              height: 26px;
+              width: 26px;
+              left: 4px;
+              bottom: 4px;
+              background-color: white;
+              transition: .4s;
+              border-radius: 50%;
+            }
+
+            input:checked+.slider {
+              background-color: #2ecc71;
+            }
+
+            input:focus+.slider {
+              box-shadow: 0 0 1px #2ecc71;
+            }
+
+            input:checked+.slider:before {
+              transform: translateX(26px);
+            }
+          </style>
+        </div>
+
+        <!-- Opening Hours Management -->
+        <div class="table-card" style="margin-bottom: 3rem;">
+          <div class="table-header">
+            <div>
+              <h2>أوقات الدوام</h2>
+              <p style="color: #aaa; margin: 0.5rem 0 0 0; font-size: 0.9rem;">حدد أوقات العمل لكل يوم في الأسبوع.
+                الأيام المغلقة لن تستقبل طلبات.</p>
+            </div>
+            <button id="saveHoursBtn" class="btn-draw" style="padding: 0.5rem 1.5rem; font-size: 1rem;">💾 حفظ
+              الأوقات</button>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table" style="min-width: 600px;">
+              <thead>
+                <tr>
+                  <th style="width: 15%;">اليوم</th>
+                  <th style="width: 15%; text-align: center;">مفتوح؟</th>
+                  <th style="width: 35%; text-align: center;">يفتح الساعة</th>
+                  <th style="width: 35%; text-align: center;">يغلق الساعة</th>
+                </tr>
+              </thead>
+              <tbody id="hoursTableBody">
+                <!-- Days will be generated by JS -->
+                <tr>
+                  <td colspan="4" style="text-align: center;">جاري التحميل...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value" id="totalRegistrations">--</div>
+            <div class="stat-label">إجمالي المسجلين</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🎫</div>
+            <div class="stat-value" id="usedCoupons">--</div>
+            <div class="stat-label">كوبونات مستخدمة</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🛒</div>
+            <div class="stat-value" id="totalOrders">--</div>
+            <div class="stat-label">إجمالي الطلبات</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value" id="totalRevenue">--</div>
+            <div class="stat-label">إجمالي المبيعات (₪)</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🎁</div>
+            <div class="stat-value" id="raffleParticipants">--</div>
+            <div class="stat-label">مؤهلين للسحب</div>
+          </div>
+        </div>
+
+        <!-- Raffle Action -->
+        <div class="raffle-section">
+          <h2>إجراء السحب الكبير</h2>
+          <p>اضغط أدناه لاختيار فائز عشوائي من قائمة المؤهلين (الذين استخدموا الكوبونات)</p>
+          <button id="drawWinnerBtn" class="btn-draw">🎲 سحب فائز عشوائي</button>
+
+          <div id="winnerResult" class="winner-result hidden"></div>
+        </div>
+
+        <!-- Sales Chart -->
+        <div class="table-card" style="margin-bottom: 2rem;">
+          <div class="table-header">
+            <h2>مبيعات آخر 7 أيام</h2>
+          </div>
+          <div style="width: 100%; height: 300px; padding: 1rem;">
+            <canvas id="salesChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Recent Data -->
+        <div class="table-card">
+          <div class="table-header" style="justify-content: flex-start; gap: 1rem;">
+            <h2>آخر المسجلين</h2>
+            <!-- Live Indicator -->
+            <div
+              style="display: flex; align-items: center; gap: 0.4rem; background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; color: #2ecc71;">
+              <span
+                style="width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71; animation: pulse 2s infinite;"></span>
+              تحديث مباشر
+            </div>
+
+            <style>
+              @keyframes pulse {
+                0% {
+                  transform: scale(0.95);
+                  opacity: 0.8;
+                }
+
+                50% {
+                  transform: scale(1.1);
+                  opacity: 1;
+                  box-shadow: 0 0 12px #2ecc71;
+                }
+
+                100% {
+                  transform: scale(0.95);
+                  opacity: 0.8;
+                }
+              }
+            </style>
+          </div>
+          <div id="recentRegistrations">
+            <div style="text-align: center; color: #888;">جاري التحميل...</div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script>
+      // Auth Check
+      const token = localStorage.getItem('admin_token');
+      const permissions = JSON.parse(localStorage.getItem('admin_permissions') || '[]');
+
+      if (!token) window.location.href = 'login.html';
+
+      // Permission Check: Dashboard
+      if (!permissions.includes('dashboard')) {
+        // Try to find a page they can access
+        if (permissions.includes('orders')) window.location.href = 'orders.html';
+        else if (permissions.includes('users')) window.location.href = 'users.html';
+        else {
+          alert('ليس لديك صلاحيات للوصول');
+          localStorage.removeItem('admin_token');
+          window.location.href = 'login.html';
+        }
+      }
+
+      // Show Users Link
+      if (permissions.includes('users')) {
+        const usersLink = document.getElementById('nav-users');
+        if (usersLink) usersLink.style.display = 'block';
+      }
+
+      // Logout
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_permissions');
+        window.location.href = 'login.html';
+      });
+
+      // Helper: API Request wrapper with Auth
+      async function authorizedRequest(endpoint, options = {}) {
+        const headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+        return apiRequest(endpoint, { ...options, headers });
+      }
+
+      // Load Stats
+      async function loadStats() {
+        try {
+          const result = await authorizedRequest('/admin/stats');
+          if (result.ok && result.data.success) {
+            const stats = result.data.data;
+            document.getElementById('totalRegistrations').textContent = stats.total_registrations;
+            document.getElementById('usedCoupons').textContent = stats.used_coupons;
+            document.getElementById('totalOrders').textContent = stats.total_orders;
+            document.getElementById('totalRevenue').textContent = stats.total_revenue || 0;
+            document.getElementById('raffleParticipants').textContent = stats.raffle_participants;
+          }
+        } catch (e) { console.error('Stats error', e); }
+      }
+
+      // Load Recent Registrations
+      async function loadRecentRegistrations() {
+        try {
+          const result = await authorizedRequest('/admin/registrations?limit=10');
+          if (result.ok && result.data.success) {
+            const registrations = result.data.data;
+            const html = `
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>الاسم</th>
+                  <th>رقم الجوال</th>
+                  <th>كود الكوبون</th>
+                  <th>الحالة</th>
+                  <th>تاريخ التسجيل</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${registrations.map(r => `
+                  <tr>
+                    <td>${r.name}</td>
+                    <td>${r.phone}</td>
+                    <td style="font-family: monospace; color: var(--color-gold); letter-spacing: 1px;">${r.coupon_code}</td>
+                    <td><span class="status-badge status-${r.coupon_status}">${r.coupon_status === 'new' ? 'جديد' : 'مستخدم'}</span></td>
+                    <td>${new Date(r.created_at).toLocaleDateString('ar-EG')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+            document.getElementById('recentRegistrations').innerHTML = html;
+          }
+        } catch (e) {
+          document.getElementById('recentRegistrations').innerHTML = '<p style="text-align:center; color:red">فشل تحميل البيانات</p>';
+        }
+      }
+
+      // Draw Winner Logic
+      document.getElementById('drawWinnerBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('drawWinnerBtn');
+        const resultDiv = document.getElementById('winnerResult');
+
+        btn.disabled = true;
+        btn.innerHTML = 'جاري السحب... <div class="spinner"></div>';
+        resultDiv.classList.add('hidden');
+
+        try {
+          // Add suspense delay
+          await new Promise(r => setTimeout(r, 1500));
+
+          const result = await authorizedRequest('/admin/draw-winner', { method: 'POST' });
+
+          if (result.ok && result.data.success) {
+            const winner = result.data.winner;
+            resultDiv.innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+            <h3 style="color: var(--color-gold); margin-bottom: 0.5rem;">مبروك للفائز!</h3>
+            <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">${winner.name}</div>
+            <div style="color: #ccc; margin-bottom: 0.5rem;">${winner.phone}</div>
+            <div style="background: #333; display: inline-block; padding: 0.5rem 1rem; border-radius: 4px; margin-top: 1rem;">
+              الكوبون الرابح: <span style="color: var(--color-gold);">${winner.coupon_code}</span>
+            </div>
+          `;
+            resultDiv.classList.remove('hidden');
+            // Trigger confetti if possible (omitted for simplicity)
+          } else {
+            resultDiv.innerHTML = `<p style="color: #E74C3C;">${result.data.message || 'لا يوجد مشاركين مؤهلين (استخدموا الكوبونات) حالياً'}</p>`;
+            resultDiv.classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error(error);
+          alert('حدث خطأ أثناء السحب');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '🎲 سحب فائز عشوائي';
+        }
+      });
+
+      // Load Shop Status
+      async function loadShopStatus() {
+        try {
+          const result = await authorizedRequest('/admin/shop-status');
+          if (result.ok && result.data.success) {
+            const { is_open, message } = result.data;
+            const toggle = document.getElementById('shopStatusToggle');
+            const statusText = document.getElementById('shopStatusText');
+            const messageContainer = document.getElementById('closedMessageContainer');
+            const messageInput = document.getElementById('shopClosedMessage');
+
+            toggle.checked = is_open;
+            statusText.textContent = is_open ? 'مفتوح' : 'مغلق';
+            statusText.style.color = is_open ? '#2ecc71' : '#e74c3c';
+
+            messageInput.value = message || '';
+            messageContainer.style.display = is_open ? 'none' : 'block';
+          }
+        } catch (e) {
+          console.error('Status fetch error', e);
+          document.getElementById('shopStatusText').textContent = 'خطأ';
+        }
+      }
+
+      // Save Message Action
+      document.getElementById('saveMessageBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('saveMessageBtn');
+        const message = document.getElementById('shopClosedMessage').value;
+        const is_open = document.getElementById('shopStatusToggle').checked;
+
+        btn.disabled = true;
+        btn.textContent = 'جاري الحفظ...';
+
+        try {
+          const result = await authorizedRequest('/admin/shop-status', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_open, message })
+          });
+
+          if (result.ok && result.data.success) {
+            btn.textContent = 'تم الحفظ!';
+            setTimeout(() => { btn.textContent = 'حفظ الرسالة'; btn.disabled = false; }, 2000);
+          } else throw new Error('Failed');
+        } catch (e) {
+          alert('فشل حفظ الرسالة');
+          btn.textContent = 'حفظ الرسالة';
+          btn.disabled = false;
+        }
+      });
+
+      // Toggle Shop Status
+      document.getElementById('shopStatusToggle').addEventListener('change', async (e) => {
+        const is_open = e.target.checked;
+        const statusText = document.getElementById('shopStatusText');
+        const messageContainer = document.getElementById('closedMessageContainer');
+        const messageVal = document.getElementById('shopClosedMessage').value;
+
+        // Optimistic update
+        statusText.textContent = is_open ? 'مفتوح' : 'مغلق';
+        statusText.style.color = is_open ? '#2ecc71' : '#e74c3c';
+        messageContainer.style.display = is_open ? 'none' : 'block';
+
+        try {
+          const result = await authorizedRequest('/admin/shop-status', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_open, message: is_open ? '' : messageVal })
+          });
+
+          if (!result.ok || !result.data.success) {
+            throw new Error('Update failed');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('فشل تحديث الحالة');
+          // Revert
+          e.target.checked = !is_open;
+          statusText.textContent = !is_open ? 'مفتوح' : 'مغلق';
+          statusText.style.color = !is_open ? '#2ecc71' : '#e74c3c';
+          messageContainer.style.display = !is_open ? 'none' : 'block';
+        }
+      });
+
+      // --- Opening Hours Logic ---
+      const defaultHours = {
+        sunday: { open: "12:00", close: "23:00", closed: false },
+        monday: { open: "12:00", close: "23:00", closed: false },
+        tuesday: { open: "12:00", close: "23:00", closed: false },
+        wednesday: { open: "12:00", close: "23:00", closed: false },
+        thursday: { open: "12:00", close: "23:00", closed: false },
+        friday: { open: "14:00", close: "23:00", closed: false },
+        saturday: { open: "12:00", close: "23:00", closed: false }
+      };
+
+      const daysMapping = [
+        { key: 'sunday', label: 'الأحد' },
+        { key: 'monday', label: 'الإثنين' },
+        { key: 'tuesday', label: 'الثلاثاء' },
+        { key: 'wednesday', label: 'الأربعاء' },
+        { key: 'thursday', label: 'الخميس' },
+        { key: 'friday', label: 'الجمعة' },
+        { key: 'saturday', label: 'السبت' },
+      ];
+
+      function renderHoursTable(hoursData) {
+        const tbody = document.getElementById('hoursTableBody');
+        tbody.innerHTML = daysMapping.map(day => {
+          const dayData = hoursData[day.key] || defaultHours[day.key];
+          return `
+            <tr data-day="${day.key}">
+              <td style="font-weight: bold; color: #fff;">${day.label}</td>
+              <td style="text-align: center;">
+                <input type="checkbox" class="day-closed-cb" ${dayData.closed ? '' : 'checked'} 
+                       style="width: 20px; height: 20px; cursor: pointer;">
+              </td>
+              <td style="text-align: center;">
+                <input type="time" class="time-input open-time" value="${dayData.open}" 
+                       ${dayData.closed ? 'disabled' : ''}
+                       style="padding: 0.5rem; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 4px; font-family: 'Inter', sans-serif;">
+              </td>
+              <td style="text-align: center;">
+                <input type="time" class="time-input close-time" value="${dayData.close}" 
+                       ${dayData.closed ? 'disabled' : ''}
+                       style="padding: 0.5rem; background: #1a1a1a; border: 1px solid #444; color: #fff; border-radius: 4px; font-family: 'Inter', sans-serif;">
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Add listeners to checkboxes to disable/enable time inputs
+        document.querySelectorAll('.day-closed-cb').forEach(cb => {
+          cb.addEventListener('change', function () {
+            const tr = this.closest('tr');
+            const openInput = tr.querySelector('.open-time');
+            const closeInput = tr.querySelector('.close-time');
+            const isClosed = !this.checked;
+
+            openInput.disabled = isClosed;
+            closeInput.disabled = isClosed;
+
+            if (isClosed) {
+              tr.style.opacity = '0.5';
+            } else {
+              tr.style.opacity = '1';
+            }
+          });
+
+          // Trigger initial state
+          cb.dispatchEvent(new Event('change'));
+        });
+      }
+
+      async function loadOpeningHours() {
+        try {
+          const result = await authorizedRequest('/admin/shop-status'); // reuse endpoint as it returns both now if we check shop.js or we can use specific endpoint
+
+          let hours = defaultHours;
+          // Note: using the specific opening-hours endpoint instead of the old combined one to be safe
+          const hoursResult = await authorizedRequest('/admin/opening-hours');
+
+          if (hoursResult.ok && hoursResult.data.success && Object.keys(hoursResult.data.data).length > 0) {
+            hours = hoursResult.data.data;
+          }
+
+          renderHoursTable(hours);
+
+        } catch (e) {
+          console.error('Hours fetch error', e);
+          renderHoursTable(defaultHours);
+        }
+      }
+
+      document.getElementById('saveHoursBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('saveHoursBtn');
+        btn.disabled = true;
+        btn.innerHTML = 'جاري الحفظ... <div class="spinner" style="width:15px;height:15px;border-width:2px;"></div>';
+
+        const newHours = {};
+        document.querySelectorAll('#hoursTableBody tr').forEach(tr => {
+          const day = tr.getAttribute('data-day');
+          if (!day) return;
+
+          const isClosed = !tr.querySelector('.day-closed-cb').checked;
+          const openTime = tr.querySelector('.open-time').value;
+          const closeTime = tr.querySelector('.close-time').value;
+
+          newHours[day] = {
+            closed: isClosed,
+            open: openTime || "12:00",
+            close: closeTime || "23:00"
+          };
+        });
+
+        try {
+          const result = await authorizedRequest('/admin/opening-hours', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hours: newHours })
+          });
+
+          if (result.ok && result.data.success) {
+            btn.innerHTML = '✅ تم الحفظ';
+            setTimeout(() => { btn.innerHTML = '💾 حفظ الأوقات'; btn.disabled = false; }, 2000);
+          } else {
+            throw new Error('Save failed');
+          }
+        } catch (e) {
+          console.error(e);
+          alert('فشل حفظ الأوقات');
+          btn.innerHTML = '💾 حفظ الأوقات';
+          btn.disabled = false;
+        }
+      });
+      // --- Chart Logic --- //
+      function processSalesData(orders) {
+        const today = new Date();
+        const salesByDate = {};
+
+        // Initialize last 7 days with 0
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const dateStr = d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+          salesByDate[dateStr] = 0;
+        }
+
+        // Aggregate order totals
+        orders.forEach(order => {
+          const orderDate = new Date(order.updated_at || order.created_at);
+          const dateStr = orderDate.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+          if (salesByDate[dateStr] !== undefined && order.status !== 'cancelled') {
+            salesByDate[dateStr] += parseFloat(order.total_amount || 0);
+          }
+        });
+
+        return {
+          labels: Object.keys(salesByDate),
+          data: Object.values(salesByDate)
+        };
+      }
+
+      let salesChartInstance = null;
+      async function loadSalesChart() {
+        try {
+          // Fetch orders (assuming the API returns all orders. If pagination exists, might need adjustment)
+          const result = await authorizedRequest('/admin/orders');
+          if (result.ok && result.data.success) {
+            const chartData = processSalesData(result.data.data);
+
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if (salesChartInstance) salesChartInstance.destroy();
+
+            salesChartInstance = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: chartData.labels,
+                datasets: [{
+                  label: 'المبيعات (₪)',
+                  data: chartData.data,
+                  backgroundColor: 'rgba(212, 160, 23, 0.5)',
+                  borderColor: 'rgba(212, 160, 23, 1)',
+                  borderWidth: 1,
+                  borderRadius: 4
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#aaa' }
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { color: '#aaa' }
+                  }
+                },
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#d4a017',
+                    bodyColor: '#fff',
+                    displayColors: false
+                  }
+                }
+              }
+            });
+          }
+        } catch (e) { console.error('Error loading chart:', e); }
+      }
+
+      // Init
+      loadShopStatus();
+      loadOpeningHours();
+      loadStats();
+      loadRecentRegistrations();
+      loadSalesChart();
+
+      // --- Auto Refresh Logic ---
+      // Refresh stats and registrations every 30 seconds to simulate a live view
+      setInterval(async () => {
+        try {
+          await Promise.all([
+            loadStats(),
+            loadRecentRegistrations(),
+            loadSalesChart()
+          ]);
+        } catch (e) {
+          console.error("Auto-refresh failed", e);
+        }
+      }, 30000);
+    </script>
+</body>
+
+</html>

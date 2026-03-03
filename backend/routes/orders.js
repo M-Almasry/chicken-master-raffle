@@ -22,6 +22,22 @@ router.post('/', async (req, res) => {
       notes
     } = req.body;
 
+    // First check if shop is open
+    const statusCheck = await pool.query("SELECT value FROM system_config WHERE key = 'shop_status'");
+    if (statusCheck.rows.length > 0) {
+      const { is_open, message } = statusCheck.rows[0].value;
+      if (!is_open) {
+        return res.status(503).json({
+          success: false,
+          message: {
+            ar: message || 'عذرا، المطعم مغلق حاليا',
+            en: message || 'Sorry, the shop is currently closed'
+          },
+          is_closed: true
+        });
+      }
+    }
+
     // التحقق من البيانات المطلوبة
     if (!customerName || !customerPhone || !items || items.length === 0 || !deliveryType) {
       return res.status(400).json({

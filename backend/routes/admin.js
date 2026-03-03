@@ -50,7 +50,7 @@ router.post('/login', async (req, res) => {
     }
 
     const result = await pool.query(
-      'SELECT id, username, password_hash, permissions FROM admin_users WHERE username = $1',
+      'SELECT id, username, password_hash, role FROM admin_users WHERE username = $1',
       [username]
     );
 
@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, username: user.username, permissions: user.permissions },
+      { id: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -83,7 +83,7 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
-        permissions: user.permissions || []
+        role: user.role
       }
     });
 
@@ -97,157 +97,67 @@ router.post('/login', async (req, res) => {
 });
 
 /**
- * GET /api/admin/users
- * جلب جميع المدراء (User Management)
+ * GET /api/admin/users — قائمة المدراء
  */
 router.get('/users', authenticateToken, async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, username, permissions FROM admin_users ORDER BY id ASC');
-    res.json({
-      success: true,
-      data: result.rows
-    });
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching users'
-    });
-  }
+    const result = await pool.query('SELECT id, username, role, created_at FROM admin_users ORDER BY id ASC');
+    res.json({ success: true, data: result.rows });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
 /**
- * POST /api/admin/users
- * إضافة مدير جديد
+ * POST /api/admin/users — إضافة مدير جديد
  */
 router.post('/users', authenticateToken, async (req, res) => {
   try {
-    const { username, password, permissions } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Username and password are required'
-      });
-    }
-
-    // Check if user exists
+    const { username, password, role } = req.body;
+    if (!username || !password) return res.status(400).json({ success: false, message: 'اسم المستخدم وكلمة المرور مطلوبان' });
     const existing = await pool.query('SELECT id FROM admin_users WHERE username = $1', [username]);
-    if (existing.rows.length > 0) {
-      return res.status(409).json({
-        success: false,
-        message: 'Username already exists'
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (existing.rows.length > 0) return res.status(409).json({ success: false, message: 'اسم المستخدم موجود بالفعل' });
+    const hash = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      'INSERT INTO admin_users (username, password_hash, permissions) VALUES ($1, $2, $3) RETURNING id, username, permissions',
-      [username, hashedPassword, JSON.stringify(permissions || [])]
+      'INSERT INTO admin_users (username, password_hash, role) VALUES ($1, $2, $3) RETURNING id, username, role',
+      [username, hash, role || 'receiver']
     );
-
-    res.status(201).json({
-      success: true,
-      data: result.rows[0],
-      message: 'User created successfully'
-    });
-
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error creating user'
-    });
-  }
+    res.status(201).json({ success: true, data: result.rows[0] });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
 /**
- * PUT /api/admin/users/:id
- * تعديل بيانات مدير (كلمة المرور / الصلاحيات)
+ * PUT /api/admin/users/:id — تعديل بيانات مدير
  */
 router.put('/users/:id', authenticateToken, async (req, res) => {
   try {
+    const { username, password, role } = req.body;
     const { id } = req.params;
-    const { password, permissions } = req.body;
-
-    // Build update query dynamically
-    let queryArgs = [];
-    let queryParts = [];
-    let counter = 1;
-
+    const fields = [], values = [];
+    let idx = 1;
+    if (username) { fields.push(`username=$${idx++}`); values.push(username); }
+    if (role) { fields.push(`role=$${idx++}`); values.push(role); }
     if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      queryParts.push(`password_hash = $${counter++}`);
-      queryArgs.push(hashedPassword);
+      const hash = await bcrypt.hash(password, 10);
+      fields.push(`password_hash=$${idx++}`); values.push(hash);
     }
-
-    if (permissions) {
-      queryParts.push(`permissions = $${counter++}`);
-      queryArgs.push(JSON.stringify(permissions));
-    }
-
-    if (queryParts.length === 0) {
-      return res.status(400).json({ success: false, message: 'No changes provided' });
-    }
-
-    queryArgs.push(id);
-    const query = `UPDATE admin_users SET ${queryParts.join(', ')} WHERE id = $${counter} RETURNING id, username, permissions`;
-
-    const result = await pool.query(query, queryArgs);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    res.json({
-      success: true,
-      data: result.rows[0],
-      message: 'User updated successfully'
-    });
-
-  } catch (error) {
-    console.error('Error updating user:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error updating user'
-    });
-  }
+    if (fields.length === 0) return res.status(400).json({ success: false, message: 'لا توجد تغييرات' });
+    values.push(id);
+    await pool.query(`UPDATE admin_users SET ${fields.join(', ')} WHERE id=$${idx}`, values);
+    res.json({ success: true, message: 'تم التحديث بنجاح' });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
 /**
- * DELETE /api/admin/users/:id
- * حذف مدير
+ * DELETE /api/admin/users/:id — حذف مدير
  */
 router.delete('/users/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Prevent self-deletion
-    if (parseInt(id) === req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: 'Cannot delete yourself'
-      });
-    }
-
-    const result = await pool.query('DELETE FROM admin_users WHERE id = $1 RETURNING id', [id]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    res.json({
-      success: true,
-      message: 'User deleted successfully'
-    });
-
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error deleting user'
-    });
-  }
+    if (parseInt(id) === req.user.id) return res.status(403).json({ success: false, message: 'لا يمكن حذف حسابك الشخصي' });
+    const check = await pool.query('SELECT username FROM admin_users WHERE id = $1', [id]);
+    if (check.rows[0]?.username === 'admin') return res.status(403).json({ success: false, message: 'لا يمكن حذف المدير الأساسي' });
+    await pool.query('DELETE FROM admin_users WHERE id=$1', [id]);
+    res.json({ success: true, message: 'تم الحذف بنجاح' });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
 /**
@@ -262,8 +172,10 @@ router.get('/stats', authenticateToken, async (req, res) => {
         (SELECT COUNT(*) FROM registrations WHERE coupon_status = 'new') as unused_coupons,
         (SELECT COUNT(*) FROM registrations WHERE coupon_status = 'used') as used_coupons,
         (SELECT COUNT(*) FROM orders) as total_orders,
+        (SELECT COUNT(*) FROM orders WHERE status = 'pending') as pending_orders,
+        (SELECT COUNT(*) FROM orders WHERE status = 'completed') as completed_orders,
         (SELECT COUNT(*) FROM raffle_entries) as raffle_participants,
-        (SELECT COALESCE(SUM(total_after_discount), 0) FROM orders) as total_revenue
+        (SELECT COALESCE(SUM(total_after_discount), 0) FROM orders WHERE status != 'cancelled') as total_revenue
     `);
 
     res.json({
@@ -276,6 +188,54 @@ router.get('/stats', authenticateToken, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching statistics'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/top-items
+ * الأصناف الأكثر طلباً
+ */
+router.get('/top-items', authenticateToken, async (req, res) => {
+  try {
+    // Extract top selling items from the JSONB 'items' column in orders
+    // Added safety checks for non-array items and null values
+    const result = await pool.query(`
+      WITH item_stats AS (
+        SELECT 
+          (substring(item->>'id' FROM '^[0-9]+'))::bigint as menu_item_id,
+          COALESCE((item->>'quantity')::integer, 1) as qty
+        FROM orders,
+        jsonb_array_elements(CASE 
+          WHEN jsonb_typeof(items) = 'array' THEN items 
+          ELSE '[]'::jsonb 
+        END) as item
+        WHERE status != 'cancelled'
+        AND (item->>'id') ~ '^[0-9]+'
+      )
+      SELECT 
+        mi.id,
+        mi.name_ar,
+        mi.name_en,
+        c.name_ar as category_name,
+        SUM(ist.qty) as total_sold
+      FROM item_stats ist
+      JOIN menu_items mi ON ist.menu_item_id = mi.id
+      JOIN categories c ON mi.category_id = c.id
+      GROUP BY mi.id, mi.name_ar, mi.name_en, c.name_ar
+      ORDER BY total_sold DESC
+      LIMIT 10
+    `);
+
+    res.json({
+      success: true,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching top items:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching top items'
     });
   }
 });
@@ -332,15 +292,26 @@ router.get('/registrations', authenticateToken, async (req, res) => {
  */
 router.get('/orders', authenticateToken, async (req, res) => {
   try {
-    const { page = 1, limit = 50 } = req.query;
+    const { status, limit = 50, page = 1 } = req.query;
     const offset = (page - 1) * limit;
 
-    const result = await pool.query(
-      'SELECT * FROM orders ORDER BY created_at DESC LIMIT $1 OFFSET $2',
-      [limit, offset]
-    );
+    let query = 'SELECT * FROM orders';
+    const params = [];
 
-    const countResult = await pool.query('SELECT COUNT(*) FROM orders');
+    if (status) {
+      query += ' WHERE status = $1';
+      params.push(status);
+    }
+
+    query += ' ORDER BY created_at DESC';
+    query += ' LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
+    params.push(parseInt(limit), parseInt(offset));
+
+    const result = await pool.query(query, params);
+    const countResult = await pool.query(
+      status ? 'SELECT COUNT(*) FROM orders WHERE status = $1' : 'SELECT COUNT(*) FROM orders',
+      status ? [status] : []
+    );
 
     res.json({
       success: true,
@@ -476,6 +447,214 @@ router.put('/orders/:id/status', authenticateToken, async (req, res) => {
       message: 'Error updating status'
     });
   }
+});
+
+/**
+ * GET /api/admin/shop-status
+ * جلب حالة فتح/إغلاق المتجر وإعداده
+ */
+router.get('/shop-status', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT value FROM system_config WHERE key = 'shop_status'");
+
+    if (result.rows.length === 0) {
+      // Default fallback
+      return res.json({ success: true, is_open: true, mode: 'auto', message: '' });
+    }
+
+    res.json({ success: true, ...result.rows[0].value });
+  } catch (error) {
+    console.error('Error fetching shop status:', error);
+    res.status(500).json({ success: false, message: 'Error fetching status' });
+  }
+});
+
+/**
+ * PUT /api/admin/shop-status
+ * تحديث حالة المتجر (يدوي/تلقائي)
+ */
+router.put('/shop-status', authenticateToken, async (req, res) => {
+  try {
+    const { is_open, mode, message } = req.body;
+
+    const value = {
+      is_open: !!is_open,
+      mode: mode || 'auto',
+      message: message || ''
+    };
+
+    await pool.query(
+      "INSERT INTO system_config (key, value) VALUES ('shop_status', $1) ON CONFLICT (key) DO UPDATE SET value = $1, updated_at = CURRENT_TIMESTAMP",
+      [JSON.stringify(value)]
+    );
+
+    res.json({ success: true, message: 'Shop status updated', data: value });
+  } catch (error) {
+    console.error('Error updating shop status:', error);
+    res.status(500).json({ success: false, message: 'Error updating status' });
+  }
+});
+
+/**
+ * --- Menu Management ---
+ */
+
+// Categories
+router.get('/categories', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM categories ORDER BY sort_order ASC');
+    res.json({ success: true, data: result.rows });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+router.post('/categories', authenticateToken, async (req, res) => {
+  try {
+    const { name_ar, name_en, sort_order } = req.body;
+    const result = await pool.query(
+      'INSERT INTO categories (name_ar, name_en, sort_order) VALUES ($1, $2, $3) RETURNING *',
+      [name_ar, name_en, sort_order || 0]
+    );
+    res.json({ success: true, data: result.rows[0] });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+router.put('/categories/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name_ar, name_en, sort_order } = req.body;
+    const result = await pool.query(
+      'UPDATE categories SET name_ar=$1, name_en=$2, sort_order=$3 WHERE id=$4 RETURNING *',
+      [name_ar, name_en, sort_order, id]
+    );
+    res.json({ success: true, data: result.rows[0] });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+router.delete('/categories/:id', authenticateToken, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM categories WHERE id=$1', [req.params.id]);
+    res.json({ success: true, message: 'Deleted' });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+// Menu Items
+router.get('/items', authenticateToken, async (req, res) => {
+  try {
+    const client = await pool.connect();
+    try {
+      const itemsRes = await client.query(`
+             SELECT i.*, c.name_ar as category_name 
+             FROM menu_items i 
+             LEFT JOIN categories c ON i.category_id = c.id 
+             ORDER BY i.id DESC
+        `);
+
+      const optionsRes = await client.query(`SELECT * FROM menu_options ORDER BY id ASC`);
+
+      const items = itemsRes.rows.map(item => {
+        const itemOptions = optionsRes.rows.filter(opt => opt.menu_item_id === item.id);
+        return { ...item, options: itemOptions };
+      });
+
+      res.json({ success: true, data: items });
+    } finally {
+      client.release();
+    }
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+router.post('/items', authenticateToken, async (req, res) => {
+  try {
+    const { category_id, name_ar, name_en, description_ar, description_en, price, discount_price, image_url, is_available, options } = req.body;
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const itemRes = await client.query(
+        `INSERT INTO menu_items (category_id, name_ar, name_en, description_ar, description_en, price, discount_price, image_url, is_available) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+        [category_id, name_ar, name_en, description_ar, description_en, price, discount_price, image_url, is_available === undefined ? true : is_available]
+      );
+      const itemId = itemRes.rows[0].id;
+
+      if (options && Array.isArray(options)) {
+        for (const opt of options) {
+          await client.query(
+            'INSERT INTO menu_options (menu_item_id, name_ar, name_en, price) VALUES ($1, $2, $3, $4)',
+            [itemId, opt.name_ar, opt.name_en, opt.price]
+          );
+        }
+      }
+      await client.query('COMMIT');
+      res.json({ success: true, data: itemRes.rows[0] });
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+router.put('/items/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category_id, name_ar, name_en, description_ar, description_en, price, discount_price, image_url, is_available, options } = req.body;
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const itemRes = await client.query(
+        `UPDATE menu_items SET category_id=$1, name_ar=$2, name_en=$3, description_ar=$4, description_en=$5, price=$6, discount_price=$7, image_url=$8, is_available=$9
+             WHERE id=$10 RETURNING *`,
+        [category_id, name_ar, name_en, description_ar, description_en, price, discount_price, image_url, is_available, id]
+      );
+
+      // Replace options
+      await client.query('DELETE FROM menu_options WHERE menu_item_id=$1', [id]);
+      if (options && Array.isArray(options)) {
+        for (const opt of options) {
+          await client.query(
+            'INSERT INTO menu_options (menu_item_id, name_ar, name_en, price) VALUES ($1, $2, $3, $4)',
+            [id, opt.name_ar, opt.name_en, opt.price]
+          );
+        }
+      }
+      await client.query('COMMIT');
+      res.json({ success: true, data: itemRes.rows[0] });
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+router.delete('/items/:id', authenticateToken, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM menu_items WHERE id=$1', [req.params.id]);
+    res.json({ success: true, message: 'Deleted' });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+// Opening Hours
+router.get('/opening-hours', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT value FROM system_config WHERE key = 'opening_hours'");
+    res.json({ success: true, data: result.rows[0]?.value || {} });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
+});
+
+router.put('/opening-hours', authenticateToken, async (req, res) => {
+  try {
+    const { hours } = req.body; // Expecting object
+    await pool.query(
+      "INSERT INTO system_config (key, value) VALUES ('opening_hours', $1) ON CONFLICT (key) DO UPDATE SET value = $1",
+      [JSON.stringify(hours)]
+    );
+    res.json({ success: true, message: 'Updated' });
+  } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
 module.exports = router;
