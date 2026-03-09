@@ -38,13 +38,18 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    const isLocalhost = origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1');
+    const isLocalhost = origin.startsWith('http://localhost') ||
+      origin.startsWith('http://127.0.0.1') ||
+      origin.startsWith('http://192.168.') ||
+      origin.startsWith('http://10.') ||
+      origin.endsWith('.local');
 
     if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.netlify.app') || isLocalhost) {
       callback(null, true);
     } else {
-      console.error('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      console.error('❌ CORS blocked origin:', origin);
+      // In development, maybe just allow it or return a more descriptive error
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true
@@ -144,13 +149,25 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
+  console.error('❌ Global Server Error:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
+
+  const isDev = process.env.NODE_ENV === 'development';
+
   res.status(500).json({
     success: false,
     message: {
       ar: 'حدث خطأ في السيرفر',
       en: 'Internal server error'
-    }
+    },
+    ...(isDev && {
+      error: err.message,
+      details: err.stack?.split('\n')[1] // Just the first line of trace for brevity
+    })
   });
 });
 

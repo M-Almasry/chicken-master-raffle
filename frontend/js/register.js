@@ -93,7 +93,7 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
 
 // Send WhatsApp message to business
 function sendWhatsAppMessage(name, phone, couponCode) {
-  const message = `مرحباً، أنا *${name}* وأرغب بالتسجيل في سحب 100 شيكل! 🎉\n\nرقم جوالي: *${phone}*\nكوبوني: *${couponCode}*\n\nأريد الحصول على كوبون الخصم للدخول في السحب`;
+  const message = `مرحباً، أنا *${name}* وأرغب بالتسجيل في سحب الجوائز النقدية! 🎉\n\nرقم جوالي: *${phone}*\nكوبوني: *${couponCode}*\n\nأريد الحصول على كوبون الخصم للدخول في السحب`;
 
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultIconContainer.innerHTML = '<i data-lucide="check-circle" style="width: 64px; height: 64px; color: #2ECC71; display: inline-block;"></i>';
             resultTitle.textContent = currentLang === 'ar' ? 'كوبونك الفعّال' : 'Your Active Coupon';
             resultTitle.style.color = '#2ECC71';
-            resultText.textContent = currentLang === 'ar' ? 'تفضل كود الخصم الخاص بك، يمكنك استخدامه الآن عند إتمام الطلب للحصول على خصم 10% ودخول سحب الـ 100 شيكل.' : 'Here is your active coupon. Use it during checkout to get 10% off and enter the 100 NIS raffle.';
+            resultText.textContent = currentLang === 'ar' ? 'تفضل كود الخصم الخاص بك، يمكنك استخدامه الآن عند إتمام الطلب للحصول على خصم 10% ودخول سحب الجوائز النقدية.' : 'Here is your active coupon. Use it during checkout to get 10% off and enter the cash prizes raffle.';
 
             couponCodeDisplay.style.display = 'block';
             couponCodeText.textContent = coupon.couponCode;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Gift, Search, Filter, Trophy, UserCheck, UserX, Clock } from 'lucide-react';
+import { Gift, Search, Filter, Trophy, UserCheck, UserX, Clock, ToggleRight, ToggleLeft } from 'lucide-react';
 import api from '../utils/api';
 import { format } from 'date-fns';
 
@@ -10,6 +10,9 @@ const Raffle = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [drawing, setDrawing] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [raffleActive, setRaffleActive] = useState(true);
+  const [expiryDate, setExpiryDate] = useState('2026-03-29');
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const fetchRegistrations = async () => {
     try {
@@ -23,9 +26,75 @@ const Raffle = () => {
     }
   };
 
+  const fetchRaffleStatus = async () => {
+    try {
+      const res = await api.get('/admin/raffle-config');
+      if (res.data.success) {
+        setRaffleActive(res.data.data.is_active);
+        setExpiryDate(res.data.data.expiry_date || '2026-03-29');
+      }
+    } catch (error) {
+      console.error('Error fetching raffle status:', error);
+    }
+  };
+
   useEffect(() => {
     fetchRegistrations();
+    fetchRaffleStatus();
   }, [filter]);
+
+  const toggleRaffleStatus = async () => {
+    try {
+      setStatusLoading(true);
+      const res = await api.post('/admin/raffle-config', {
+        is_active: !raffleActive,
+        expiry_date: expiryDate
+      });
+      if (res.data.success) {
+        setRaffleActive(res.data.is_active);
+      }
+    } catch (error) {
+      alert('حدث خطأ أثناء تغيير حالة التسجيل');
+    } finally {
+      setStatusLoading(false);
+    }
+  };
+
+  const saveRaffleConfig = async () => {
+    try {
+      setStatusLoading(true);
+      const res = await api.post('/admin/raffle-config', {
+        is_active: raffleActive,
+        expiry_date: expiryDate
+      });
+      if (res.data.success) {
+        alert('تم حفظ الإعدادات بنجاح');
+      }
+    } catch (error) {
+      alert('حدث خطأ أثناء حفظ الإعدادات');
+    } finally {
+      setStatusLoading(false);
+    }
+  };
+
+  const updateAllExpiry = async () => {
+    if (!window.confirm('هل أنت متأكد من رغبتك في تحديث التاريخ لجميع المشتركين السابقين؟ هذا سيغير تاريخ انتهاء كل الكوبونات غير المستخدمة.')) return;
+
+    try {
+      setStatusLoading(true);
+      const res = await api.post('/admin/raffle-config/update-all', {
+        expiry_date: expiryDate
+      });
+      if (res.data.success) {
+        alert(res.data.message);
+        fetchRegistrations();
+      }
+    } catch (error) {
+      alert('حدث خطأ أثناء تحديث البيانات');
+    } finally {
+      setStatusLoading(false);
+    }
+  };
 
   const handleDrawWinner = async () => {
     if (!window.confirm('هل أنت متأكد من رغبتك في إجراء السحب الآن؟ سيتم اختيار فائز عشوائي من المؤهلين.')) return;
@@ -52,22 +121,66 @@ const Raffle = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-brand-dark p-6 rounded-2xl border border-gray-800 shadow-xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-brand-dark p-6 rounded-2xl border border-gray-800 shadow-xl">
         <div>
           <h1 className="text-2xl font-bold font-playfair text-brand-gold flex items-center gap-2">
             <Gift size={28} /> إدارة حملة السحب
           </h1>
-          <p className="text-gray-400 mt-1">تتبع المسجلين وإجراء القرعة العشوائية للفوز بـ 100 شيكل</p>
+          <p className="text-gray-400 mt-1">تتبع المسجلين وإجراء القرعة العشوائية للفوز بالجوائز النقدية</p>
         </div>
 
-        <button
-          onClick={handleDrawWinner}
-          disabled={drawing}
-          className={`flex items-center gap-2 px-6 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl shadow-lg shadow-brand-gold/20 hover:bg-yellow-500 transition-all transform hover:scale-105 active:scale-95 ${drawing ? 'opacity-50 cursor-not-allowed animate-pulse' : ''}`}
-        >
-          <Trophy size={20} />
-          {drawing ? 'جاري السحب...' : 'إجراء السحب الآن'}
-        </button>
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+          <div className="flex flex-col gap-1 flex-1 md:flex-none">
+            <label className="text-xs text-gray-400 font-bold pr-1">تاريخ انتهاء الكوبونات:</label>
+            <input
+              type="date"
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+              className="bg-brand-charcoal border border-gray-700 rounded-xl py-2 px-3 text-sm focus:ring-1 focus:ring-brand-gold focus:outline-none text-white"
+            />
+          </div>
+
+          <button
+            onClick={toggleRaffleStatus}
+            disabled={statusLoading}
+            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border relative overflow-hidden transition-all flex-1 md:flex-none mt-5 md:mt-0 ${raffleActive
+              ? 'bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20'
+              : 'bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500/20'
+              } ${statusLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {raffleActive ? <ToggleRight size={24} /> : <ToggleLeft size={24} />}
+            <span className="font-bold">{raffleActive ? 'التسجيل مفتوح' : 'التسجيل مغلق'}</span>
+          </button>
+
+          <button
+            onClick={handleDrawWinner}
+            disabled={drawing}
+            className={`flex items-center justify-center gap-2 px-6 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl shadow-lg shadow-brand-gold/20 hover:bg-yellow-500 transition-all flex-1 md:flex-none mt-5 md:mt-0 ${drawing ? 'opacity-50 cursor-not-allowed animate-pulse' : 'transform hover:scale-105 active:scale-95'}`}
+          >
+            <Trophy size={20} />
+            {drawing ? 'جاري السحب...' : 'إجراء السحب الآن'}
+          </button>
+
+          {/* Save Button for Config */}
+          <button
+            onClick={saveRaffleConfig}
+            disabled={statusLoading}
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 text-white font-bold rounded-xl border border-gray-700 hover:bg-gray-700 transition-all flex-1 md:flex-none mt-5 md:mt-0"
+          >
+            حفظ للإعدادات
+          </button>
+
+          {/* Update All Button */}
+          <button
+            onClick={updateAllExpiry}
+            disabled={statusLoading}
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-600/20 hover:bg-orange-700 transition-all flex-1 md:flex-none mt-5 md:mt-0"
+            title="تحديث تاريخ الانتهاء لجميع المشتركين الحاليين"
+          >
+            <Clock size={20} />
+            تحديث الكل
+          </button>
+        </div>
       </div>
 
       {/* Winner Modal */}
@@ -137,6 +250,7 @@ const Raffle = () => {
                   <th className="p-4 border-b border-gray-800">المشترك</th>
                   <th className="p-4 border-b border-gray-800 text-center">الكوبون</th>
                   <th className="p-4 border-b border-gray-800 text-center">تاريخ التسجيل</th>
+                  <th className="p-4 border-b border-gray-800 text-center">انتهاء الصلاحية</th>
                   <th className="p-4 border-b border-gray-800 text-center">الحالة</th>
                 </tr>
               </thead>
@@ -162,10 +276,15 @@ const Raffle = () => {
                           <Clock size={12} /> {format(new Date(reg.created_at), 'yyyy-MM-dd')}
                         </div>
                       </td>
+                      <td className="p-4 text-center text-gray-400 text-xs">
+                        <div className="flex items-center justify-center gap-1 text-orange-400">
+                          <Clock size={12} /> {reg.expires_at ? format(new Date(reg.expires_at), 'yyyy-MM-dd') : '-'}
+                        </div>
+                      </td>
                       <td className="p-4 text-center">
                         <span className={`px-3 py-1 rounded-full text-[10px] font-bold flex items-center justify-center gap-1 w-max mx-auto ${reg.coupon_status === 'used' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
-                            reg.coupon_status === 'new' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
-                              'bg-red-500/10 text-red-500 border border-red-500/20'
+                          reg.coupon_status === 'new' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
+                            'bg-red-500/10 text-red-500 border border-red-500/20'
                           }`}>
                           {reg.coupon_status === 'used' ? <UserCheck size={12} /> : <Clock size={12} />}
                           {reg.coupon_status === 'used' ? 'مفعل ومؤهل' : reg.coupon_status === 'new' ? 'في انتظار طلب' : 'منتهي'}
@@ -175,7 +294,7 @@ const Raffle = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-12 text-center text-gray-500">لا يوجد مشتركين مطابقين للبحث.</td>
+                    <td colSpan="5" className="p-12 text-center text-gray-500">لا يوجد مشتركين مطابقين للبحث.</td>
                   </tr>
                 )}
               </tbody>

@@ -41,8 +41,9 @@
   <div class="register-container">
     <div class="register-card">
       <div class="register-header">
-        <h1 class="text-gold" data-i18n="steps_title">خطوات الربح 🏆</h1>
-        <p data-i18n="steps_subtitle">اتبع الخطوات البسيطة التالية لدخول السحب</p>
+        <h1 class="text-gold" data-i18n="steps_title" style="margin-bottom: 0.8rem;">خطوات الربح 🏆</h1>
+        <p data-i18n="steps_subtitle" style="line-height: 1.5; color: #ccc;">اتبع الخطوات البسيطة التالية لدخول السحب
+        </p>
       </div>
 
       <!-- Steps Container -->
@@ -107,7 +108,8 @@
           <div class="step-number">4</div>
           <div class="step-content">
             <h3 data-i18n="step_raffle_title">اطلب وادخل السحب</h3>
-            <p data-i18n="step_raffle_desc">استخدم الكوبون في مطعمنا لتدخل السحب على <strong>100 شيكل</strong></p>
+            <p data-i18n="step_raffle_desc">استخدم الكوبون في مطعمنا لتدخل السحب على <strong class="text-gold">جوائز
+                نقدية كاش</strong></p>
           </div>
         </div>
 
@@ -174,6 +176,21 @@
   <script type="module" src="js/register.js"></script>
   <script>
     if (window.lucide) lucide.createIcons();
+
+    // Check raffle status immediately
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const baseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://chicken-master-raffle.onrender.com/api');
+        const response = await fetch(`${baseUrl}/shop/status`);
+        const result = await response.json();
+
+        if (result.success && result.raffle_status && !result.raffle_status.is_active) {
+          window.location.href = 'index.html';
+        }
+      } catch (e) {
+        console.error('Failed to verify raffle status:', e);
+      }
+    });
   </script>
 </body>
 

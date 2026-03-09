@@ -12,9 +12,11 @@ import {
   ChevronRight,
   PlusCircle,
   MoreVertical,
-  Check
+  Check,
+  Layers
 } from 'lucide-react';
 import api from '../utils/api';
+import GlobalAddons from './GlobalAddons'; // Import the new modal component
 
 const Menu = () => {
   const [categories, setCategories] = useState([]);
@@ -25,13 +27,15 @@ const Menu = () => {
   // Modals state
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isGlobalAddonsOpen, setIsGlobalAddonsOpen] = useState(false); // Global add-ons modal state
   const [editingItem, setEditingItem] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
 
   // Form states
   const [itemForm, setItemForm] = useState({
     name_ar: '', name_en: '', description_ar: '', description_en: '',
-    price: '', discount_price: '', category_id: '', image_url: '', is_available: true
+    price: '', discount_price: '', category_id: '', image_url: '', is_available: true,
+    options: []
   });
   const [categoryForm, setCategoryForm] = useState({
     name_ar: '', name_en: '', sort_order: 0
@@ -83,10 +87,16 @@ const Menu = () => {
   const handleSaveItem = async (e) => {
     e.preventDefault();
     try {
+      // Filter out empty options
+      const finalForm = {
+        ...itemForm,
+        options: itemForm.options.filter(opt => opt.name_ar.trim() !== '')
+      };
+
       if (editingItem) {
-        await api.put(`/admin/items/${editingItem.id}`, itemForm);
+        await api.put(`/admin/items/${editingItem.id}`, finalForm);
       } else {
-        await api.post('/admin/items', itemForm);
+        await api.post('/admin/items', finalForm);
       }
       setIsItemModalOpen(false);
       fetchData();
@@ -124,12 +134,16 @@ const Menu = () => {
   const openItemModal = (item = null) => {
     if (item) {
       setEditingItem(item);
-      setItemForm({ ...item });
+      setItemForm({
+        ...item,
+        options: item.options || []
+      });
     } else {
       setEditingItem(null);
       setItemForm({
         name_ar: '', name_en: '', description_ar: '', description_en: '',
-        price: '', discount_price: '', category_id: activeCategory || '', image_url: '', is_available: true
+        price: '', discount_price: '', category_id: activeCategory || '', image_url: '', is_available: true,
+        options: []
       });
     }
     setIsItemModalOpen(true);
@@ -159,6 +173,12 @@ const Menu = () => {
           <p className="text-gray-400 mt-1">إدارة الأصناف، الأسعار والتصنيفات</p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={() => setIsGlobalAddonsOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-brand-gold border border-brand-gold/20 rounded-xl hover:bg-gray-700 transition-all font-bold text-sm shadow-lg shadow-brand-gold/5"
+          >
+            <Layers size={16} /> تعديل الإضافات العامة
+          </button>
           <button
             onClick={() => openCategoryModal()}
             className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-gray-200 border border-gray-700 rounded-xl hover:bg-gray-700 transition-all font-bold text-sm"
@@ -344,6 +364,83 @@ const Menu = () => {
                 </div>
               </div>
 
+              {/* Options / Add-ons Management */}
+              <div className="md:col-span-2 space-y-4 pt-4 border-t border-gray-800">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-brand-gold flex items-center gap-2">
+                    <PlusCircle size={20} /> الإضافات (Options)
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setItemForm({
+                      ...itemForm,
+                      options: [...itemForm.options, { name_ar: '', name_en: '', price: 0 }]
+                    })}
+                    className="text-xs font-bold bg-gray-800 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-2 transition-all"
+                  >
+                    <Plus size={14} /> إضافة خيار جديد
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {itemForm.options.map((opt, idx) => (
+                    <div key={idx} className="bg-gray-900/40 p-3 rounded-2xl border border-gray-800 flex flex-wrap items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="flex-1 min-w-[150px]">
+                        <input
+                          placeholder="الاسم (عربي)"
+                          value={opt.name_ar}
+                          onChange={(e) => {
+                            const newOpts = [...itemForm.options];
+                            newOpts[idx].name_ar = e.target.value;
+                            setItemForm({ ...itemForm, options: newOpts });
+                          }}
+                          className="w-full bg-brand-charcoal border border-gray-700/50 rounded-lg py-1.5 px-3 text-xs focus:ring-1 focus:ring-brand-gold outline-none"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-[150px]">
+                        <input
+                          placeholder="Name (EN)"
+                          value={opt.name_en}
+                          onChange={(e) => {
+                            const newOpts = [...itemForm.options];
+                            newOpts[idx].name_en = e.target.value;
+                            setItemForm({ ...itemForm, options: newOpts });
+                          }}
+                          className="w-full bg-brand-charcoal border border-gray-700/50 rounded-lg py-1.5 px-3 text-xs focus:ring-1 focus:ring-brand-gold outline-none"
+                        />
+                      </div>
+                      <div className="w-24">
+                        <input
+                          type="number"
+                          step="0.1"
+                          placeholder="السعر"
+                          value={opt.price}
+                          onChange={(e) => {
+                            const newOpts = [...itemForm.options];
+                            newOpts[idx].price = e.target.value;
+                            setItemForm({ ...itemForm, options: newOpts });
+                          }}
+                          className="w-full bg-brand-charcoal border border-gray-700/50 rounded-lg py-1.5 px-3 text-xs focus:ring-1 focus:ring-brand-gold outline-none"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newOpts = itemForm.options.filter((_, i) => i !== idx);
+                          setItemForm({ ...itemForm, options: newOpts });
+                        }}
+                        className="p-1.5 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-all"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                  {itemForm.options.length === 0 && (
+                    <p className="text-center text-gray-600 text-xs py-4 border border-dashed border-gray-800 rounded-2xl">لا يوجد إضافات لهذا الصنف</p>
+                  )}
+                </div>
+              </div>
+
               <div className="md:col-span-2 pt-6 border-t border-gray-800 flex gap-3">
                 <button type="submit" className="flex-1 py-4 bg-brand-gold text-brand-dark rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-yellow-500 transition-all shadow-xl shadow-brand-gold/10">
                   <Save size={20} /> {editingItem ? 'حفظ التعديلات' : 'إضافة الصنف للقائمة'}
@@ -385,6 +482,11 @@ const Menu = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Global Addons Modal */}
+      {isGlobalAddonsOpen && (
+        <GlobalAddons onClose={() => setIsGlobalAddonsOpen(false)} />
       )}
     </div>
   );

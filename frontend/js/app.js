@@ -11,10 +11,10 @@ const translations = {
     title: 'اربح 100 شيكل مع مستر تشيكن!',
     subtitle: 'سجل الآن واحصل على كوبون خصم 10% + فرصة للفوز',
     hero_title: 'تذوق <span class="text-gold">النار</span><br>Chicken Master',
-    hero_subtitle: 'GRILL & KIOSK<br>فن الشواء على حطب الزيتون.. طعم النار الأصيل',
+    hero_subtitle: 'GRILL & KIOSK<br>الفروجعلى حطب الزيتون.. طعم النار الأصيل',
     btn_menu: 'تصفح القائمة',
     section_story: 'قصة النار والحطب',
-    story_p1: 'في قلب طولكرم، أعدنا تعريف مفهوم الشوار.. نستخدم حطب الزيتون الطبيعي لنمنح الدجاج تلك النكهة المدخنة التي تأخذك إلى عبق الماضي بلمسة عصرية فاخرة.',
+    story_p1: 'في قلب طولكرم، أعدنا تعريف مفهوم الشواء.. نستخدم حطب الزيتون الطبيعي لنمنح الدجاج تلك النكهة المدخنة التي تأخذك إلى عبق الماضي بلمسة عصرية فاخرة.',
     story_p2: 'المكان ليس مجرد مطعم، بل هو تجربة كلاسيكية في أجواء راقية، حيث الجدران الحجرية والأخشاب الداكنة تروي قصة "ماستر" الشواء.',
     story_quote: '"حيث يلتقي الشغف بالفخامة.. وروضنا لكم النار"',
     section_why_us: 'لماذا نحن الماستر؟',
@@ -25,7 +25,7 @@ const translations = {
     feat_3_title: 'الأول في طولكرم',
     feat_3_desc: 'فكرتنا فريدة وإبداعية، نسعى لنكون دائماً الخيار الأول لمحبي التميز.',
     raffle_title: 'سحب 100 شيكل',
-    raffle_desc: 'سجل الآن واحصل على كوبون خصم 10% وفرصة للفوز بـ 100 شيكل. السحب عشوائي وعادل للجميع!',
+    raffle_desc: '🎉 سجل الآن وادخل السحب على جوائز نقدية فورية + كوبون خصم 10% على طلبك!',
     raffle_desc_2: 'تذوق الفخامة بخصم 10% عند التسجيل الآن! 🍗',
     btn_register: 'سجل الآن',
     section_menu: 'مختاراتنا المميزة',
@@ -140,7 +140,12 @@ const translations = {
     orderSuccess: 'تم استلام طلبك بنجاح!',
     invoiceNumber: 'رقم الفاتورة: #',
     placeOrder: 'إتمام الطلب',
-    trackOrder: 'تتبع طلبك الآن'
+    trackOrder: 'تتبع طلبك الآن',
+    locationPlaceholder: 'العنوان بالكامل (المدينة، الشارع، علامة مميزة)',
+    delivery: 'توصيل 🚗',
+    pickup: 'استلام من المطعم 🍗',
+    enterCoupon: 'أدخل رمز الكوبون',
+    searchMenu: 'ابحث عن وجبتك المفضلة...',
   },
 
   en: {
@@ -149,6 +154,11 @@ const translations = {
     nav_menu: 'Menu',
     nav_location: 'Location',
     nav_home: 'Home',
+    locationPlaceholder: 'Full Address (City, Street, Landmark)',
+    delivery: 'Delivery 🚗',
+    pickup: 'Pickup 🍗',
+    enterCoupon: 'Enter Coupon Code',
+    searchMenu: 'Search your favorite meal...',
 
     // Landing Page
     title: 'Win 100 NIS with Mister Chicken!',
@@ -168,7 +178,7 @@ const translations = {
     feat_3_title: 'First in Tulkarm',
     feat_3_desc: 'Our idea is unique and creative, we always strive to be the first choice for excellence seekers.',
     raffle_title: '100 NIS Raffle',
-    raffle_desc: 'Register now and get a 10% discount coupon + a chance to win 100 NIS. The draw is random and fair!',
+    raffle_desc: '🎉 Register now for a chance to win cash prizes + 10% discount coupon!',
     raffle_desc_2: 'Taste the luxury with 10% discount when you register now! 🍗',
     btn_register: 'Register Now',
     section_menu: 'Our Special Selections',
@@ -364,7 +374,7 @@ window.FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61587454410215';
 
 // Update Hero Translations to match new status
 translations.ar.hero_title = 'تذوق <span class="text-gold">النار</span><br>Chicken Master';
-translations.ar.hero_subtitle = 'GRILL & KIOSK<br>فن الشواء على حطب الزيتون.. طعم النار الأصيل';
+translations.ar.hero_subtitle = 'GRILL & KIOSK<br>الفروج على حطب الزيتون.. طعم النار الأصيل';
 translations.en.hero_title = 'Taste <span class="text-gold">the Fire</span><br>Chicken Master';
 translations.en.hero_subtitle = 'GRILL & KIOSK<br>The Art of Olive Wood Grilling.. Authentic Smoky Taste';
 // Global Shop Status
@@ -407,7 +417,10 @@ window.showAlert = function (message, type = 'info') {
 };
 
 window.apiRequest = async function (endpoint, options = {}) {
-  const url = `${window.API_BASE_URL}${endpoint}`;
+  // Use relative path to ensure it works on both dev and production properly via the same origin if possible, 
+  // but we already have API_BASE_URL logic above.
+  const url = endpoint.startsWith('http') ? endpoint : `${window.API_BASE_URL}${endpoint}`;
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -423,7 +436,10 @@ window.apiRequest = async function (endpoint, options = {}) {
       return { ok: response.ok, status: response.status, data };
     } else {
       const text = await response.text();
-      console.error(`API Error: Expected JSON but got ${contentType} at ${url}. Response starts with: ${text.substring(0, 50)}`);
+      // Only log if it's not a successful empty response (which shouldn't happen for our JSON API)
+      if (response.ok && !text) return { ok: true, status: response.status, data: {} };
+
+      console.error(`API Error: Expected JSON but got ${contentType} at ${url}. Status: ${response.status}`);
       return { ok: false, status: response.status, error: 'Invalid response format' };
     }
   } catch (error) {
@@ -432,10 +448,29 @@ window.apiRequest = async function (endpoint, options = {}) {
   }
 };
 
+// Phone formatting utility
+window.formatPhone = function (phone) {
+  if (!phone) return '';
+  // Remove all non-numeric characters
+  let cleaned = phone.toString().replace(/\D/g, '');
+
+  // Basic Palestinian mobile format normalization (059... or 97059...)
+  if (cleaned.startsWith('0')) {
+    cleaned = '970' + cleaned.substring(1);
+  } else if (!cleaned.startsWith('970') && cleaned.length === 9) {
+    cleaned = '970' + cleaned;
+  }
+
+  return cleaned;
+};
+
+
 // FingerprintJS Simple Alternative
-function getBrowserFingerprint() {
+window.getBrowserFingerprint = function () {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
+  if (!ctx) return btoa(navigator.userAgent); // Fallback
+
   ctx.textBaseline = 'top';
   ctx.font = '14px Arial';
   ctx.fillText('fingerprint', 2, 2);
@@ -452,6 +487,7 @@ function getBrowserFingerprint() {
 
   return btoa(JSON.stringify(fingerprint));
 }
+
 
 // Cart Management
 class CartManager {
@@ -475,18 +511,17 @@ class CartManager {
     }
   }
 
-  addItem(item) {
+  addItem(item, qty = 1) {
     if (window.isShopOpen === false) {
       window.showAlert(langManager.getCurrentLang() === 'ar' ? 'المحل مغلق حالياً، لا يمكن إضافة طلبات' : 'Shop is currently closed, cannot add orders', 'warning');
       return;
     }
     // Items with different IDs are stored separately.
-    // For now, note is initialized as empty.
     const existingIndex = this.cart.findIndex(i => i.id === item.id);
     if (existingIndex >= 0) {
-      this.cart[existingIndex].quantity += 1;
+      this.cart[existingIndex].quantity += qty;
     } else {
-      this.cart.push({ ...item, quantity: 1, note: '' });
+      this.cart.push({ ...item, quantity: qty, note: '' });
     }
     this.save();
     this.render();
@@ -592,7 +627,18 @@ class CartManager {
         `;
       if (window.lucide) lucide.createIcons();
     } else {
-      cartItemsContainer.innerHTML = this.cart.map(item => `
+      cartItemsContainer.innerHTML = this.cart.map(item => {
+        const optionsHtml = item.selectedOptions && item.selectedOptions.length > 0
+          ? `<div class="cart-item-options" style="font-size: 0.8rem; color: #d4a017; margin-top: 4px;">
+               ${item.selectedOptions.map(o => `+ ${o.name} <span style="background:rgba(212,160,23,0.1); padding:0 5px; border-radius:4px; font-weight:bold;">x${o.quantity}</span>`).join(' ')}
+             </div>`
+          : '';
+
+        const editAddonsHtml = window.globalAddons && window.globalAddons.length > 0
+          ? `<div style="margin-top: 6px;"><button onclick="window.editCartItemAddons('${item.id}')" style="background:transparent; border:1px solid rgba(212,160,23,0.3); color:#d4a017; border-radius:6px; padding:4px 10px; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s; font-family:'Cairo',sans-serif;" onmouseover="this.style.background='rgba(212,160,23,0.1)'" onmouseout="this.style.background='transparent'"><i data-lucide="edit-3" style="width:14px; height:14px;"></i> ${langManager.getCurrentLang() === 'ar' ? 'تعديل الإضافات' : 'Edit Add-ons'}</button></div>`
+          : '';
+
+        return `
             <div class="cart-item">
                 <div class="cart-item-img">
                     <i data-lucide="${item.icon === 'clock-off' ? 'clock' : (item.icon || 'utensils')}" style="width: 24px; height: 24px;"></i>
@@ -600,9 +646,12 @@ class CartManager {
                 <div class="cart-item-info">
                     <div style="display:flex; justify-content:space-between;">
                         <div class="cart-item-title">${item.title}</div>
-                        <div class="cart-item-price">${item.price} ₪</div>
+                        <div class="cart-item-price">${(item.price * item.quantity).toFixed(2)} ₪</div>
                     </div>
                     
+                    ${optionsHtml}
+                    ${editAddonsHtml}
+
                     <div class="cart-item-controls">
                         <button class="qty-btn" onclick="cartManager.updateQuantity('${item.id}', -1)">-</button>
                         <span>${item.quantity}</span>
@@ -618,7 +667,8 @@ class CartManager {
                     >${item.note || ''}</textarea>
                 </div>
             </div>
-        `).join('');
+        `;
+      }).join('');
 
       if (window.lucide) lucide.createIcons();
     }
@@ -741,14 +791,14 @@ const showCheckoutBtn = document.getElementById('showCheckoutBtn');
 const checkoutForm = document.getElementById('checkoutForm');
 
 // Add to Cart Logic (Event Delegation)
-/* Updated Logic: If item has options, show selection. */
-window.openItemOptions = function (id, title, price, icon = 'utensils', optionsJson = '[]') {
-  let options = [];
-  try { options = JSON.parse(decodeURIComponent(optionsJson)); } catch (e) { }
+window.openItemOptions = function (id, title, price, icon = 'utensils', _) {
+  const globalAddons = window.globalAddons || [];
 
-  if (options && options.length > 0) {
-    showOptionsModal(id, title, price, icon, options);
+  // If there are global add-ons, always show the modal 
+  if (globalAddons.length > 0) {
+    showOptionsModal(id, title, price, icon, globalAddons);
   } else {
+    // Fallback if no global addons exist
     addToCart(id, title, price, icon);
   }
 };
@@ -758,106 +808,185 @@ function showOptionsModal(id, title, basePrice, icon, options) {
   const existing = document.getElementById('optionsModal');
   if (existing) existing.remove();
 
+  // Initialize options with qty 0
+  const optsWithQty = options.map(opt => ({ ...opt, quantity: 0 }));
+  let itemQty = 1;
+
   const modal = document.createElement('div');
   modal.id = 'optionsModal';
-  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:3000;display:flex;align-items:center;justify-content:center; padding: 1rem;';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(5px);z-index:3000;display:flex;align-items:center;justify-content:center; padding: 1rem;';
 
-  let optionsHtml = options.map((opt, idx) => `
-          <label style="display:flex; justify-content:space-between; align-items:center; margin: 10px 0; cursor:pointer; background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; border:1px solid #333;">
-              <div style="display:flex; align-items:center; gap:10px;">
-                  <input type="checkbox" class="opt-check" value="${idx}" data-price="${opt.price}" data-name="${opt.name_ar}" style="width:18px; height:18px;">
-                  <span style="color:#fff; font-size:1rem;">${opt.name_ar}</span>
+  const renderOptions = () => {
+    return optsWithQty.map((opt, idx) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin: 10px 0; background:#363636; padding:12px 16px; border-radius:14px; border:1px solid rgba(212,160,23,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s;" class="addon-row">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                  <span style="color:#fff; font-size:1rem; font-weight:bold; font-family:'Cairo',sans-serif;">${langManager.getCurrentLang() === 'ar' ? opt.name_ar : (opt.name_en || opt.name_ar)}</span>
+                  <span style="color:#f1c40f; font-size:0.85rem; font-weight:600;">+${opt.price} ₪</span>
               </div>
-              <span style="color:#d4a017; font-weight:bold;">+${opt.price} ₪</span>
-          </label>
+              <div style="display:flex; align-items:center; gap:12px; background:#222; padding:4px 8px; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+                  <button onclick="window.updateOptQty(${idx}, -1)" style="width:28px; height:28px; border-radius:6px; border:none; background:#444; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem; transition: background 0.2s;">-</button>
+                  <span class="opt-qty-display" id="opt-qty-${idx}" style="color:#fff; font-weight:bold; min-width:20px; text-align:center; font-size:1rem;">${opt.quantity}</span>
+                  <button onclick="window.updateOptQty(${idx}, 1)" style="width:28px; height:28px; border-radius:6px; border:none; background:#d4a017; color:#000; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem; transition: transform 0.1s;">+</button>
+              </div>
+          </div>
       `).join('');
+  };
 
   modal.innerHTML = `
-          <div style="background:#1A1A1A; padding:2rem; border-radius:12px; width:100%; max-width:450px; border:1px solid #d4a017; position:relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-              <button onclick="document.getElementById('optionsModal').remove()" style="position:absolute; top:10px; right:10px; color:#aaa; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+          <div style="background:#2a2a2a; padding:1.5rem; border-radius:20px; width:100%; max-width:400px; border:1px solid rgba(212,160,23,0.4); position:relative; box-shadow: 0 25px 80px rgba(0,0,0,0.8); animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+              <style>
+                @keyframes modalScaleIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+                .addon-row:hover { border-color: rgba(212,160,23,0.6); transform: translateY(-2px); background: #3a3a3a; }
+              </style>
+              <button onclick="document.getElementById('optionsModal').remove()" style="position:absolute; top:15px; right:15px; color:#fff; background:rgba(255,255,255,0.1); border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; cursor:pointer; transition: all 0.2s; z-index: 10;">&times;</button>
               
-              <h3 style="color:#d4a017; margin-top:0; margin-bottom:0.5rem; font-size:1.4rem; font-family:'Cairo',sans-serif;">${title}</h3>
-              <p style="color:#888; margin-bottom:1.5rem; font-size:0.9rem;">${langManager.getCurrentLang() === 'ar' ? 'اختر الإضافات المطلوبة:' : 'Select Add-ons:'}</p>
+              <div style="display:flex; align-items:center; gap:14px; margin-bottom:1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <div style="width:50px; height:50px; background:linear-gradient(135deg, rgba(212,160,23,0.2), rgba(212,160,23,0.05)); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#d4a017; border: 1px solid rgba(212,160,23,0.3);">
+                   <i data-lucide="${icon}" style="width: 26px; height: 26px;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <h3 style="color:#fff; margin:0 0 2px 0; font-size:1.2rem; font-family:'Cairo',sans-serif; font-weight: 700;">${title}</h3>
+                  <p style="color:#bbb; margin:0; font-size:0.8rem;">${langManager.getCurrentLang() === 'ar' ? 'أضف ما تحب من الإضافات المميزة' : 'Add our premium extras'}</p>
+                </div>
+              </div>
               
-              <div style="max-height:300px; overflow-y:auto; margin-bottom:1.5rem;">${optionsHtml}</div>
+              <div id="optionsList" style="max-height:280px; overflow-y:auto; margin-bottom:1.2rem; padding-right:6px;" class="custom-scrollbar">
+                ${renderOptions()}
+              </div>
               
-              <div style="border-top:1px solid #333; padding-top:1.5rem;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                      <span style="color:#ccc;">المجموع:</span>
-                      <strong style="color:#fff; font-size:1.4rem;"><span id="optTotal">${basePrice}</span> ₪</strong>
+              <div style="background: rgba(0,0,0,0.2); margin: -1.5rem -1.5rem; padding: 1.5rem; border-radius: 0 0 20px 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                  <!-- Item Quantity Selector -->
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; padding-bottom: 1.2rem; border-bottom: 1px dashed rgba(255,255,255,0.15);">
+                      <div style="display:flex; flex-direction:column; gap:2px;">
+                        <span style="color:#d4a017; font-weight:bold; font-size:1rem;">${langManager.getCurrentLang() === 'ar' ? 'كمية الوجبة 🍗' : 'Meal Quantity 🍗'}</span>
+                        <span style="color:#999; font-size:0.75rem;">${langManager.getCurrentLang() === 'ar' ? 'عدد الوجبات الكلي' : 'Total meals'}</span>
+                      </div>
+                      <div style="display:flex; align-items:center; gap:12px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                          <button onclick="window.updateItemGlobalQty(-1)" style="width:34px; height:34px; border-radius:8px; border:none; background:#333; color:#fff; cursor:pointer; font-size:1.2rem; transition: background 0.2s; display:flex; align-items:center; justify-content:center;">-</button>
+                          <span id="main-item-qty" style="color:#fff; font-size:1.3rem; font-weight:bold; min-width:24px; text-align:center;">1</span>
+                          <button onclick="window.updateItemGlobalQty(1)" style="width:34px; height:34px; border-radius:8px; border:none; background:#d4a017; color:#000; cursor:pointer; font-size:1.2rem; transition: transform 0.1s; display:flex; align-items:center; justify-content:center;">+</button>
+                      </div>
                   </div>
-                  <button id="confirmOpts" style="width:100%; background:#d4a017; color:#000; border:none; padding:12px; border-radius:8px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Cairo',sans-serif;">
-                      ${langManager.getCurrentLang() === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
+
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
+                      <span style="color:#ccc; font-size:1rem; font-weight:500;">${langManager.getCurrentLang() === 'ar' ? 'المجموع الكلي:' : 'Total Price:'}</span>
+                      <strong style="color:#fff; font-size:1.6rem; font-family:'Inter', sans-serif;"><span id="optTotal">${basePrice}</span> <span style="font-size:1rem; color:#d4a017;">₪</span></strong>
+                  </div>
+                  
+                  <button id="confirmOpts" style="width:100%; background:linear-gradient(135deg, #d4a017, #f39c12); color:#000; border:none; padding:12px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Cairo',sans-serif; transition: all 0.3s; box-shadow: 0 6px 15px rgba(212,160,23,0.3); display: flex; justify-content: center; align-items: center; gap: 8px;">
+                      <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
+                      ${langManager.getCurrentLang() === 'ar' ? 'إضافة إلى السلة' : 'Add to Cart'}
                   </button>
               </div>
           </div>
       `;
 
   document.body.appendChild(modal);
+  if (window.lucide) lucide.createIcons();
 
-  // Logic
-  const checkboxes = modal.querySelectorAll('.opt-check');
   const totalEl = modal.querySelector('#optTotal');
   const confirmBtn = modal.querySelector('#confirmOpts');
 
-  // Prevent closing when clicking inside
-  modal.querySelector('div').addEventListener('click', e => e.stopPropagation());
-  modal.addEventListener('click', () => modal.remove());
-
-  const calcTotal = () => {
-    let total = parseFloat(basePrice);
-    checkboxes.forEach(cb => {
-      if (cb.checked) total += parseFloat(cb.dataset.price);
+  const updateFinalTotal = () => {
+    let singlePrice = parseFloat(basePrice);
+    optsWithQty.forEach(o => {
+      singlePrice += (parseFloat(o.price) * o.quantity);
     });
-    totalEl.textContent = total.toFixed(2);
+    const finalTotal = singlePrice * itemQty;
+    totalEl.textContent = finalTotal.toFixed(2);
   };
 
-  checkboxes.forEach(cb => cb.addEventListener('change', calcTotal));
+  window.updateOptQty = (idx, delta) => {
+    const opt = optsWithQty[idx];
+    const newQty = Math.max(0, opt.quantity + delta);
+    if (newQty === opt.quantity) return;
+    opt.quantity = newQty;
+
+    const qtyDisplay = document.getElementById(`opt-qty-${idx}`);
+    qtyDisplay.textContent = newQty;
+
+    // Add a little pop animation
+    qtyDisplay.style.transform = 'scale(1.3)';
+    qtyDisplay.style.color = '#d4a017';
+    setTimeout(() => {
+      qtyDisplay.style.transform = 'scale(1)';
+      qtyDisplay.style.color = '#fff';
+    }, 150);
+
+    updateFinalTotal();
+  };
+
+  window.updateItemGlobalQty = (delta) => {
+    // Prevent reducing qty below 1
+    if (itemQty === 1 && delta === -1) return;
+
+    itemQty = Math.max(1, itemQty + delta);
+
+    const qtyDisplay = document.getElementById('main-item-qty');
+    qtyDisplay.textContent = itemQty;
+
+    // Pop animation
+    qtyDisplay.style.transform = 'scale(1.3)';
+    qtyDisplay.style.color = '#d4a017';
+    setTimeout(() => {
+      qtyDisplay.style.transform = 'scale(1)';
+      qtyDisplay.style.color = '#fff';
+    }, 150);
+
+    updateFinalTotal();
+  };
 
   confirmBtn.onclick = () => {
-    let selectedOpts = [];
-    let finalPrice = parseFloat(basePrice);
+    // Add success animation
+    confirmBtn.innerHTML = `<i data-lucide="check" style="width: 20px; height: 20px;"></i> ${langManager.getCurrentLang() === 'ar' ? 'تمت الإضافة!' : 'Added!'}`;
+    if (window.lucide) lucide.createIcons();
+    confirmBtn.style.background = '#2ecc71';
+    confirmBtn.style.boxShadow = '0 10px 25px rgba(46, 204, 113, 0.4)';
+    confirmBtn.style.color = '#fff';
 
-    checkboxes.forEach(cb => {
-      if (cb.checked) {
-        selectedOpts.push({ name: cb.dataset.name, price: parseFloat(cb.dataset.price) });
-        finalPrice += parseFloat(cb.dataset.price);
-      }
+    const selectedOpts = optsWithQty
+      .filter(o => o.quantity > 0)
+      .map(o => ({
+        id: o.id, // Store ID for editing later
+        name: langManager.getCurrentLang() === 'ar' ? o.name_ar : (o.name_en || o.name_ar),
+        price: parseFloat(o.price),
+        quantity: o.quantity
+      }));
+
+    let perItemPrice = parseFloat(basePrice);
+    selectedOpts.forEach(o => {
+      perItemPrice += (o.price * o.quantity);
     });
 
-    // Unique ID if options selected to store separately
-    const uniqueId = selectedOpts.length > 0 ? (id + '_' + Date.now()) : id.toString();
+    const optHash = selectedOpts.map(o => `${o.id}:${o.quantity}`).sort().join('|');
+    const uniqueId = selectedOpts.length > 0 ? `${id}_${btoa(optHash)}` : id.toString();
 
-    // Construct title with options
-    let displayTitle = title;
-    if (selectedOpts.length > 0) {
-      displayTitle += ` (+ ${selectedOpts.map(o => o.name).join(', ')})`;
-    }
+    setTimeout(() => {
+      cartManager.addItem({
+        id: uniqueId,
+        originalId: id,
+        title: title,
+        basePrice: parseFloat(basePrice), // Store base price for future editing
+        price: perItemPrice,
+        icon: icon,
+        selectedOptions: selectedOpts
+      }, itemQty);
 
-    cartManager.addItem({
-      id: uniqueId,
-      title: displayTitle,
-      price: finalPrice,
-      icon: icon,
-      // Storing original ID might be useful for backend validation later
-    });
-
-    const badge = document.querySelector('.cart-float');
-    if (badge) {
-      badge.style.transform = 'scale(1.2)';
-      setTimeout(() => badge.style.transform = '', 200);
-    }
-    modal.remove();
+      modal.remove();
+    }, 400); // Wait for success animation
   };
 }
 
-// Expose addToCart globally
+// Expose addToCart globally for fallback or directly adding without modal (if ever needed)
 window.addToCart = function (id, title, price, icon = 'utensils') {
   cartManager.addItem({
     id: id.toString(),
+    originalId: id, // Track original ID
     title: title,
+    basePrice: parseFloat(price),
     price: parseFloat(price),
-    icon: icon
+    icon: icon,
+    selectedOptions: []
   });
 
   // Feedback
@@ -866,6 +995,196 @@ window.addToCart = function (id, title, price, icon = 'utensils') {
     badge.style.transform = 'scale(1.2)';
     setTimeout(() => badge.style.transform = '', 200);
   }
+};
+
+window.editCartItemAddons = function (cartItemId) {
+  const item = cartManager.cart.find(i => i.id === cartItemId);
+  if (!item || !window.globalAddons) return;
+
+  // Clone global options and map existing quantities
+  let options = JSON.parse(JSON.stringify(window.globalAddons));
+
+  if (item.selectedOptions && item.selectedOptions.length > 0) {
+    options = options.map(opt => {
+      const existing = item.selectedOptions.find(so => so.id === opt.id || so.name === (langManager.getCurrentLang() === 'ar' ? opt.name_ar : (opt.name_en || opt.name_ar)));
+      if (existing) {
+        opt.quantity = existing.quantity;
+      }
+      return opt;
+    });
+  }
+
+  // Reuse the modal rendering part, but customize the submit action
+  // Instead of calling showOptionsModal directly (which creates a new item), 
+  // we'll build a slightly modified version for editing an existing cart row.
+
+  const existingModal = document.getElementById('optionsModal');
+  if (existingModal) existingModal.remove();
+
+  const optsWithQty = options.map(opt => ({ ...opt, quantity: opt.quantity || 0 }));
+  let itemQty = item.quantity;
+  const basePrice = item.basePrice || item.price; // Fallback
+
+  const modal = document.createElement('div');
+  modal.id = 'optionsModal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(5px);z-index:3000;display:flex;align-items:center;justify-content:center; padding: 1rem;';
+
+  const renderOptions = () => {
+    return optsWithQty.map((opt, idx) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin: 10px 0; background:#363636; padding:12px 16px; border-radius:14px; border:1px solid rgba(212,160,23,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s;" class="addon-row">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                  <span style="color:#fff; font-size:1rem; font-weight:bold; font-family:'Cairo',sans-serif;">${langManager.getCurrentLang() === 'ar' ? opt.name_ar : (opt.name_en || opt.name_ar)}</span>
+                  <span style="color:#f1c40f; font-size:0.85rem; font-weight:600;">+${opt.price} ₪</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px; background:#222; padding:4px 8px; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+                  <button onclick="window.updateOptQty(${idx}, -1)" style="width:28px; height:28px; border-radius:6px; border:none; background:#444; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem; transition: background 0.2s;">-</button>
+                  <span class="opt-qty-display" id="opt-qty-${idx}" style="color:#fff; font-weight:bold; min-width:20px; text-align:center; font-size:1rem;">${opt.quantity}</span>
+                  <button onclick="window.updateOptQty(${idx}, 1)" style="width:28px; height:28px; border-radius:6px; border:none; background:#d4a017; color:#000; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem; transition: transform 0.1s;">+</button>
+              </div>
+          </div>
+      `).join('');
+  };
+
+  modal.innerHTML = `
+          <div style="background:#2a2a2a; padding:1.5rem; border-radius:20px; width:100%; max-width:400px; border:1px solid rgba(212,160,23,0.4); position:relative; box-shadow: 0 25px 80px rgba(0,0,0,0.8); animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+              <style>
+                @keyframes modalScaleIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+                .addon-row:hover { border-color: rgba(212,160,23,0.6); transform: translateY(-2px); background: #3a3a3a; }
+              </style>
+              <button onclick="document.getElementById('optionsModal').remove()" style="position:absolute; top:15px; right:15px; color:#fff; background:rgba(255,255,255,0.1); border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; cursor:pointer; transition: all 0.2s; z-index: 10;">&times;</button>
+              
+              <div style="display:flex; align-items:center; gap:14px; margin-bottom:1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <div style="width:50px; height:50px; background:linear-gradient(135deg, rgba(212,160,23,0.2), rgba(212,160,23,0.05)); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#d4a017; border: 1px solid rgba(212,160,23,0.3);">
+                   <i data-lucide="${item.icon === 'clock-off' ? 'clock' : (item.icon || 'utensils')}" style="width: 26px; height: 26px;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <h3 style="color:#fff; margin:0 0 2px 0; font-size:1.2rem; font-family:'Cairo',sans-serif; font-weight: 700;">${item.title}</h3>
+                  <p style="color:#bbb; margin:0; font-size:0.8rem;">${langManager.getCurrentLang() === 'ar' ? 'تعديل الإضافات المختارة' : 'Edit selected add-ons'}</p>
+                </div>
+              </div>
+              
+              <div id="optionsList" style="max-height:280px; overflow-y:auto; margin-bottom:1.2rem; padding-right:6px;" class="custom-scrollbar">
+                ${renderOptions()}
+              </div>
+              
+              <div style="background: rgba(0,0,0,0.2); margin: -1.5rem -1.5rem; padding: 1.5rem; border-radius: 0 0 20px 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; padding-bottom: 1.2rem; border-bottom: 1px dashed rgba(255,255,255,0.15);">
+                      <div style="display:flex; flex-direction:column; gap:2px;">
+                        <span style="color:#d4a017; font-weight:bold; font-size:1rem;">${langManager.getCurrentLang() === 'ar' ? 'كمية الوجبة 🍗' : 'Meal Quantity 🍗'}</span>
+                        <span style="color:#999; font-size:0.75rem;">${langManager.getCurrentLang() === 'ar' ? 'عدد الوجبات الكلي' : 'Total meals'}</span>
+                      </div>
+                      <div style="display:flex; align-items:center; gap:12px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                          <button onclick="window.updateItemGlobalQty(-1)" style="width:34px; height:34px; border-radius:8px; border:none; background:#333; color:#fff; cursor:pointer; font-size:1.2rem; transition: background 0.2s; display:flex; align-items:center; justify-content:center;">-</button>
+                          <span id="main-item-qty" style="color:#fff; font-size:1.3rem; font-weight:bold; min-width:24px; text-align:center;">${itemQty}</span>
+                          <button onclick="window.updateItemGlobalQty(1)" style="width:34px; height:34px; border-radius:8px; border:none; background:#d4a017; color:#000; cursor:pointer; font-size:1.2rem; transition: transform 0.1s; display:flex; align-items:center; justify-content:center;">+</button>
+                      </div>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
+                      <span style="color:#ccc; font-size:1rem; font-weight:500;">${langManager.getCurrentLang() === 'ar' ? 'المجموع الكلي:' : 'Total Price:'}</span>
+                      <strong style="color:#fff; font-size:1.6rem; font-family:'Inter', sans-serif;"><span id="optTotal">${(basePrice * itemQty).toFixed(2)}</span> <span style="font-size:1rem; color:#d4a017;">₪</span></strong>
+                  </div>
+                  
+                  <button id="confirmOpts" style="width:100%; background:linear-gradient(135deg, #d4a017, #f39c12); color:#000; border:none; padding:12px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Cairo',sans-serif; transition: all 0.3s; box-shadow: 0 6px 15px rgba(212,160,23,0.3); display: flex; justify-content: center; align-items: center; gap: 8px;">
+                      <i data-lucide="save" style="width: 18px; height: 18px;"></i>
+                      ${langManager.getCurrentLang() === 'ar' ? 'حفظ التعديلات' : 'Save Changes'}
+                  </button>
+              </div>
+          </div>
+      `;
+
+  document.body.appendChild(modal);
+  if (window.lucide) lucide.createIcons();
+
+  const totalEl = modal.querySelector('#optTotal');
+  const confirmBtn = modal.querySelector('#confirmOpts');
+
+  const updateFinalTotal = () => {
+    let singlePrice = parseFloat(basePrice);
+    optsWithQty.forEach(o => {
+      singlePrice += (parseFloat(o.price) * o.quantity);
+    });
+    const finalTotal = singlePrice * itemQty;
+    totalEl.textContent = finalTotal.toFixed(2);
+  };
+
+  // Initial total price calculation
+  updateFinalTotal();
+
+  window.updateOptQty = (idx, delta) => {
+    const opt = optsWithQty[idx];
+    const newQty = Math.max(0, opt.quantity + delta);
+    if (newQty === opt.quantity) return;
+    opt.quantity = newQty;
+
+    const qtyDisplay = document.getElementById(`opt-qty-${idx}`);
+    qtyDisplay.textContent = newQty;
+    qtyDisplay.style.transform = 'scale(1.3)';
+    qtyDisplay.style.color = '#d4a017';
+    setTimeout(() => { qtyDisplay.style.transform = 'scale(1)'; qtyDisplay.style.color = '#fff'; }, 150);
+
+    updateFinalTotal();
+  };
+
+  window.updateItemGlobalQty = (delta) => {
+    if (itemQty === 1 && delta === -1) return;
+    itemQty = Math.max(1, itemQty + delta);
+
+    const qtyDisplay = document.getElementById('main-item-qty');
+    qtyDisplay.textContent = itemQty;
+    qtyDisplay.style.transform = 'scale(1.3)';
+    qtyDisplay.style.color = '#d4a017';
+    setTimeout(() => { qtyDisplay.style.transform = 'scale(1)'; qtyDisplay.style.color = '#fff'; }, 150);
+
+    updateFinalTotal();
+  };
+
+  confirmBtn.onclick = () => {
+    confirmBtn.innerHTML = `<i data-lucide="check" style="width: 20px; height: 20px;"></i> ${langManager.getCurrentLang() === 'ar' ? 'تم الحفظ!' : 'Saved!'}`;
+    if (window.lucide) lucide.createIcons();
+    confirmBtn.style.background = '#2ecc71';
+    confirmBtn.style.boxShadow = '0 10px 25px rgba(46, 204, 113, 0.4)';
+    confirmBtn.style.color = '#fff';
+
+    const selectedOpts = optsWithQty
+      .filter(o => o.quantity > 0)
+      .map(o => ({
+        id: o.id,
+        name: langManager.getCurrentLang() === 'ar' ? o.name_ar : (o.name_en || o.name_ar),
+        price: parseFloat(o.price),
+        quantity: o.quantity
+      }));
+
+    let perItemPrice = parseFloat(basePrice);
+    selectedOpts.forEach(o => { perItemPrice += (o.price * o.quantity); });
+
+    const optHash = selectedOpts.map(o => `${o.id}:${o.quantity}`).sort().join('|');
+    const origId = item.originalId || item.id.split('_')[0];
+    const newUniqueId = selectedOpts.length > 0 ? `${origId}_${btoa(optHash)}` : origId.toString();
+
+    setTimeout(() => {
+      // Remove the old item
+      cartManager.cart = cartManager.cart.filter(i => i.id !== cartItemId);
+
+      // Add the new/updated item (may merge with another identical item)
+      const existingMergeIndex = cartManager.cart.findIndex(i => i.id === newUniqueId);
+      if (existingMergeIndex >= 0) {
+        cartManager.cart[existingMergeIndex].quantity += itemQty;
+      } else {
+        cartManager.cart.push({
+          ...item,
+          id: newUniqueId,
+          price: perItemPrice,
+          selectedOptions: selectedOpts,
+          quantity: itemQty
+        });
+      }
+
+      cartManager.save();
+      cartManager.render();
+      modal.remove();
+    }, 400);
+  };
 };
 
 /* 

@@ -139,6 +139,73 @@ body {
   color: #aaa;
 }
 
+/* Steps System */
+.steps-container {
+  margin-bottom: 2.5rem;
+}
+
+.step-item {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.step-item:last-child {
+  margin-bottom: 0;
+}
+
+.step-item.active {
+  background: rgba(212, 160, 23, 0.05);
+  border-color: rgba(212, 160, 23, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 35px;
+  height: 35px;
+  background: var(--color-gold);
+  color: #1A1A1A;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  box-shadow: 0 0 10px rgba(212, 160, 23, 0.3);
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h3 {
+  font-family: 'Cairo', sans-serif;
+  margin-bottom: 0.4rem;
+  font-size: 1.15rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.step-content p {
+  font-size: 1rem;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+.mt-sm {
+  margin-top: 0.8rem;
+}
+
+.registration-form.flat-form {
+  margin-top: 1.2rem;
+}
+
 .follow-buttons {
   display: flex;
   gap: 1rem;
@@ -302,13 +369,24 @@ footer {
 }
 
 /* Responsive */
-@media (max-width: 480px) {
+.follow-buttons.mini {
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
   .register-card {
     padding: 1.5rem;
   }
 
-  .follow-buttons {
+  .step-item {
     flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .step-number {
+    margin-bottom: 0.5rem;
   }
 }
 

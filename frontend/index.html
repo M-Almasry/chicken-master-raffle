@@ -47,7 +47,7 @@
     <div class="hero-content">
       <div class="slogan-badge">الأول في طولكرم</div>
       <h1 class="hero-title" data-i18n="hero_title">تذوق <span class="text-gold">النار</span><br>Chicken Master</h1>
-      <p class="hero-subtitle" data-i18n="hero_subtitle">GRILL & KIOSK<br>فن الشواء على حطب الزيتون.. طعم النار الأصيل
+      <p class="hero-subtitle" data-i18n="hero_subtitle">GRILL & KIOSK<br>الفروج على حطب الزيتون.. طعم النار الأصيل
       </p>
 
       <!-- Rating Top Summary -->
@@ -92,10 +92,10 @@
         <img src="/images/interior_vintage.png" alt="Chicken Master Interior">
       </div>
       <div class="concept-text">
-        <p data-i18n="story_p1">في قلب طولكرم، أعدنا تعريف مفهوم الشوار.. نستخدم حطب الزيتون الطبيعي لنمنح الدجاج تلك
+        <p data-i18n="story_p1">في قلب طولكرم، أعدنا تعريف مفهوم الفروج.. نستخدم حطب الزيتون الطبيعي لنمنح الفروج تلك
           النكهة المدخنة التي تأخذك إلى عبق الماضي بلمسة عصرية فاخرة.</p>
         <p data-i18n="story_p2">المكان ليس مجرد مطعم، بل هو تجربة كلاسيكية في أجواء راقية، حيث الجدران الحجرية والأخشاب
-          الداكنة تروي قصة "ماستر" الشواء.</p>
+          الداكنة تروي قصة "ماستر" الفروج.</p>
         <p class="text-gold quote" data-i18n="story_quote">"حيث يلتقي الشغف بالفخامة.. وروضنا لكم النار"</p>
       </div>
     </div>
@@ -143,69 +143,22 @@
     </div>
   </section>
 
-  <!-- Raffle Section (Banner Style with Animation) -->
-  <style>
-    @keyframes scrollText {
-      0% {
-        transform: translateX(100%);
-      }
-
-      100% {
-        transform: translateX(-100%);
-      }
-    }
-
-    .marquee-container {
-      flex: 1;
-      min-width: 250px;
-      overflow: hidden;
-      white-space: nowrap;
-      position: relative;
-    }
-
-    .marquee-content {
-      display: inline-block;
-      animation: scrollText 15s linear infinite;
-    }
-
-    .marquee-content:hover {
-      animation-play-state: paused;
-    }
-
-    html[dir="ltr"] .marquee-content {
-      animation: scrollTextLTR 15s linear infinite;
-    }
-
-    @keyframes scrollTextLTR {
-      0% {
-        transform: translateX(-100%);
-      }
-
-      100% {
-        transform: translateX(100%);
-      }
-    }
-  </style>
   <section id="raffle"
-    style="background: linear-gradient(135deg, var(--color-gold) 0%, #E0B020 100%); padding: 1.5rem 5%; color: #1A1A1A; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; overflow: hidden;">
+    style="background: linear-gradient(135deg, var(--color-gold) 0%, #E0B020 100%); padding: 1.5rem 5%; color: #1A1A1A; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem; overflow: hidden; position: relative; z-index: 10;">
 
-    <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 300px; overflow: hidden;">
+    <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1; min-width: 300px;">
       <h2
-        style="font-family: 'Cairo', sans-serif; font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;"
+        style="font-family: 'Cairo', sans-serif; font-size: 1.6rem; margin: 0; display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; color: #1A1A1A;"
         data-i18n="raffle_title">
-        <i data-lucide="gift"></i> سحب 100 شيكل
+        <i data-lucide="gift"></i> السحب الكبير
       </h2>
-      <div class="marquee-container">
-        <div class="marquee-content" style="font-size: 1.1rem; font-weight: bold;">
-          <span data-i18n="raffle_desc">سجل الآن واحصل على خصم 10% وفرصة لربح 100 شيكل. السحب عشوائي وعادل
-            للجميع!</span>
-          <span style="margin: 0 2rem;">🍗</span>
-          <span data-i18n="raffle_desc_2">تذوق الفخامة بخصم 10% عند التسجيل الآن!</span>
-        </div>
-      </div>
+      <p style="font-size: 1.15rem; font-weight: 700; margin: 0; line-height: 1.4; color: #1A1A1A;"
+        data-i18n="raffle_desc">
+        🎉 ادخل السحب على جوائز نقدية فورية + كوبون خصم 10% عند التسجيل الآن!
+      </p>
     </div>
 
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; position: relative; z-index: 20;">
+    <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; position: relative; z-index: 20;">
       <a href="register.html?openCoupon=true"
         style="background: transparent; color: #1A1A1A; border: 2px solid #1A1A1A; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: bold; font-family: 'Cairo', sans-serif; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease; pointer-events: auto; cursor: pointer;"
         onmouseover="this.style.background='rgba(0,0,0,0.1)'" onmouseout="this.style.background='transparent'">
@@ -221,12 +174,13 @@
     </div>
   </section>
 
+
   <!-- Menu Section -->
   <section id="menu" class="menu" style="display: none !important;">
     <h2 class="section-title" data-i18n="section_menu">مختاراتنا المميزة</h2>
 
     <!-- Chicken Category -->
-    <h3 class="category-title" data-i18n="cat_chicken">الدجاج الفاخر</h3>
+    <h3 class="category-title" data-i18n="cat_chicken">الفروج الفاخر</h3>
     <div class="menu-grid">
       <!-- Menu items... -->
     </div>
@@ -383,15 +337,23 @@
             const badgeSpan = statusBadge.querySelector('.status-indicator');
 
             if (isEn) {
-              const dayEn = todayKey.charAt(0).toUpperCase() + todayKey.slice(1);
-              badgeSpan.innerHTML = `<span style="width: 8px; height: 8px; background: #E74C3C; border-radius: 50%; box-shadow: 0 0 10px #E74C3C;"></span> Currently Closed (${dayEn})`;
+              badgeSpan.innerHTML = `<span style="width: 8px; height: 8px; background: #E74C3C; border-radius: 50%; box-shadow: 0 0 10px #E74C3C;"></span> Currently Closed`;
             } else {
-              badgeSpan.innerHTML = `<span style="width: 8px; height: 8px; background: #E74C3C; border-radius: 50%; box-shadow: 0 0 10px #E74C3C;"></span> اليوم ${daysMapAr[todayKey]}: مغلق حالياً`;
+              badgeSpan.innerHTML = `<span style="width: 8px; height: 8px; background: #E74C3C; border-radius: 50%; box-shadow: 0 0 10px #E74C3C;"></span> مغلق حالياً`;
             }
           }
+
+          // Handle Raffle Visibility
+          const raffleSection = document.getElementById('raffle');
+          if (raffleSection && result.raffle_status) {
+            if (!result.raffle_status.is_active) {
+              raffleSection.style.display = 'none';
+            }
+          }
+
         }
       } catch (e) {
-        console.error('Failed to load opening hours on homepage', e);
+        console.error('Failed to load shop status on homepage', e);
         const hoursDisplay = document.getElementById('todayHoursDisplay');
         if (hoursDisplay) hoursDisplay.textContent = '12:00 م - 11:00 م';
       }

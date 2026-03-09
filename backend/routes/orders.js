@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { isValidCouponFormat } = require('../utils/couponGenerator');
+const orderEvents = require('../utils/events');
 
 /**
  * POST /api/orders
@@ -23,19 +24,27 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     // First check if shop is open
-    const statusCheck = await pool.query("SELECT value FROM system_config WHERE key = 'shop_status'");
-    if (statusCheck.rows.length > 0) {
-      const { is_open, message } = statusCheck.rows[0].value;
-      if (!is_open) {
-        return res.status(503).json({
-          success: false,
-          message: {
-            ar: message || 'عذرا، المطعم مغلق حاليا',
-            en: message || 'Sorry, the shop is currently closed'
-          },
-          is_closed: true
-        });
-      }
+    const configResult = await pool.query("SELECT key, value FROM system_config WHERE key IN ('shop_status', 'opening_hours')");
+    let shopStatusConfig = { is_open: true, mode: 'auto' };
+    let openingHours = {};
+
+    configResult.rows.forEach(row => {
+      if (row.key === 'shop_status') shopStatusConfig = row.value;
+      if (row.key === 'opening_hours') openingHours = row.value;
+    });
+
+    const { calculateShopStatus } = require('../utils/shopStatus');
+    const calculatedStatus = calculateShopStatus(shopStatusConfig, openingHours);
+
+    if (!calculatedStatus.is_open) {
+      return res.status(503).json({
+        success: false,
+        message: {
+          ar: calculatedStatus.message || 'عذرا، المطعم مغلق حاليا',
+          en: calculatedStatus.message || 'Sorry, the shop is currently closed'
+        },
+        is_closed: true
+      });
     }
 
     // التحقق من البيانات المطلوبة
@@ -250,7 +259,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-const orderEvents = require('../utils/events');
 
 // ... (existing code remains above)
 

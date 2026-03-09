@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, LogOut, Activity } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, UtensilsCrossed, Users, LogOut, Activity, Layers } from 'lucide-react';
 
 
 const Layout = () => {

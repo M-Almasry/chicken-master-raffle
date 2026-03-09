@@ -3,6 +3,7 @@ import { Users, ShoppingBag, DollarSign, Activity, PackageCheck, Star } from 'lu
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { format } from 'date-fns';
 import api from '../utils/api';
+import OpeningHours from '../components/OpeningHours';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -12,6 +13,7 @@ const Dashboard = () => {
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [loading, setLoading] = useState(true);
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [showOpeningHours, setShowOpeningHours] = useState(false);
 
   const fetchDashboardData = async () => {
     try {
@@ -123,6 +125,14 @@ const Dashboard = () => {
             className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${shopStatus.mode === 'auto' ? 'bg-brand-gold text-brand-dark' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
           >
             جدول تلقائي
+          </button>
+
+          <button
+            onClick={() => setShowOpeningHours(true)}
+            className="px-4 py-2 rounded-xl text-sm font-bold bg-gray-800 text-gray-200 hover:bg-gray-700 transition-all border border-gray-700 flex items-center gap-2"
+          >
+            <Activity size={16} />
+            إعداد الساعات
           </button>
         </div>
 
@@ -276,6 +286,16 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+
+      {showOpeningHours && (
+        <OpeningHours
+          onClose={() => setShowOpeningHours(false)}
+          onSaved={() => {
+            fetchDashboardData();
+            // Optional: Show success alert if you have one globally
+          }}
+        />
+      )}
 
     </div>
   );

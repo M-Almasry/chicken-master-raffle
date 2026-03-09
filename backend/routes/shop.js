@@ -6,14 +6,16 @@ const { calculateShopStatus } = require('../utils/shopStatus');
 // GET /api/shop/status
 router.get('/status', async (req, res) => {
   try {
-    const result = await pool.query("SELECT key, value FROM system_config WHERE key IN ('shop_status', 'opening_hours')");
+    const result = await pool.query("SELECT key, value FROM system_config WHERE key IN ('shop_status', 'opening_hours', 'raffle_status')");
 
     let shopStatusConfig = { is_open: true, mode: 'auto' };
     let openingHours = {};
+    let raffleStatus = { is_active: true };
 
     result.rows.forEach(row => {
       if (row.key === 'shop_status') shopStatusConfig = row.value;
       if (row.key === 'opening_hours') openingHours = row.value;
+      if (row.key === 'raffle_status') raffleStatus = row.value;
     });
 
     const calculatedStatus = calculateShopStatus(shopStatusConfig, openingHours);
@@ -23,6 +25,7 @@ router.get('/status', async (req, res) => {
       is_open: calculatedStatus.is_open,
       message: calculatedStatus.message,
       opening_hours: openingHours,
+      raffle_status: raffleStatus,
       config: shopStatusConfig // Include config for admin if needed
     });
 
@@ -50,9 +53,9 @@ router.get('/menu', async (req, res) => {
       const itemsRes = await client.query('SELECT * FROM menu_items ORDER BY id ASC');
       const items = itemsRes.rows;
 
-      // Get Options
-      const optsRes = await client.query('SELECT * FROM menu_options');
-      const options = optsRes.rows;
+      // Get global active addons
+      const addonsRes = await client.query('SELECT * FROM global_addons WHERE is_available = true ORDER BY id ASC');
+      const globalAddons = addonsRes.rows;
 
       // Assemble Menu Tree
       const menu = categories.map(cat => {
@@ -62,12 +65,14 @@ router.get('/menu', async (req, res) => {
             .filter(item => item.category_id === cat.id)
             .map(item => ({
               ...item,
-              options: options.filter(opt => opt.menu_item_id === item.id)
+              // We'll keep an empty options array or remove it entirely, 
+              // since add-ons are now global.
+              options: []
             }))
         };
       });
 
-      res.json({ success: true, data: menu });
+      res.json({ success: true, data: menu, addons: globalAddons });
 
     } finally {
       client.release();

@@ -20,14 +20,24 @@
     /* Specific styles for Store Page that aren't in main-site.css */
     .hero-store .hero-bg {
       background-image: url('images/hero.png');
-      filter: blur(4px);
+      filter: blur(2px);
       transform: scale(1.1);
       animation: slowZoom 20s infinite alternate;
     }
 
     .hero-store {
-      height: 50vh;
-      min-height: 400px;
+      height: 45vh;
+      min-height: 350px;
+    }
+
+    @media (min-width: 992px) {
+      .hero-store {
+        height: 40vh;
+      }
+
+      .hero-store .hero-bg {
+        filter: blur(1.5px);
+      }
     }
 
     .menu-section {
@@ -845,6 +855,7 @@
       try {
         const res = await apiRequest('/shop/menu');
         if (res.ok && res.data.success) {
+          window.globalAddons = res.data.addons || [];
           const categories = res.data.data;
           const lang = langManager.getCurrentLang();
 
@@ -893,7 +904,6 @@
                 <div class="menu-grid">
                     ${cat.items.map(item => {
               const isAvailable = item.is_available !== false;
-              const optionsJson = encodeURIComponent(JSON.stringify(item.options || []));
               const hasDiscount = item.discount_price && parseFloat(item.discount_price) > 0 && parseFloat(item.discount_price) < parseFloat(item.price);
               const displayPrice = hasDiscount ? item.discount_price : item.price;
 
@@ -913,14 +923,6 @@
                                 </div>
                                 <p class="item-desc">${itemDesc}</p>
                                 
-                                ${item.options && item.options.length > 0 ? `
-                                  <div style="margin-bottom: 0.5rem; font-size: 0.85rem; color: #aaa;">
-                                     <ul style="list-style: disc; padding-right: 1.2rem;">
-                                       ${item.options.map(opt => `<li>${lang === 'ar' ? opt.name_ar : (opt.name_en || opt.name_ar)} (+${opt.price})</li>`).join('')}
-                                     </ul>
-                                  </div>
-                                ` : ''}
-
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; margin-top: auto;">
                                     <div>
                                       ${hasDiscount ? `
@@ -933,7 +935,7 @@
                                 </div>
                                 
                                 ${isAvailable && window.isShopOpen ? `
-                                <button class="btn-add" onclick="openItemOptions('${item.id}', '${item.name_ar}', ${displayPrice}, '${item.image_url ? 'image' : 'utensils'}', '${optionsJson}')">
+                                <button class="btn-add" onclick="window.openItemOptions('${item.id}', '${item.name_ar}', ${displayPrice}, '${item.image_url ? 'image' : 'utensils'}')">
                                     <span data-i18n="addToCart">أضف للسلة</span> <i data-lucide="shopping-bag" size="16"></i>
                                 </button>
                                 ` : `
@@ -944,6 +946,7 @@
                             </div>
                         </div>
                     `}).join('')}
+
                 </div>
             </div>
             `;

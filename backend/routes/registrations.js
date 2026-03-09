@@ -26,6 +26,19 @@ router.post('/', validatePhoneNumber, checkDuplicateRegistration, async (req, re
       });
     }
 
+    // Check if raffle is active
+    const statusRes = await pool.query("SELECT value FROM system_config WHERE key = 'raffle_status'");
+    const raffleStatus = statusRes.rows.length > 0 ? statusRes.rows[0].value : { is_active: true };
+    if (!raffleStatus.is_active) {
+      return res.status(403).json({
+        success: false,
+        message: {
+          ar: 'عذراً، التسجيل في السحب مغلق حالياً',
+          en: 'Sorry, raffle registration is currently closed'
+        }
+      });
+    }
+
     await client.query('BEGIN');
 
     // فحص إذا كان الرقم مسجل من قبل
@@ -77,12 +90,19 @@ router.post('/', validatePhoneNumber, checkDuplicateRegistration, async (req, re
       throw new Error('Failed to generate unique coupon');
     }
 
-    // إدراج التسجيل الجديد
+    // إدراج التسجيل الجديد باستخدام تاريخ الانتهاء المخصص من الإعدادات
     const result = await client.query(
-      `INSERT INTO registrations (name, phone, coupon_code, ip_address, device_fingerprint)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO registrations (name, phone, coupon_code, ip_address, device_fingerprint, expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, name, phone, coupon_code, created_at, expires_at`,
-      [name.trim(), phone, couponCode, ipAddress, deviceFingerprint || null]
+      [
+        name.trim(),
+        phone,
+        couponCode,
+        ipAddress,
+        deviceFingerprint || null,
+        raffleStatus.expiry_date || '2026-03-29 23:59:59'
+      ]
     );
 
     await client.query('COMMIT');

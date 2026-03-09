@@ -16,6 +16,14 @@ async function checkDuplicateRegistration(req, res, next) {
       ipAddress = req.connection.remoteAddress;
     }
 
+    const isLocal = ipAddress === '::1' || ipAddress === '127.0.0.1' || ipAddress.startsWith('192.168.') || ipAddress.startsWith('10.');
+
+    if (isLocal) {
+      console.log('--- Development Mode: Direct access or local network ---');
+      req.clientIp = ipAddress;
+      return next();
+    }
+
     // فحص IP
     const ipCheck = await pool.query(
       'SELECT id, coupon_code, coupon_status FROM registrations WHERE ip_address = $1',

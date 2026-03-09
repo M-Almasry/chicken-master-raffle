@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ShoppingBag, Search, Filter, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp, MapPin, Phone, User, Receipt, Volume2, VolumeX } from 'lucide-react';
+import { ShoppingBag, Search, Filter, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp, MapPin, Phone, User, Receipt, Volume2, VolumeX, Activity } from 'lucide-react';
 import api from '../utils/api';
 import { format } from 'date-fns';
 
@@ -14,7 +14,34 @@ const Orders = () => {
   const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
     return localStorage.getItem('admin_orders_sound') === 'true';
   });
+  const [notificationPermission, setNotificationPermission] = useState('default');
   const lastSoundTime = useRef(0);
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    }
+  }, []);
+
+  const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) return;
+    const permission = await Notification.requestPermission();
+    setNotificationPermission(permission);
+  };
+
+  const showBrowserNotification = (title, body) => {
+    if (Notification.permission === 'granted') {
+      const notification = new Notification(title, {
+        body: body,
+        icon: '/favicon.ico', // Use favicon as requested
+        silent: false // Browser will handle sound based on user preference, we have our own sound too
+      });
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+    }
+  };
 
   const playNotificationSound = (type = 'new') => {
     if (!isSoundEnabled) return;
@@ -69,9 +96,17 @@ const Orders = () => {
 
         if (data.type === 'new_order') {
           playNotificationSound('new');
+          showBrowserNotification(
+            'طلب جديد! 🍗',
+            `طلب جديد من ${data.customerName || 'عميل'} بقيمة ₪${data.total || '??'}`
+          );
           fetchOrders(true); // Silent refresh
         } else if (data.type === 'customer_cancelled') {
           playNotificationSound('cancel');
+          showBrowserNotification(
+            'تم إلغاء طلب! 🔴',
+            `قام العميل رقم #${data.orderId} بإلغاء طلبه.`
+          );
           fetchOrders(true); // Silent refresh
         } else if (data.type === 'order_status_update') {
           // Update the specific order in the list without full fetch if possible
@@ -188,8 +223,18 @@ const Orders = () => {
             title={isSoundEnabled ? "إيقاف الصوت" : "تشغيل الصوت عند وصول طلب جديد"}
           >
             {isSoundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-            <span className="hidden sm:inline">{isSoundEnabled ? 'التنبيه مفعل' : 'تفعيل التنبيه'}</span>
+            <span className="hidden lg:inline">{isSoundEnabled ? 'التنبيه الصوتي' : 'تفعيل الصوت'}</span>
           </button>
+
+          {notificationPermission !== 'granted' && (
+            <button
+              onClick={requestNotificationPermission}
+              className="flex items-center gap-2 py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all shadow-lg shadow-blue-500/20"
+            >
+              <Activity size={18} />
+              <span className="hidden sm:inline">تفعيل الإشعارات</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -252,14 +297,28 @@ const Orders = () => {
                       </h4>
                       <div className="space-y-3">
                         {order.items && JSON.parse(typeof order.items === 'string' ? order.items : JSON.stringify(order.items)).map((item, idx) => (
-                          <div key={idx} className="flex justify-between items-center p-3 bg-brand-charcoal/50 rounded-xl border border-gray-800">
-                            <div>
-                              <p className="font-bold text-gray-200">{item.title}</p>
-                              {item.note && <p className="text-xs text-yellow-500/70 mt-0.5">ملاحظة: {item.note}</p>}
-                            </div>
-                            <div className="text-right">
-                              <span className="text-brand-gold font-bold">x{item.quantity}</span>
-                              <p className="text-xs text-gray-500">₪{item.price * item.quantity}</p>
+                          <div key={idx} className="p-3 bg-brand-charcoal/50 rounded-xl border border-gray-800">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <p className="font-bold text-gray-200">{item.title}</p>
+                                {item.note && <p className="text-xs text-yellow-500/70 mt-0.5">ملاحظة: {item.note}</p>}
+
+                                {/* Selected Options (Global Add-ons) */}
+                                {item.selectedOptions && item.selectedOptions.length > 0 && (
+                                  <div className="mt-2 space-y-1">
+                                    {item.selectedOptions.map((opt, optIdx) => (
+                                      <div key={optIdx} className="text-[10px] text-brand-gold bg-brand-gold/5 px-2 py-0.5 rounded border border-brand-gold/10 inline-flex items-center gap-1 ml-1 mb-1">
+                                        <span>{opt.name}</span>
+                                        {opt.quantity > 1 && <span className="opacity-70">x{opt.quantity}</span>}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <span className="text-brand-gold font-bold">x{item.quantity}</span>
+                                <p className="text-xs text-gray-500">₪{item.price * item.quantity}</p>
+                              </div>
                             </div>
                           </div>
                         ))}
