@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 
-Sitemap: https://chicken-master.netlify.app/sitemap.xml
+Sitemap: https://chickenmasterps.com/sitemap.xml

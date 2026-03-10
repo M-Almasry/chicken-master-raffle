@@ -33,7 +33,9 @@ app.use(cors({
       'http://localhost:58767',
       'http://127.0.0.1:58767',
       'http://localhost:5173',
-      'http://127.0.0.1:5173'
+      'http://127.0.0.1:5173',
+      'https://chickenmasterps.com',
+      'https://www.chickenmasterps.com'
     ];
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);

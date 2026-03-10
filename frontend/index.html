@@ -8,18 +8,18 @@
   <!-- SEO Metadata -->
   <title>شيكن ماستر | Chicken Master - أفضل وجبات الدجاج المقرمش والبروستد</title>
   <meta name="description"
-    content="مطعم شيكن ماستر يقدم أشهى وجبات البروستد والدجاج المقرمش في طولكرم بجودة عالية وحطب الزيتون الطبيعي. اطلب الآن واستمتع بالمذاق الأصيل.">
+    content="مطعم شيكن ماستر يقدم أفضل وجبات البروستد وأزكى دجاج مقرمش في طولكرم. تذوق الفروج المشوي على حطب الزيتون الطبيعي. جودة عالية ومذاق لا يقاوم.">
   <meta name="keywords"
-    content="شيكن ماستر, طولكرم, مطعم دجاج, بروستد, وجبات سريعة, توصيل دجاج, Chicken Master, دجاج مشوي">
-  <link rel="canonical" href="https://chicken-master.netlify.app/">
+    content="شيكن ماستر, طولكرم, مطعم دجاج, أفضل بروستد في طولكرم, أزكى دجاج, وجبات سريعة, توصيل دجاج طولكرم, Chicken Master, دجاج مشوي على الحطب, فروج, جريل, كيوسك, مطاعم طولكرم, أكل فخم">
+  <link rel="canonical" href="https://chickenmasterps.com/">
 
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://chicken-master.netlify.app/">
+  <meta property="og:url" content="https://chickenmasterps.com/">
   <meta property="og:title" content="شيكن ماستر - المذاق الذي تستحقه | Chicken Master">
   <meta property="og:description"
     content="تصفح قائمة الطعام في شيكن ماستر واطلب وجبتك المفضلة الآن. طعم النار الأصيل والفروج على حطب الزيتون.">
-  <meta property="og:image" content="https://chicken-master.netlify.app/images/logo.png">
+  <meta property="og:image" content="https://chickenmasterps.com/images/logo.png">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,7 +51,7 @@
     "@type": "Restaurant",
     "name": "Chicken Master",
     "alternateName": "شيكن ماستر",
-    "image": "https://chicken-master.netlify.app/images/logo.png",
+    "image": "https://chickenmasterps.com/images/logo.png",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "دوار المسلخ",
@@ -64,7 +64,7 @@
       "latitude": 32.305444,
       "longitude": 35.034139
     },
-    "url": "https://chicken-master.netlify.app/",
+    "url": "https://chickenmasterps.com/",
     "telephone": "+970567811812",
     "servesCuisine": ["Fried Chicken", "Grilled Chicken", "بروستد", "فروج مشوي", "وجبات سريعة"],
     "priceRange": "$$"
@@ -412,6 +412,17 @@
       // ====== REVIEWS SYSTEM ======
       loadReviews();
       checkIfAlreadyReviewed();
+
+      // Check for direct review link
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('openReview') === 'true') {
+        // Use a slight delay to ensure everything is ready
+        setTimeout(() => {
+          if (typeof openReviewModal === 'function') {
+            openReviewModal();
+          }
+        }, 800);
+      }
     });
 
     // ==========================================
