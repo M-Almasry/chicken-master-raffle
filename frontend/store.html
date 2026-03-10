@@ -11,7 +11,8 @@
   <link rel="canonical" href="https://chickenmasterps.com/store.html">
 
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://chickenmasterps.com/store.html">
+  <meta name="keywords"
+    content="منيو شيكن ماستر, مندي, أوزي, رز مدخن, دجاج مدخن, مطعم رخيص, طولكرم, قائمة الطعام, دجاج بروستد, Chicken Master Menu, Mandi, Ouzi, Smoked Rice, Smoked Chicken, Cheap prices, Menu, Best Chicken in Tulkarm, Grilled Chicken, Rotisserie, Olive Wood Chicken, Grill, Kiosk, Master, Delivery, PS, Palestine, مطاعم طولكرم, أكل فخم">
   <meta property="og:title" content="قائمة طعام شيكن ماستر | Chicken Master Menu">
   <meta property="og:description" content="تصفح قائمة طعام شيكن ماستر واطلب وجبتك المفضلة الآن.">
   <meta property="og:image" content="https://chickenmasterps.com/images/logo.png">
@@ -23,8 +24,35 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&family=Cairo:wght@400;600;700&display=swap"
     rel="stylesheet">
 
-  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/logo.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+
   <link rel="stylesheet" href="styles/main-site.css">
+
+  <!-- Schema.org for Menu -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    "name": "Chicken Master",
+    "hasMenu": {
+      "@type": "Menu",
+      "name": "Chicken Master Menu",
+      "mainEntityOfPage": "https://chickenmasterps.com/store.html",
+      "inLanguage": ["ar", "en"],
+      "offers": {
+        "@type": "Offer",
+        "areaServed": {
+          "@type": "City",
+          "name": "Tulkarm"
+        }
+      }
+    }
+  }
+  </script>
 
   <style>
     /* Specific styles for Store Page that aren't in main-site.css */
@@ -587,8 +615,8 @@
     <div class="hero-overlay"
       style="background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.9) 100%);"></div>
     <div class="hero-content">
-      <h1 class="hero-title" data-i18n="storeTitle">القائمة</h1>
-      <p class="hero-subtitle" data-i18n="hero_subtitle">تذوق الفخامة في كل وجبة</p>
+      <h1 class="hero-title">منيو شيكن ماستر</h1>
+      <p class="hero-subtitle">خيارات لا تقاوم لتبحث عن أفضل مطعم في طولكرم وفلسطين</p>
     </div>
   </header>
 
@@ -920,10 +948,11 @@
               const itemName = lang === 'ar' ? item.name_ar : (item.name_en || item.name_ar);
               const itemDesc = lang === 'ar' ? (item.description_ar || '') : (item.description_en || item.description_ar || '');
 
+              const itemImageAlt = lang === 'ar' ? `وجبة ${item.name_ar} من منيو شيكن ماستر طولكرم` : `${item.name_en || item.name_ar} meal from Chicken Master Tulkarm menu`;
               return `
                         <div class="menu-item ${!isAvailable ? 'opacity-50 pointer-events-none' : ''}" data-name="${itemName.toLowerCase()}" data-desc="${itemDesc.toLowerCase()}">
                             <div class="item-image" style="background: ${item.image_url ? '#111' : 'linear-gradient(135deg, #1a1a1a, #2a2a2a)'}">
-                                ${item.image_url ? `<img src="${item.image_url}" alt="${item.name_en}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="text-align:center;"><i data-lucide="utensils" size="48" style="color: rgba(212,160,23,0.3); margin-bottom: 0.5rem;"></i><div style="font-family: 'Playfair Display', serif; color: rgba(255,255,255,0.2); font-size: 1.2rem;">Chicken Master</div></div>`}
+                                ${item.image_url ? `<img src="${item.image_url}" alt="${itemImageAlt}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="text-align:center;"><i data-lucide="utensils" size="48" style="color: rgba(212,160,23,0.3); margin-bottom: 0.5rem;"></i><div style="font-family: 'Playfair Display', serif; color: rgba(255,255,255,0.2); font-size: 1.2rem;">Chicken Master</div></div>`}
                                 ${!isAvailable ? '<div style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.8); color:white; padding:5px 10px; border-radius:4px; font-weight:bold;">نفذت الكمية</div>' : ''}
                                 ${hasDiscount ? '<div style="position:absolute; top:10px; left:10px; background:#e74c3c; color:white; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">عرض خاص</div>' : ''}
                             </div>
