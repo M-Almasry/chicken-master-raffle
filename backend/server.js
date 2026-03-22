@@ -25,6 +25,7 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: function (origin, callback) {
+    const envOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
     const allowedOrigins = [
       'http://localhost:3000',
       'http://127.0.0.1:3000',
@@ -34,8 +35,7 @@ app.use(cors({
       'http://127.0.0.1:58767',
       'http://localhost:5173',
       'http://127.0.0.1:5173',
-      'https://chickenmasterps.com',
-      'https://www.chickenmasterps.com'
+      ...envOrigins
     ];
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
