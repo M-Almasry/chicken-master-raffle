@@ -19,7 +19,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://*"],
-      connectSrc: ["'self'", "http://localhost:3000", "https://*"],
+      connectSrc: ["'self'", "http://localhost:3555", "http://localhost:3000", "https://*"],
     },
   },
 }));
@@ -27,6 +27,8 @@ app.use(cors({
   origin: function (origin, callback) {
     const envOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
     const allowedOrigins = [
+      'http://localhost:8555',
+      'http://127.0.0.1:8555',
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'http://localhost:5500',

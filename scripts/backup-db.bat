@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 chcp 65001 >nul
 
 :: =========================================
-:: CONFIGURATION
+:: CONFIGURATION (DEFAULTS)
 :: =========================================
 set DB_NAME=chickenmaster_db
 set DB_USER=postgres
@@ -11,6 +11,18 @@ set DB_PASS=124578963@@
 
 :: تحديد مسار المشروع تلقائياً
 set "PROJECT_ROOT=%~dp0.."
+
+:: [0.5] تحميل الإعدادات من ملف .env الخاص بالباك إند (إذا وُجد)
+if exist "%PROJECT_ROOT%\backend\.env" (
+    echo [*] Loading database credentials from backend\.env...
+    for /f "usebackq tokens=1,2 delims==" %%a in ("%PROJECT_ROOT%\backend\.env") do (
+        set "key=%%a"
+        set "val=%%b"
+        if "!key!"=="DB_NAME" set "DB_NAME=!val!"
+        if "!key!"=="DB_USER" set "DB_USER=!val!"
+        if "!key!"=="DB_PASSWORD" set "DB_PASS=!val!"
+    )
+)
 set BACKUP_DIR=%PROJECT_ROOT%\Backups
 
 :: [1] توليد تاريخ ثابت ISO لا يخطئ أبداً (yyyyMMdd_HHmm)

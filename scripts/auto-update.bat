@@ -16,10 +16,18 @@ if not exist "logs" mkdir logs
 echo --- Starting Update Check (v3.2) ---
 echo [%date% %time%] --- Starting Update Check (v3.2) --- >> logs\update.log
 
-FOR /F "usebackq" %%i IN (`git rev-parse HEAD`) DO SET OLD_HASH=%%i
+:: [0] تهيئة Git تلقائياً إذا لم يكن موجوداً (يحدث إذا تم تحميل المشروع كـ ZIP)
+if not exist ".git" (
+    echo [*] Git repository not found. Initializing...
+    git init >> logs\update.log 2>&1
+    git branch -M main >> logs\update.log 2>&1
+)
 
-:: [0] ضمان استخدام الرابط الصحيح للمستودع (HTTPS)
-git remote set-url origin https://github.com/M-Almasry/chicken-master-raffle.git >> logs\update.log 2>&1
+SET OLD_HASH=
+FOR /F "usebackq" %%i IN (`git rev-parse HEAD 2^>nul`) DO SET OLD_HASH=%%i
+
+:: [0.5] ضمان إضافة الرابط الصحيح للمستودع
+git remote add origin https://github.com/M-Almasry/chicken-master-raffle.git >> logs\update.log 2>&1 || git remote set-url origin https://github.com/M-Almasry/chicken-master-raffle.git >> logs\update.log 2>&1
 
 :: [1] جلب التحديثات
 echo [*] Checking GitHub for updates...
@@ -33,7 +41,9 @@ if %errorlevel% neq 0 (
 )
 
 :: التحقق من وجود فروقات
+SET LOCAL_HASH=
 FOR /F "usebackq" %%i IN (`git rev-parse HEAD`) DO SET LOCAL_HASH=%%i
+SET REMOTE_HASH=
 FOR /F "usebackq" %%i IN (`git rev-parse origin/main`) DO SET REMOTE_HASH=%%i
 
 IF "%LOCAL_HASH%"=="%REMOTE_HASH%" (
@@ -52,6 +62,8 @@ echo [%date% %time%] UPDATE FOUND! Starting Deployment Process... >> logs\update
 echo [*] Step 1: Backing up database and .env files...
 call scripts\backup-db.bat
 if exist "backend\.env" copy /Y "backend\.env" "logs\backend-env.bak" >nul
+if exist "frontend\.env" copy /Y "frontend\.env" "logs\frontend-env.bak" >nul
+if exist "frontend\.env.local" copy /Y "frontend\.env.local" "logs\frontend-env-local.bak" >nul
 
 :: [3] تحديث الكود بالقوة
 echo [*] Step 2: Syncing code with origin/main...
@@ -61,6 +73,8 @@ git clean -fd >> logs\update.log 2>&1
 :: [4] استرجاع ملفات البيئة المحلية
 echo [*] Step 3: Restoring local .env files...
 if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "backend\.env" >nul
+if exist "logs\frontend-env.bak" copy /Y "logs\frontend-env.bak" "frontend\.env" >nul
+if exist "logs\frontend-env-local.bak" copy /Y "logs\frontend-env-local.bak" "frontend\.env.local" >nul
 
 :: [5] تحديث الباك إند
 echo [*] Step 4: Updating Backend...
@@ -74,6 +88,8 @@ call npm install --production >> ..\logs\update.log 2>&1 && (
     cd ..
     git reset --hard %OLD_HASH% >> logs\update.log 2>&1
     if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "backend\.env" >nul
+    if exist "logs\frontend-env.bak" copy /Y "logs\frontend-env.bak" "frontend\.env" >nul
+    if exist "logs\frontend-env-local.bak" copy /Y "logs\frontend-env-local.bak" "frontend\.env.local" >nul
     pause
     exit /b 1
 )
@@ -91,6 +107,8 @@ call npm install >> ..\logs\update.log 2>&1 && (
     cd ..
     git reset --hard %OLD_HASH% >> logs\update.log 2>&1
     if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "backend\.env" >nul
+    if exist "logs\frontend-env.bak" copy /Y "logs\frontend-env.bak" "frontend\.env" >nul
+    if exist "logs\frontend-env-local.bak" copy /Y "logs\frontend-env-local.bak" "frontend\.env.local" >nul
     pause
     exit /b 1
 )

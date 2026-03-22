@@ -357,7 +357,7 @@ const getBaseURL = () => {
     window.location.hostname.startsWith('10.');
 
   if (isLocal) {
-    return `http://${window.location.hostname}:3000/api`;
+    return `http://${window.location.hostname}:3555/api`;
   }
 
   // 3. Default Production URL (Current Origin)
