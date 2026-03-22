@@ -13,7 +13,7 @@ const dbConfig = process.env.DB_HOST ? {
 
 const pool = new Pool({
   ...dbConfig,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
 pool.on('error', (err) => {
