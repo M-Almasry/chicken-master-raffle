@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -7,7 +8,12 @@ const pool = require('./db/connection');
 
 const app = express();
 app.set('trust proxy', 1); // ✅ Trust Render Proxy to get real User IP
-const PORT = process.env.PORT || 3000;
+console.log('--- Environment Check ---');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT from env:', process.env.PORT);
+const PORT = parseInt(process.env.PORT, 10) || 3000;
+console.log('Final PORT:', PORT);
+console.log('------------------------');
 
 // Middleware
 app.use(helmet({
@@ -96,8 +102,17 @@ app.use('/api/reviews', reviewsRouter);
 
 // Serve static files from frontend
 const path = require('path');
-// Use dist folder if it exists (for production)
 const frontendPath = path.join(__dirname, '../frontend/dist');
+
+// Admin route shortcut
+app.get(['/admin', '/admin/*'], (req, res) => {
+  if (fs.existsSync(path.join(frontendPath, 'admin.html'))) {
+    res.sendFile(path.join(frontendPath, 'admin.html'));
+  } else {
+    res.sendFile(path.join(__dirname, '../frontend/admin.html'));
+  }
+});
+
 app.use(express.static(frontendPath));
 // Fallback for non-dist (development or alternative structure)
 app.use(express.static(path.join(__dirname, '../frontend')));

@@ -6,7 +6,7 @@ const getBaseURL = () => {
 
   // If we are in development mode (Vite dev server usually runs on 5173)
   if (window.location.port === '5173') {
-    return 'http://localhost:3000/api';
+    return 'http://localhost:3555/api';
   }
 
   // Use the current origin for production/tunnel deployments
@@ -43,8 +43,9 @@ api.interceptors.response.use(
       localStorage.removeItem('adminUser');
 
       // Only redirect if we are not already on the login page to avoid infinite loops
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      const isLoginPage = window.location.pathname.includes('/login');
+      if (!isLoginPage) {
+        window.location.href = '/admin/login';
       }
     }
     return Promise.reject(error);
