@@ -18,14 +18,15 @@ echo [%date% %time%] --- Starting Update Check (v3.2) --- >> logs\update.log
 
 FOR /F "usebackq" %%i IN (`git rev-parse HEAD`) DO SET OLD_HASH=%%i
 
-:: [تنبيه تم إزالة سطر HTTPS لأننا نعتمد على SSH الآن]
+:: [0] ضمان استخدام الرابط الصحيح للمستودع (HTTPS)
+git remote set-url origin https://github.com/M-Almasry/chicken-master-raffle.git >> logs\update.log 2>&1
 
 :: [1] جلب التحديثات
 echo [*] Checking GitHub for updates...
 git fetch origin main 2>>logs\update-error.log
 if %errorlevel% neq 0 (
     echo [!] ERROR: Git fetch failed! 
-    echo [!] Please check your internet connection or SSH keys.
+    echo [!] Please check your internet connection.
     echo [%date% %time%] Git fetch failed. >> logs\update.log
     if "%SILENT_MODE%"=="0" pause
     exit /b 1
@@ -51,7 +52,6 @@ echo [%date% %time%] UPDATE FOUND! Starting Deployment Process... >> logs\update
 echo [*] Step 1: Backing up database and .env files...
 call scripts\backup-db.bat
 if exist "backend\.env" copy /Y "backend\.env" "logs\backend-env.bak" >nul
-if exist "frontend\.env" copy /Y "frontend\.env" "logs\frontend-env.bak" >nul
 
 :: [3] تحديث الكود بالقوة
 echo [*] Step 2: Syncing code with origin/main...
@@ -60,8 +60,7 @@ git clean -fd >> logs\update.log 2>&1
 
 :: [4] استرجاع ملفات البيئة المحلية
 echo [*] Step 3: Restoring local .env files...
-if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "Backend\.env" >nul
-if exist "logs\frontend-env.bak" copy /Y "logs\frontend-env.bak" "Frontend\.env" >nul
+if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "backend\.env" >nul
 
 :: [5] تحديث الباك إند
 echo [*] Step 4: Updating Backend...
@@ -74,8 +73,7 @@ call npm install --production >> ..\logs\update.log 2>&1 && (
     echo [!] ERROR: Backend update failed! Rolling back code...
     cd ..
     git reset --hard %OLD_HASH% >> logs\update.log 2>&1
-    if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "Backend\.env" >nul
-    if exist "logs\frontend-env.bak" copy /Y "logs\frontend-env.bak" "Frontend\.env" >nul
+    if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "backend\.env" >nul
     pause
     exit /b 1
 )
@@ -92,8 +90,7 @@ call npm install >> ..\logs\update.log 2>&1 && (
     echo [!] ERROR: Frontend build failed! Rolling back code...
     cd ..
     git reset --hard %OLD_HASH% >> logs\update.log 2>&1
-    if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "Backend\.env" >nul
-    if exist "logs\frontend-env.bak" copy /Y "logs\frontend-env.bak" "Frontend\.env" >nul
+    if exist "logs\backend-env.bak" copy /Y "logs\backend-env.bak" "backend\.env" >nul
     pause
     exit /b 1
 )
@@ -102,8 +99,7 @@ cd ..
 :: [7] إعادة تشغيل PM2
 echo [*] Step 6: Restarting PM2 processes...
 pm2 restart chicken-raffle-backend --update-env >> logs\update.log 2>&1
-pm2 delete chicken-raffle-frontend >> logs\update.log 2>&1
-pm2 start ecosystem.config.js --only chicken-raffle-frontend >> logs\update.log 2>&1
+pm2 restart chicken-raffle-frontend --update-env >> logs\update.log 2>&1 || pm2 start ecosystem.config.js --only chicken-raffle-frontend >> logs\update.log 2>&1
 pm2 save >> logs\update.log 2>&1
 
 echo.

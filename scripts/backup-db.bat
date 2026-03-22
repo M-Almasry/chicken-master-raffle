@@ -5,9 +5,9 @@ chcp 65001 >nul
 :: =========================================
 :: CONFIGURATION
 :: =========================================
-set DB_NAME=chickenmasterdb
+set DB_NAME=chickenmaster_db
 set DB_USER=postgres
-set DB_PASS=SmartMart_Temp_123
+set DB_PASS=124578963@@
 
 :: تحديد مسار المشروع تلقائياً
 set "PROJECT_ROOT=%~dp0.."
@@ -22,16 +22,15 @@ if not exist "%BACKUP_DIR%" mkdir "%BACKUP_DIR%"
 
 echo [%TIMESTAMP%] Starting Professional Backup...
 
-:: [2] البحث عن مسار PostgreSQL تلقائياً
-for /d %%i in ("C:\Program Files\PostgreSQL\*") do set "PG_PATH=%%i\bin"
+:: [2] البحث عن مسار PostgreSQL تلقائياً (بناءً على أعلى نسخة موجودة)
+set "PG_PATH="
+for /d %%v in ("C:\Program Files\PostgreSQL\*") do (
+    if exist "%%v\bin\pg_dump.exe" set "PG_PATH=%%v\bin"
+)
+
 if not defined PG_PATH (
-    :: محاولة البحث في المسار المعروف للنسخة 17 إذا فشل التلقائي
-    if exist "C:\Program Files\PostgreSQL\17\bin\pg_dump.exe" (
-        set "PG_PATH=C:\Program Files\PostgreSQL\17\bin"
-    ) else (
-        echo [ERROR] PostgreSQL not found in C:\Program Files\PostgreSQL\
-        exit /b 1
-    )
+    echo [ERROR] PostgreSQL not found in C:\Program Files\PostgreSQL\
+    exit /b 1
 )
 
 :: [3] تمرير كلمة السر برمجياً
