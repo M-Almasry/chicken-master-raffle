@@ -194,7 +194,7 @@
     // Check raffle status immediately
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const baseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://chicken-master-raffle.onrender.com/api');
+        const baseUrl = window.API_BASE_URL || (window.location.port === '5173' ? 'http://localhost:3000/api' : `${window.location.origin}/api`);
         const response = await fetch(`${baseUrl}/shop/status`);
         const result = await response.json();
 

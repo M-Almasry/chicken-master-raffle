@@ -993,6 +993,37 @@
 
           lucide.createIcons();
 
+          // Deep Link Support: Open item from URL (?itemId=123 or ?item=123)
+          const urlParams = new URLSearchParams(window.location.search);
+          const deepLinkId = urlParams.get('itemId') || urlParams.get('item');
+          if (deepLinkId) {
+            // Find the item in categories data
+            let targetItem = null;
+            categories.forEach(cat => {
+              const found = cat.items.find(i => String(i.id) === String(deepLinkId));
+              if (found) targetItem = found;
+            });
+
+            if (targetItem && targetItem.is_available !== false && window.isShopOpen) {
+              const displayPrice = targetItem.discount_price && parseFloat(targetItem.discount_price) > 0
+                ? targetItem.discount_price : targetItem.price;
+
+              // Small delay to ensure smooth transition
+              setTimeout(() => {
+                window.openItemOptions(
+                  targetItem.id,
+                  targetItem.name_ar,
+                  displayPrice,
+                  targetItem.image_url ? 'image' : 'utensils'
+                );
+
+                // Optional: Scroll to the item
+                const itemEl = document.querySelector(`[onclick*="openItemOptions('${targetItem.id}'"]`);
+                if (itemEl) itemEl.closest('.menu-item').scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 500);
+            }
+          }
+
           // Setup Search Listener
           const searchInput = document.getElementById('menuSearchInput');
           if (searchInput) {

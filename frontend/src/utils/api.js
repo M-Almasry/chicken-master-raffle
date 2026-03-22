@@ -4,21 +4,13 @@ import axios from 'axios';
 const getBaseURL = () => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
 
-  const hostname = window.location.hostname;
-
-  // High-reliability fallbacks for local development
-  if (
-    hostname === 'localhost' ||
-    hostname === '127.0.0.1' ||
-    hostname.startsWith('192.168.') ||
-    hostname.split('.')[0] === '10' ||
-    hostname.endsWith('.local')
-  ) {
+  // If we are in development mode (Vite dev server usually runs on 5173)
+  if (window.location.port === '5173') {
     return 'http://localhost:3000/api';
   }
 
-  // Default production URL (Render)
-  return 'https://chicken-master-raffle.onrender.com/api';
+  // Use the current origin for production/tunnel deployments
+  return `${window.location.origin}/api`;
 };
 
 const api = axios.create({

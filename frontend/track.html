@@ -662,7 +662,7 @@
         loading.style.display = 'block';
         trackBtn.style.display = 'none';
 
-        const baseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://chicken-master-raffle.onrender.com/api');
+        const baseUrl = window.API_BASE_URL || (window.location.port === '5173' ? 'http://localhost:3000/api' : `${window.location.origin}/api`);
 
         try {
           // Normalize search: try ID first, then phone if fails
@@ -735,7 +735,7 @@
         confirmCancelBtn.textContent = 'جاري الإلغاء...';
 
         try {
-          const baseUrl = window.API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://chicken-master-raffle.onrender.com/api');
+          const baseUrl = window.API_BASE_URL || (window.location.port === '5173' ? 'http://localhost:3000/api' : `${window.location.origin}/api`);
 
           const response = await fetch(`${baseUrl}/orders/${orderId}/cancel`, {
             method: 'PUT',

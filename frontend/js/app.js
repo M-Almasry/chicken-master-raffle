@@ -360,8 +360,8 @@ const getBaseURL = () => {
     return `http://${window.location.hostname}:3000/api`;
   }
 
-  // 3. Default Production URL (Render)
-  return 'https://chicken-master-raffle.onrender.com/api';
+  // 3. Default Production URL (Current Origin)
+  return `${window.location.origin}/api`;
 };
 
 window.API_BASE_URL = getBaseURL();

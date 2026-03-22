@@ -46,7 +46,7 @@ app.use(cors({
       origin.startsWith('http://10.') ||
       origin.endsWith('.local');
 
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.netlify.app') || isLocalhost) {
+    if (allowedOrigins.indexOf(origin) !== -1 || isLocalhost) {
       callback(null, true);
     } else {
       console.error('❌ CORS blocked origin:', origin);
@@ -94,6 +94,10 @@ app.use('/api/reviews', reviewsRouter);
 
 // Serve static files from frontend
 const path = require('path');
+// Use dist folder if it exists (for production)
+const frontendPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendPath));
+// Fallback for non-dist (development or alternative structure)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 
