@@ -15,12 +15,11 @@ module.exports = {
     },
     {
       name: 'chicken-raffle-frontend',
-      script: 'serve',
+      cwd: './frontend',
+      script: 'serve.js',
       env: {
-        PM2_SERVE_PATH: './frontend/dist',
-        PM2_SERVE_PORT: 8555,
-        PM2_SERVE_SPA: 'true',
-        PM2_SERVE_HOMEPAGE: '/index.html'
+        NODE_ENV: 'production',
+        PM2_SERVE_PORT: 8555
       },
       max_restarts: 10,
       restart_delay: 5000,
