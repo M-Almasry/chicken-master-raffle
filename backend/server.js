@@ -36,6 +36,8 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:8555',
       'http://127.0.0.1:8555',
+      'http://localhost:3555',
+      'http://127.0.0.1:3555',
       'http://localhost:5173',
       'http://127.0.0.1:5173',
       ...envOrigins

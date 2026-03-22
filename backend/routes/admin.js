@@ -61,16 +61,18 @@ router.post('/login', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
+      console.warn(`[Login] User not found: ${username}`);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
-
+ 
     const user = result.rows[0];
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
-
+ 
     if (!isValidPassword) {
+      console.warn(`[Login] Wrong password for user: ${username}`);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
