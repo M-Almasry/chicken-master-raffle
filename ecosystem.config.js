@@ -4,6 +4,8 @@ module.exports = {
       name: 'chicken-raffle-backend',
       cwd: './backend',
       script: 'server.js',
+      error_file: '../logs/backend-error.log',
+      out_file: '../logs/backend-out.log',
       env: {
         NODE_ENV: 'production',
         PORT: 3555
@@ -16,7 +18,10 @@ module.exports = {
     {
       name: 'chicken-raffle-frontend',
       cwd: './frontend',
-      script: 'serve.js',
+      script: 'node',
+      args: 'serve.js',
+      error_file: '../logs/frontend-error.log',
+      out_file: '../logs/frontend-out.log',
       env: {
         NODE_ENV: 'production',
         PM2_SERVE_PORT: 8555

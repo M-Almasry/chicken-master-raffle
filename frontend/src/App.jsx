@@ -71,6 +71,9 @@ function App() {
             </RoleRoute>
           } />
         </Route>
+        
+        {/* Catch-all for debugging */}
+        <Route path="*" element={<div className="p-10 text-white">404 - No Match for: {window.location.pathname}</div>} />
       </Routes>
     </Router>
   );

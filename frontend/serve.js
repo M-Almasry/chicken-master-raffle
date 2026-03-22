@@ -19,6 +19,9 @@ app.get(['/admin', '/admin/*'], (req, res) => {
 // Static common files
 app.use(express.static(distPath));
 
+// Handle assets nested in /admin/
+app.use('/admin', express.static(distPath));
+
 // Fallback to index.html for unknown routes (optional, or just 404)
 app.get('*', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
