@@ -11,19 +11,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// Admin Route (SPA) rewrite
-app.get(['/admin', '/admin/*'], (req, res) => {
-  res.sendFile(path.join(distPath, 'admin.html'));
-});
-
-// Static common files
+// Static common files (MUST come before rewrites to avoid catching assets)
 app.use(express.static(distPath));
 
-// Handle assets nested in /admin/
+// Admin Route (SPA) rewrite
+app.get(['/admin', '/admin/*'], (req, res) => {
+  const adminHtmlPath = path.join(distPath, 'admin.html');
+  console.log(`[Frontend] Serving Admin SPA: ${req.url} -> admin.html`);
+  res.sendFile(adminHtmlPath);
+});
+
+// Handle assets nested in /admin/ (if any relative paths remain)
 app.use('/admin', express.static(distPath));
 
-// Fallback to index.html for unknown routes (optional, or just 404)
+// Fallback to index.html for unknown routes (Main SPA)
 app.get('*', (req, res) => {
+  console.log(`[Frontend] Fallback to index.html: ${req.url}`);
   res.sendFile(path.join(distPath, 'index.html'));
 });
 

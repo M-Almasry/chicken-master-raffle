@@ -4,12 +4,17 @@ import axios from 'axios';
 const getBaseURL = () => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
 
-  // If we are in development mode (Vite dev server usually runs on 5173)
+  // Development: Vite dev server usually runs on 5173
   if (window.location.port === '5173') {
     return 'http://localhost:3555/api';
   }
 
-  // Use the current origin for production/tunnel deployments
+  // Production: If running on the PM2 port (8555), point to the backend on 3555
+  if (window.location.port === '8555') {
+    return `${window.location.protocol}//${window.location.hostname}:3555/api`;
+  }
+
+  // Use the current origin for other production/tunnel deployments
   return `${window.location.origin}/api`;
 };
 
