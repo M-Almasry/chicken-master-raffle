@@ -95,21 +95,42 @@ app.use('/api/shop', shopRouter);
 app.use('/api/reviews', reviewsRouter);
 
 // Serve static files from frontend
-const path = require('path');
 const frontendPath = path.join(__dirname, '../frontend/dist');
 
-// Admin route shortcut
+// 1. First serve existing static files (assets, etc.)
+app.use(express.static(frontendPath));
+
+// 2. Specific routes for Admin entry point (SPA)
 app.get(['/admin', '/admin/*'], (req, res) => {
-  if (fs.existsSync(path.join(frontendPath, 'admin.html'))) {
-    res.sendFile(path.join(frontendPath, 'admin.html'));
+  const adminFile = path.join(frontendPath, 'admin.html');
+  if (fs.existsSync(adminFile)) {
+    res.sendFile(adminFile);
   } else {
+    // Fallback to source if dist not built (helpful for dev)
     res.sendFile(path.join(__dirname, '../frontend/admin.html'));
   }
 });
 
-app.use(express.static(frontendPath));
-// Fallback for non-dist (development or alternative structure)
-app.use(express.static(path.join(__dirname, '../frontend')));
+// 3. Multi-page entry points (register, store, success, track)
+app.get(['/register', '/store', '/success', '/track'], (req, res) => {
+  const page = req.path.substring(1);
+  const pageFile = path.join(frontendPath, `${page}.html`);
+  if (fs.existsSync(pageFile)) {
+    res.sendFile(pageFile);
+  } else {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  }
+});
+
+// 4. Catch-all fallback for the main SPA (index.html)
+app.get('*', (req, res) => {
+  // Only serve index.html for GET requests that are NOT for the API
+  if (req.method === 'GET' && !req.path.startsWith('/api/')) {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  } else {
+    res.status(404).json({ success: false, message: 'Not Found' });
+  }
+});
 
 
 // Health check endpoint with DB ping

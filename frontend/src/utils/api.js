@@ -5,16 +5,15 @@ const getBaseURL = () => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
 
   // Development: Vite dev server usually runs on 5173
-  if (window.location.port === '5173') {
-    return 'http://localhost:3555/api';
-  }
-
-  // Production: If running on the PM2 port (8555), point to the backend on 3555
-  if (window.location.port === '8555') {
+  // Always point to port 3555 in local development
+  if (window.location.port === '5173' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    // If we are currently on the backend port, just use relative path
+    if (window.location.port === '3555') return '/api';
+    // Otherwise point to backend port explicitly
     return `${window.location.protocol}//${window.location.hostname}:3555/api`;
   }
 
-  // Use the current origin for other production/tunnel deployments
+  // Production: Use current origin
   return `${window.location.origin}/api`;
 };
 

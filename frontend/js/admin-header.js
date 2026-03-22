@@ -1,7 +1,11 @@
 (function () {
   // 1. Determine API URL
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const API_BASE_URL = isLocal ? 'http://localhost:3000/api' : 'https://chicken-master-raffle.onrender.com/api';
+  const currentPort = window.location.port;
+  // If local, check if we need to point to 3555 or just use current origin
+  const API_BASE_URL = isLocal 
+    ? (currentPort === '3555' ? '/api' : `http://${window.location.hostname}:3555/api`)
+    : `${window.location.origin}/api`;
 
   console.log('Admin Config Loaded. API URL:', API_BASE_URL);
 
