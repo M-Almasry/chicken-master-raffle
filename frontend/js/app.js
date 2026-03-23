@@ -379,21 +379,53 @@ translations.en.hero_title = 'Taste <span class="text-gold">the Fire</span><br>C
 translations.en.hero_subtitle = 'GRILL & KIOSK<br>The Art of Olive Wood Grilling.. Authentic Smoky Taste';
 // Global Shop Status
 window.isShopOpen = true; // Default
-async function updateGlobalShopStatus() {
+window.isShopStatusFetching = false;
+
+// Utility Functions (Attached to window)
+window.apiRequest = async function (endpoint, options = {}) {
+  const url = endpoint.startsWith('http') ? endpoint : `${window.API_BASE_URL}${endpoint}`;
   try {
-    const res = await apiRequest('/shop/status');
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    });
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.indexOf('application/json') !== -1) {
+      const data = await response.json();
+      return { ok: response.ok, status: response.status, data };
+    } else {
+      const text = await response.text();
+      if (response.ok && !text) return { ok: true, status: response.status, data: {} };
+      return { ok: false, status: response.status, error: 'Invalid response format' };
+    }
+  } catch (error) {
+    return { ok: false, status: 500, error: error.message };
+  }
+};
+
+async function updateGlobalShopStatus() {
+  if (window.isShopStatusFetching) return;
+  window.isShopStatusFetching = true;
+  try {
+    const res = await window.apiRequest('/shop/status');
     if (res.ok && res.data.success) {
       window.isShopOpen = res.data.is_open;
       window.isShopStatusFetched = true;
-      window.lastShopStatus = res.data; // Store for late listeners
-      // Dispatch event for pages to react
+      window.lastShopStatus = res.data;
       window.dispatchEvent(new CustomEvent('shopStatusUpdated', { detail: res.data }));
     }
   } catch (e) {
     console.warn('Failed to fetch global shop status', e);
+  } finally {
+    window.isShopStatusFetching = false;
   }
 }
+
 updateGlobalShopStatus();
+
 
 // Utility Functions (Attached to window)
 window.showAlert = function (message, type = 'info') {
@@ -416,37 +448,6 @@ window.showAlert = function (message, type = 'info') {
   }, 5000);
 };
 
-window.apiRequest = async function (endpoint, options = {}) {
-  // Use relative path to ensure it works on both dev and production properly via the same origin if possible, 
-  // but we already have API_BASE_URL logic above.
-  const url = endpoint.startsWith('http') ? endpoint : `${window.API_BASE_URL}${endpoint}`;
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    });
-
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.indexOf('application/json') !== -1) {
-      const data = await response.json();
-      return { ok: response.ok, status: response.status, data };
-    } else {
-      const text = await response.text();
-      // Only log if it's not a successful empty response (which shouldn't happen for our JSON API)
-      if (response.ok && !text) return { ok: true, status: response.status, data: {} };
-
-      console.error(`API Error: Expected JSON but got ${contentType} at ${url}. Status: ${response.status}`);
-      return { ok: false, status: response.status, error: 'Invalid response format' };
-    }
-  } catch (error) {
-    console.error(`API Fetch Error at ${url}:`, error);
-    return { ok: false, error: error.message };
-  }
-};
 
 // Phone formatting utility
 window.formatPhone = function (phone) {
@@ -640,9 +641,13 @@ class CartManager {
 
         return `
             <div class="cart-item">
-                <div class="cart-item-img">
-                    <i data-lucide="${item.icon === 'clock-off' ? 'clock' : (item.icon || 'utensils')}" style="width: 24px; height: 24px;"></i>
+                <div class="cart-item-img" style="overflow:hidden;">
+                    ${(item.icon && (item.icon.startsWith('http') || item.icon.startsWith('/') || item.icon.startsWith('images/')))
+            ? `<img src="${item.icon}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" loading="lazy">`
+
+            : `<i data-lucide="${item.icon === 'clock-off' ? 'clock' : (item.icon || 'utensils')}" style="width: 24px; height: 24px;"></i>`}
                 </div>
+
                 <div class="cart-item-info">
                     <div style="display:flex; justify-content:space-between;">
                         <div class="cart-item-title">${item.title}</div>
@@ -791,19 +796,20 @@ const showCheckoutBtn = document.getElementById('showCheckoutBtn');
 const checkoutForm = document.getElementById('checkoutForm');
 
 // Add to Cart Logic (Event Delegation)
-window.openItemOptions = function (id, title, price, icon = 'utensils', _) {
+window.openItemOptions = function (id, title, price, imageUrl = 'utensils', _) {
   const globalAddons = window.globalAddons || [];
 
   // If there are global add-ons, always show the modal 
   if (globalAddons.length > 0) {
-    showOptionsModal(id, title, price, icon, globalAddons);
+    showOptionsModal(id, title, price, imageUrl, globalAddons);
   } else {
     // Fallback if no global addons exist
-    addToCart(id, title, price, icon);
+    addToCart(id, title, price, imageUrl);
   }
 };
 
-function showOptionsModal(id, title, basePrice, icon, options) {
+
+function showOptionsModal(id, title, basePrice, imageUrl, options) {
   // Remove existing modal if any
   const existing = document.getElementById('optionsModal');
   if (existing) existing.remove();
@@ -814,7 +820,7 @@ function showOptionsModal(id, title, basePrice, icon, options) {
 
   const modal = document.createElement('div');
   modal.id = 'optionsModal';
-  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(5px);z-index:3000;display:flex;align-items:center;justify-content:center; padding: 1rem;';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:3000;display:flex;align-items:center;justify-content:center; padding: 1rem;';
 
   const renderOptions = () => {
     return optsWithQty.map((opt, idx) => `
@@ -832,54 +838,74 @@ function showOptionsModal(id, title, basePrice, icon, options) {
       `).join('');
   };
 
+  const isUrl = imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('/') || imageUrl.startsWith('images/'));
+
   modal.innerHTML = `
-          <div style="background:#2a2a2a; padding:1.5rem; border-radius:20px; width:100%; max-width:400px; border:1px solid rgba(212,160,23,0.4); position:relative; box-shadow: 0 25px 80px rgba(0,0,0,0.8); animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+          <div style="background:#2a2a2a; border-radius:30px; width:100%; max-width:440px; border:1px solid rgba(212,160,23,0.4); position:relative; box-shadow: 0 25px 80px rgba(0,0,0,0.8); animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow:hidden;">
               <style>
                 @keyframes modalScaleIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
                 .addon-row:hover { border-color: rgba(212,160,23,0.6); transform: translateY(-2px); background: #3a3a3a; }
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,160,23,0.3); border-radius: 10px; }
               </style>
-              <button onclick="document.getElementById('optionsModal').remove()" style="position:absolute; top:15px; right:15px; color:#fff; background:rgba(255,255,255,0.1); border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; cursor:pointer; transition: all 0.2s; z-index: 10;">&times;</button>
               
-              <div style="display:flex; align-items:center; gap:14px; margin-bottom:1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
-                <div style="width:50px; height:50px; background:linear-gradient(135deg, rgba(212,160,23,0.2), rgba(212,160,23,0.05)); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#d4a017; border: 1px solid rgba(212,160,23,0.3);">
-                   <i data-lucide="${icon}" style="width: 26px; height: 26px;"></i>
-                </div>
-                <div style="flex: 1;">
-                  <h3 style="color:#fff; margin:0 0 2px 0; font-size:1.2rem; font-family:'Cairo',sans-serif; font-weight: 700;">${title}</h3>
-                  <p style="color:#bbb; margin:0; font-size:0.8rem;">${langManager.getCurrentLang() === 'ar' ? 'أضف ما تحب من الإضافات المميزة' : 'Add our premium extras'}</p>
-                </div>
-              </div>
+              <button onclick="document.getElementById('optionsModal').remove()" style="position:absolute; top:15px; right:15px; color:#fff; background:rgba(0,0,0,0.5); border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; cursor:pointer; transition: all 0.2s; z-index: 20; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.2);">&times;</button>
               
-              <div id="optionsList" style="max-height:280px; overflow-y:auto; margin-bottom:1.2rem; padding-right:6px;" class="custom-scrollbar">
-                ${renderOptions()}
-              </div>
-              
-              <div style="background: rgba(0,0,0,0.2); margin: -1.5rem -1.5rem; padding: 1.5rem; border-radius: 0 0 20px 20px; border-top: 1px solid rgba(255,255,255,0.05);">
-                  <!-- Item Quantity Selector -->
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; padding-bottom: 1.2rem; border-bottom: 1px dashed rgba(255,255,255,0.15);">
-                      <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="color:#d4a017; font-weight:bold; font-size:1rem;">${langManager.getCurrentLang() === 'ar' ? 'كمية الوجبة 🍗' : 'Meal Quantity 🍗'}</span>
-                        <span style="color:#999; font-size:0.75rem;">${langManager.getCurrentLang() === 'ar' ? 'عدد الوجبات الكلي' : 'Total meals'}</span>
-                      </div>
-                      <div style="display:flex; align-items:center; gap:12px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
-                          <button onclick="window.updateItemGlobalQty(-1)" style="width:34px; height:34px; border-radius:8px; border:none; background:#333; color:#fff; cursor:pointer; font-size:1.2rem; transition: background 0.2s; display:flex; align-items:center; justify-content:center;">-</button>
-                          <span id="main-item-qty" style="color:#fff; font-size:1.3rem; font-weight:bold; min-width:24px; text-align:center;">1</span>
-                          <button onclick="window.updateItemGlobalQty(1)" style="width:34px; height:34px; border-radius:8px; border:none; background:#d4a017; color:#000; cursor:pointer; font-size:1.2rem; transition: transform 0.1s; display:flex; align-items:center; justify-content:center;">+</button>
-                      </div>
-                  </div>
+              <!-- Image Header -->
+              <div style="width:100%; height:180px; background:#111; position:relative; border-bottom:1px solid rgba(212,160,23,0.2);">
 
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
-                      <span style="color:#ccc; font-size:1rem; font-weight:500;">${langManager.getCurrentLang() === 'ar' ? 'المجموع الكلي:' : 'Total Price:'}</span>
-                      <strong style="color:#fff; font-size:1.6rem; font-family:'Inter', sans-serif;"><span id="optTotal">${basePrice}</span> <span style="font-size:1rem; color:#d4a017;">₪</span></strong>
+                ${isUrl ? `
+                  <img src="${imageUrl}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                ` : `
+                  <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, #1a1a1a, #2a2a2a); color:#d4a017; gap:10px;">
+                    <i data-lucide="${imageUrl || 'utensils'}" style="width: 60px; height: 60px; opacity:0.3;"></i>
+                    <span style="font-family:'Playfair Display', serif; font-size:1.4rem; opacity:0.1; letter-spacing:2px;">CHICKEN MASTER</span>
                   </div>
-                  
-                  <button id="confirmOpts" style="width:100%; background:linear-gradient(135deg, #d4a017, #f39c12); color:#000; border:none; padding:12px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Cairo',sans-serif; transition: all 0.3s; box-shadow: 0 6px 15px rgba(212,160,23,0.3); display: flex; justify-content: center; align-items: center; gap: 8px;">
-                      <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
-                      ${langManager.getCurrentLang() === 'ar' ? 'إضافة إلى السلة' : 'Add to Cart'}
-                  </button>
+                `}
+                <!-- Gradient Overlay on image -->
+                <div style="position:absolute; bottom:0; left:0; width:100%; height:60%; background:linear-gradient(to top, #2a2a2a, transparent);"></div>
+              </div>
+
+              <div style="padding:1.5rem; position:relative; z-index:2; margin-top:-40px;">
+                <div style="background:#2a2a2a; border-radius:20px 20px 0 0; padding-top:10px;">
+                  <h3 style="color:#fff; margin:0; font-size:1.6rem; font-family:'Cairo',sans-serif; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">${title}</h3>
+                  <p style="color:#d4a017; margin:5px 0 0 0; font-size:0.9rem; font-weight:600;">${langManager.getCurrentLang() === 'ar' ? 'اختر الإضافات حسب رغبتك' : 'Customize your meal'}</p>
+                </div>
+              </div>
+              
+              <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
+                <div id="optionsList" style="max-height:160px; overflow-y:auto; margin-bottom:1.2rem; padding-right:8px;" class="custom-scrollbar">
+
+                  ${renderOptions()}
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.2); margin: 0 -1.5rem -1.5rem -1.5rem; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; background:rgba(255,255,255,0.03); padding:10px 15px; border-radius:14px; border:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span style="color:#999; font-size:0.9rem; font-weight:bold; font-family:'Cairo',sans-serif;">${langManager.getCurrentLang() === 'ar' ? 'الكمية:' : 'Qty:'}</span>
+                            <div style="display:flex; align-items:center; gap:10px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 10px;">
+                                <button onclick="window.updateItemGlobalQty(-1)" style="width:32px; height:32px; border-radius:8px; border:none; background:#333; color:#fff; cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center;">-</button>
+                                <span id="main-item-qty" style="color:#fff; font-size:1.2rem; font-weight:bold; min-width:24px; text-align:center;">1</span>
+                                <button onclick="window.updateItemGlobalQty(1)" style="width:32px; height:32px; border-radius:8px; border:none; background:#d4a017; color:#000; cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center;">+</button>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="color:#ccc; font-size:0.85rem; display:block; font-family:'Cairo',sans-serif;">${langManager.getCurrentLang() === 'ar' ? 'المجموع' : 'Total'}</span>
+                            <strong style="color:#fff; font-size:1.6rem; font-family:'Inter', sans-serif;"><span id="optTotal">${basePrice}</span> <span style="font-size:1rem; color:#d4a017;">₪</span></strong>
+                        </div>
+                    </div>
+
+                    
+                    <button id="confirmOpts" style="width:100%; background:linear-gradient(135deg, #d4a017, #f39c12); color:#000; border:none; padding:15px; border-radius:16px; font-weight:bold; font-size:1.2rem; cursor:pointer; font-family:'Cairo',sans-serif; transition: all 0.3s; box-shadow: 0 10px 25px rgba(212,160,23,0.3); display: flex; justify-content: center; align-items: center; gap: 10px;">
+                        <i data-lucide="shopping-bag" style="width: 22px; height: 22px;"></i>
+                        ${langManager.getCurrentLang() === 'ar' ? 'إضافة إلى السلة' : 'Add to Cart'}
+                    </button>
+                </div>
               </div>
           </div>
       `;
+
 
   document.body.appendChild(modal);
   if (window.lucide) lucide.createIcons();
@@ -966,11 +992,12 @@ function showOptionsModal(id, title, basePrice, icon, options) {
         id: uniqueId,
         originalId: id,
         title: title,
-        basePrice: parseFloat(basePrice), // Store base price for future editing
+        basePrice: parseFloat(basePrice),
         price: perItemPrice,
-        icon: icon,
+        icon: imageUrl, // Store imageUrl/icon here
         selectedOptions: selectedOpts
       }, itemQty);
+
 
       modal.remove();
     }, 400); // Wait for success animation
@@ -978,16 +1005,17 @@ function showOptionsModal(id, title, basePrice, icon, options) {
 }
 
 // Expose addToCart globally for fallback or directly adding without modal (if ever needed)
-window.addToCart = function (id, title, price, icon = 'utensils') {
+window.addToCart = function (id, title, price, imageUrl = 'utensils') {
   cartManager.addItem({
     id: id.toString(),
     originalId: id, // Track original ID
     title: title,
     basePrice: parseFloat(price),
     price: parseFloat(price),
-    icon: icon,
+    icon: imageUrl,
     selectedOptions: []
   });
+
 
   // Feedback
   const badge = document.querySelector('.cart-float');
@@ -1014,20 +1042,18 @@ window.editCartItemAddons = function (cartItemId) {
     });
   }
 
-  // Reuse the modal rendering part, but customize the submit action
-  // Instead of calling showOptionsModal directly (which creates a new item), 
-  // we'll build a slightly modified version for editing an existing cart row.
-
   const existingModal = document.getElementById('optionsModal');
   if (existingModal) existingModal.remove();
 
   const optsWithQty = options.map(opt => ({ ...opt, quantity: opt.quantity || 0 }));
   let itemQty = item.quantity;
   const basePrice = item.basePrice || item.price; // Fallback
+  const imageUrl = item.icon || 'utensils';
 
   const modal = document.createElement('div');
+
   modal.id = 'optionsModal';
-  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(5px);z-index:3000;display:flex;align-items:center;justify-content:center; padding: 1rem;';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:3000;display:flex;align-items:center;justify-content:center; padding: 1rem;';
 
   const renderOptions = () => {
     return optsWithQty.map((opt, idx) => `
@@ -1045,53 +1071,73 @@ window.editCartItemAddons = function (cartItemId) {
       `).join('');
   };
 
+  const isUrl = imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('/') || imageUrl.startsWith('images/'));
+
   modal.innerHTML = `
-          <div style="background:#2a2a2a; padding:1.5rem; border-radius:20px; width:100%; max-width:400px; border:1px solid rgba(212,160,23,0.4); position:relative; box-shadow: 0 25px 80px rgba(0,0,0,0.8); animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+          <div style="background:#2a2a2a; border-radius:30px; width:100%; max-width:440px; border:1px solid rgba(212,160,23,0.4); position:relative; box-shadow: 0 25px 80px rgba(0,0,0,0.8); animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow:hidden;">
               <style>
                 @keyframes modalScaleIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
                 .addon-row:hover { border-color: rgba(212,160,23,0.6); transform: translateY(-2px); background: #3a3a3a; }
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,160,23,0.3); border-radius: 10px; }
               </style>
-              <button onclick="document.getElementById('optionsModal').remove()" style="position:absolute; top:15px; right:15px; color:#fff; background:rgba(255,255,255,0.1); border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; cursor:pointer; transition: all 0.2s; z-index: 10;">&times;</button>
               
-              <div style="display:flex; align-items:center; gap:14px; margin-bottom:1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
-                <div style="width:50px; height:50px; background:linear-gradient(135deg, rgba(212,160,23,0.2), rgba(212,160,23,0.05)); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#d4a017; border: 1px solid rgba(212,160,23,0.3);">
-                   <i data-lucide="${item.icon === 'clock-off' ? 'clock' : (item.icon || 'utensils')}" style="width: 26px; height: 26px;"></i>
-                </div>
-                <div style="flex: 1;">
-                  <h3 style="color:#fff; margin:0 0 2px 0; font-size:1.2rem; font-family:'Cairo',sans-serif; font-weight: 700;">${item.title}</h3>
-                  <p style="color:#bbb; margin:0; font-size:0.8rem;">${langManager.getCurrentLang() === 'ar' ? 'تعديل الإضافات المختارة' : 'Edit selected add-ons'}</p>
-                </div>
-              </div>
+              <button onclick="document.getElementById('optionsModal').remove()" style="position:absolute; top:15px; right:15px; color:#fff; background:rgba(0,0,0,0.5); border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; cursor:pointer; transition: all 0.2s; z-index: 20; backdrop-filter:blur(5px); border:1px solid rgba(255,255,255,0.2);">&times;</button>
               
-              <div id="optionsList" style="max-height:280px; overflow-y:auto; margin-bottom:1.2rem; padding-right:6px;" class="custom-scrollbar">
-                ${renderOptions()}
-              </div>
-              
-              <div style="background: rgba(0,0,0,0.2); margin: -1.5rem -1.5rem; padding: 1.5rem; border-radius: 0 0 20px 20px; border-top: 1px solid rgba(255,255,255,0.05);">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; padding-bottom: 1.2rem; border-bottom: 1px dashed rgba(255,255,255,0.15);">
-                      <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="color:#d4a017; font-weight:bold; font-size:1rem;">${langManager.getCurrentLang() === 'ar' ? 'كمية الوجبة 🍗' : 'Meal Quantity 🍗'}</span>
-                        <span style="color:#999; font-size:0.75rem;">${langManager.getCurrentLang() === 'ar' ? 'عدد الوجبات الكلي' : 'Total meals'}</span>
-                      </div>
-                      <div style="display:flex; align-items:center; gap:12px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
-                          <button onclick="window.updateItemGlobalQty(-1)" style="width:34px; height:34px; border-radius:8px; border:none; background:#333; color:#fff; cursor:pointer; font-size:1.2rem; transition: background 0.2s; display:flex; align-items:center; justify-content:center;">-</button>
-                          <span id="main-item-qty" style="color:#fff; font-size:1.3rem; font-weight:bold; min-width:24px; text-align:center;">${itemQty}</span>
-                          <button onclick="window.updateItemGlobalQty(1)" style="width:34px; height:34px; border-radius:8px; border:none; background:#d4a017; color:#000; cursor:pointer; font-size:1.2rem; transition: transform 0.1s; display:flex; align-items:center; justify-content:center;">+</button>
-                      </div>
-                  </div>
+              <!-- Image Header -->
+              <div style="width:100%; height:180px; background:#111; position:relative; border-bottom:1px solid rgba(212,160,23,0.2);">
 
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
-                      <span style="color:#ccc; font-size:1rem; font-weight:500;">${langManager.getCurrentLang() === 'ar' ? 'المجموع الكلي:' : 'Total Price:'}</span>
-                      <strong style="color:#fff; font-size:1.6rem; font-family:'Inter', sans-serif;"><span id="optTotal">${(basePrice * itemQty).toFixed(2)}</span> <span style="font-size:1rem; color:#d4a017;">₪</span></strong>
+                ${isUrl ? `
+                  <img src="${imageUrl}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                ` : `
+                  <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg, #1a1a1a, #2a2a2a); color:#d4a017; gap:10px;">
+                    <i data-lucide="${imageUrl || 'utensils'}" style="width: 60px; height: 60px; opacity:0.3;"></i>
+                    <span style="font-family:'Playfair Display', serif; font-size:1.4rem; opacity:0.1; letter-spacing:2px;">CHICKEN MASTER</span>
                   </div>
-                  
-                  <button id="confirmOpts" style="width:100%; background:linear-gradient(135deg, #d4a017, #f39c12); color:#000; border:none; padding:12px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Cairo',sans-serif; transition: all 0.3s; box-shadow: 0 6px 15px rgba(212,160,23,0.3); display: flex; justify-content: center; align-items: center; gap: 8px;">
-                      <i data-lucide="save" style="width: 18px; height: 18px;"></i>
-                      ${langManager.getCurrentLang() === 'ar' ? 'حفظ التعديلات' : 'Save Changes'}
-                  </button>
+                `}
+                <div style="position:absolute; bottom:0; left:0; width:100%; height:60%; background:linear-gradient(to top, #2a2a2a, transparent);"></div>
+              </div>
+
+              <div style="padding:1.5rem; position:relative; z-index:2; margin-top:-40px;">
+                <div style="background:#2a2a2a; border-radius:20px 20px 0 0; padding-top:10px;">
+                  <h3 style="color:#fff; margin:0; font-size:1.6rem; font-family:'Cairo',sans-serif; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">${item.title}</h3>
+                  <p style="color:#d4a017; margin:5px 0 0 0; font-size:0.9rem; font-weight:600;">${langManager.getCurrentLang() === 'ar' ? 'تعديل الإضافات المختارة' : 'Edit selected add-ons'}</p>
+                </div>
+              </div>
+              
+              <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
+                <div id="optionsList" style="max-height:160px; overflow-y:auto; margin-bottom:1.2rem; padding-right:8px;" class="custom-scrollbar">
+
+                  ${renderOptions()}
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.2); margin: 0 -1.5rem -1.5rem -1.5rem; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; background:rgba(255,255,255,0.03); padding:10px 15px; border-radius:14px; border:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span style="color:#999; font-size:0.9rem; font-weight:bold; font-family:'Cairo',sans-serif;">${langManager.getCurrentLang() === 'ar' ? 'الكمية:' : 'Qty:'}</span>
+                            <div style="display:flex; align-items:center; gap:10px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 10px;">
+                                <button onclick="window.updateItemGlobalQty(-1)" style="width:32px; height:32px; border-radius:8px; border:none; background:#333; color:#fff; cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center;">-</button>
+                                <span id="main-item-qty" style="color:#fff; font-size:1.2rem; font-weight:bold; min-width:24px; text-align:center;">${itemQty}</span>
+                                <button onclick="window.updateItemGlobalQty(1)" style="width:32px; height:32px; border-radius:8px; border:none; background:#d4a017; color:#000; cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center;">+</button>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="color:#ccc; font-size:0.85rem; display:block; font-family:'Cairo',sans-serif;">${langManager.getCurrentLang() === 'ar' ? 'المجموع' : 'Total'}</span>
+                            <strong style="color:#fff; font-size:1.6rem; font-family:'Inter', sans-serif;"><span id="optTotal">${(basePrice * itemQty).toFixed(2)}</span> <span style="font-size:1rem; color:#d4a017;">₪</span></strong>
+                        </div>
+                    </div>
+
+                    
+                    <button id="confirmOpts" style="width:100%; background:linear-gradient(135deg, #d4a017, #f39c12); color:#000; border:none; padding:15px; border-radius:16px; font-weight:bold; font-size:1.2rem; cursor:pointer; font-family:'Cairo',sans-serif; transition: all 0.3s; box-shadow: 0 10px 25px rgba(212,160,23,0.3); display: flex; justify-content: center; align-items: center; gap: 10px;">
+                        <i data-lucide="save" style="width: 22px; height: 22px;"></i>
+                        ${langManager.getCurrentLang() === 'ar' ? 'حفظ التعديلات' : 'Save Changes'}
+                    </button>
+                </div>
               </div>
           </div>
       `;
+
 
   document.body.appendChild(modal);
   if (window.lucide) lucide.createIcons();

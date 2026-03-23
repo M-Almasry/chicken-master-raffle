@@ -220,8 +220,10 @@ h4 {
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  /* background-color: #000;  <- Removing this as it covers negative z-index children */
+  padding-top: 70px; /* Offset for fixed navbar */
 }
+
+
 
 .hero-bg {
   position: absolute;
@@ -229,7 +231,7 @@ h4 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('/images/hero_rotisserie.png') no-repeat center center/cover;
+  background: url('/images/hero.webp') no-repeat center center/cover;
   z-index: -2;
   transform: scale(1.1);
   animation: slowZoom 20s infinite alternate;
@@ -336,7 +338,8 @@ h4 {
 
 .hero-title {
   font-size: clamp(2.5rem, 10vw, 5.5rem);
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+
   line-height: 1.1;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -352,7 +355,8 @@ h4 {
 .hero-subtitle {
   font-size: clamp(1.1rem, 3vw, 1.8rem);
   font-weight: 300;
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
+
   color: #DDD;
   max-width: 700px;
   margin-left: auto;
@@ -368,7 +372,8 @@ h4 {
   border-radius: 50px;
   font-weight: 700;
   font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+
   text-transform: uppercase;
   letter-spacing: 2px;
   backdrop-filter: blur(5px);
@@ -559,7 +564,7 @@ h4 {
 /* Location and Footer Fixes */
 .location {
   padding: 8rem 5%;
-  background: url('/images/interior_vintage.png') no-repeat center center/cover;
+  background: url('/images/interior_vintage.webp') no-repeat center center/cover;
   position: relative;
   text-align: center;
   color: var(--color-text);

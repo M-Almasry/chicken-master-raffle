@@ -13,8 +13,12 @@ const dbConfig = process.env.DB_HOST ? {
 
 const pool = new Pool({
   ...dbConfig,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  max: 10, // Limit max connections
+  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection fails
 });
+
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);

@@ -5,10 +5,14 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
+
 const pool = require('./db/connection');
 
 const app = express();
+app.use(compression()); // Enable Gzip
 app.set('trust proxy', 1); // ✅ Trust Render Proxy to get real User IP
+
 console.log('--- Environment Check ---');
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT from env:', process.env.PORT);
@@ -78,11 +82,12 @@ const limiter = rateLimit({
 });
 
 app.use('/api/', (req, res, next) => {
-  if (req.path === '/shop/status') {
-    return next(); // Bypass rate limiter for status polling
+  if (req.path.startsWith('/shop/')) {
+    return next(); // Bypass rate limiter for shop informational endpoints
   }
   limiter(req, res, next);
 });
+
 
 // Routes
 const registrationsRouter = require('./routes/registrations');
@@ -101,7 +106,12 @@ app.use('/api/reviews', reviewsRouter);
 const frontendPath = path.join(__dirname, '../frontend/dist');
 
 // 1. First serve existing static files (assets, etc.)
-app.use(express.static(frontendPath));
+app.use(express.static(frontendPath, {
+  maxAge: '7d', // Cache for 7 days
+  etag: true,
+  lastModified: true
+}));
+
 
 // 2. Specific routes for Admin entry point (SPA)
 app.get(['/admin', '/admin/*'], (req, res) => {

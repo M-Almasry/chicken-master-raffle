@@ -57,7 +57,7 @@
   <style>
     /* Specific styles for Store Page that aren't in main-site.css */
     .hero-store .hero-bg {
-      background-image: url('images/hero.png');
+      background-image: url('images/hero.webp');
       filter: blur(2px);
       transform: scale(1.1);
       animation: slowZoom 20s infinite alternate;
@@ -92,7 +92,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.95)), url('images/interior_vintage.png');
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.95)), url('images/interior_vintage.webp');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -591,7 +591,7 @@
     }
   </style>
 
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="js/lucide.min.js"></script>
 </head>
 
 <body dir="rtl">
@@ -805,23 +805,29 @@
     });
 
     async function checkShopStatus() {
-      // app.js might have already fetched it
+      // 1. Already fetched?
       if (window.isShopStatusFetched && window.lastShopStatus) {
         renderStatus(window.lastShopStatus);
         return;
-      } else {
-        try {
-          const response = await apiRequest('/shop/status');
-          if (response.ok && response.data.success) {
-            renderStatus(response.data); // Removed the extra .data
-          }
-        } catch (e) {
-          console.error('Error checking status', e);
-          // Fallback: Assume closed for safety if check fails completely.
-          renderStatus({ is_open: false, message: 'نعتذر، حدث خطأ في الاتصال بالخادم والطلب غير متاح.' });
+      }
+      
+      // 2. Currently fetching in app.js? Wait for it
+      if (window.isShopStatusFetching) {
+        return; // The global listener at line 803 will handle it
+      }
+
+      // 3. Not fetched and not fetching? (Shouldn't happen with app.js auto-run, but for safety)
+      try {
+        const response = await apiRequest('/shop/status');
+        if (response.ok && response.data.success) {
+          renderStatus(response.data);
         }
+      } catch (e) {
+        console.error('Error checking status', e);
+        renderStatus({ is_open: false, message: 'نعتذر، حدث خطأ في الاتصال بالخادم والطلب غير متاح.' });
       }
     }
+
 
     function renderStatus(data) {
       const menuSection = document.getElementById('menuSection');
@@ -952,7 +958,8 @@
               return `
                         <div class="menu-item ${!isAvailable ? 'opacity-50 pointer-events-none' : ''}" data-name="${itemName.toLowerCase()}" data-desc="${itemDesc.toLowerCase()}">
                             <div class="item-image" style="background: ${item.image_url ? '#111' : 'linear-gradient(135deg, #1a1a1a, #2a2a2a)'}">
-                                ${item.image_url ? `<img src="${item.image_url}" alt="${itemImageAlt}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="text-align:center;"><i data-lucide="utensils" size="48" style="color: rgba(212,160,23,0.3); margin-bottom: 0.5rem;"></i><div style="font-family: 'Playfair Display', serif; color: rgba(255,255,255,0.2); font-size: 1.2rem;">Chicken Master</div></div>`}
+                                ${item.image_url ? `<img src="${item.image_url}" alt="${itemImageAlt}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">` : `<div style="text-align:center;"><i data-lucide="utensils" size="48" style="color: rgba(212,160,23,0.3); margin-bottom: 0.5rem;"></i><div style="font-family: 'Playfair Display', serif; color: rgba(255,255,255,0.2); font-size: 1.2rem;">Chicken Master</div></div>`}
+
                                 ${!isAvailable ? '<div style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.8); color:white; padding:5px 10px; border-radius:4px; font-weight:bold;">نفذت الكمية</div>' : ''}
                                 ${hasDiscount ? '<div style="position:absolute; top:10px; left:10px; background:#e74c3c; color:white; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">عرض خاص</div>' : ''}
                             </div>
@@ -974,7 +981,7 @@
                                 </div>
                                 
                                 ${isAvailable && window.isShopOpen ? `
-                                <button class="btn-add" onclick="window.openItemOptions('${item.id}', '${item.name_ar}', ${displayPrice}, '${item.image_url ? 'image' : 'utensils'}')">
+                                <button class="btn-add" onclick="window.openItemOptions('${item.id}', '${item.name_ar}', ${displayPrice}, '${item.image_url || 'utensils'}')">
                                     <span data-i18n="addToCart">أضف للسلة</span> <i data-lucide="shopping-bag" size="16"></i>
                                 </button>
                                 ` : `
@@ -1014,7 +1021,7 @@
                   targetItem.id,
                   targetItem.name_ar,
                   displayPrice,
-                  targetItem.image_url ? 'image' : 'utensils'
+                  targetItem.image_url || 'utensils'
                 );
 
                 // Optional: Scroll to the item
