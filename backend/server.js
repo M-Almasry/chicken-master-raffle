@@ -10,7 +10,13 @@ const compression = require('compression');
 const pool = require('./db/connection');
 
 const app = express();
-app.use(compression()); // Enable Gzip
+app.use(compression({
+  filter: (req, res) => {
+    if (res.getHeader('Content-Type') === 'text/event-stream') return false;
+    return compression.filter(req, res);
+  }
+})); // Enable Gzip
+
 app.set('trust proxy', 1); // ✅ Trust Render Proxy to get real User IP
 
 console.log('--- Environment Check ---');
@@ -31,9 +37,11 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://*"],
       connectSrc: ["'self'", "http://localhost:3555", "http://localhost:3000", "https://*"],
+      mediaSrc: ["'self'", "https://assets.mixkit.co"],
     },
   },
 }));
+
 
 app.use(cors({
   origin: function (origin, callback) {

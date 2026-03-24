@@ -50,14 +50,15 @@ const Orders = () => {
     lastSoundTime.current = now;
 
     const urls = {
-      new: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
-      cancel: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3' // Thicker/Deeper sound
+      new: '/audio/new_order.mp3',
+      cancel: '/audio/cancel_order.mp3'
     };
 
     const audio = new Audio(urls[type] || urls.new);
     if (type === 'cancel') audio.volume = 0.8;
     audio.play().catch(e => console.error('Audio play failed:', e));
   };
+
 
   const fetchOrders = async (silent = false) => {
     try {

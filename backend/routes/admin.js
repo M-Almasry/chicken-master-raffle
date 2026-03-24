@@ -490,12 +490,17 @@ router.put('/orders/:id/status', authenticateToken, async (req, res) => {
 router.get('/orders/stream', authenticateToken, (req, res) => {
   // إعدادات SSE
   res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // Prevent Nginx buffering
   res.flushHeaders();
+
+  // Send 2KB of padding to force some proxies (like Nginx/Cloudflare) to start streaming
+  res.write(':' + ' '.repeat(2048) + '\n\n');
 
   // إرسال رسالة تأكيد الاتصال
   res.write(`data: ${JSON.stringify({ type: 'init', message: 'Connected to admin stream' })}\n\n`);
+
 
   // مستمع لتحديثات الطلبات
   const onOrderUpdate = (data) => {
